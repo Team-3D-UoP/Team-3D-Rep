@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Tax Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Minimal styling -->
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; }
+    form { display: grid; gap: 0.75rem; max-width: 320px; }
+    input[type="number"] { padding: 0.5rem; font-size: 1rem; }
+    button { padding: 0.6rem 0.9rem; font-size: 1rem; cursor: pointer; }
+    .result { margin-top: 1rem; font-weight: 600; }
+    .error { margin-top: 1rem; }
+  </style>
+
+  <!-- Axios CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <h1>Tax Calculator</h1>
+
+  <form id="tax-form">
+    <label>
+      Employment income
+      <input type="number" id="input-empl" step="any" required />
+    </label>
+
+    <label>
+      Savings income
+      <input type="number" id="input-savings" step="any" required />
+    </label>
+
+    <button type="button" onclick="calculate()">Preview</button>
+
+  </form>
+
+  <div id="feedbackempl"></div>
+  <div id="feedbacksavings"></div>
+
+   <script>
+    let feedback1 = document.getElementById("feedbackempl");
+    let feedback2= document.getElementById("feedbacksavings");
+
+    function calculate() {
+      const a = document.getElementById('input-empl').value;
+      const b = document.getElementById('input-savings').value;
+      feedback1.textContent = feedback2.textContent = "";
+
+      axios.post("/api/calcTax", {a, b}).then( res => {
+        feedback1.className = feedback2.className = "result";
+
+        window.location.href = "/confirm";
+
+      }).
+      catch (err => displayError(err));
+    }
+
+    function save() {
+      const a = document.getElementById('input-empl').value;
+      const b = document.getElementById('input-savings').value;
+      feedback1.textContent = feedback2.textContent = "";
+      
+      axios.post("/api/saveTax", {a, b}).then( res => {
+        feedback1.className = feedback2.className = "result";
+        feedback1.textContent = "Saved successfully";
+      }).
+      catch (err => displayError(err));
+    }
+
+    function displayError(err) {
+      if (err.response.data.error1) {
+        //feedback1.className = "error";
+        feedback1.textContent = "Please provide your income";
+      }
+      else if (err.response.data.error2) {
+        //feedback1.className = "error";
+        feedback1.textContent = "Please provide positive income";
+      }
+      //else if (err.response.error3) {
+        //feedback2.className = "error";
+        //feedback2.textContent = "No tax is paid on saving interest less than £1000";
+      //}
+      else if (err.response.error4) {
+        feedback1.className = "error";
+        feedback1.textContent = "Both incomes must be numerical";
+      }
+      else if (err.response.error) {
+        feedback.className = "error";
+        feedback.textContent = "Error saving data";
+      }
+    }    
+    
+  </script>
+</body>
+</html>

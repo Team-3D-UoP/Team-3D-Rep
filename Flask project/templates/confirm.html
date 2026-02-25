@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Tax Calculator</title>
+
+
+  <!-- Minimal styling -->
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; }
+    form { display: grid; gap: 0.75rem; max-width: 320px; }
+    input[type="number"] { padding: 0.5rem; font-size: 1rem; }
+    button { padding: 0.6rem 0.9rem; font-size: 1rem; cursor: pointer; }
+    .result { margin-top: 1rem; font-weight: 600; }
+    .error { margin-top: 1rem; }
+  </style>
+
+  <!-- Axios CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+
+<body>
+  <h1>Tax Calculator</h1>
+
+
+  <h2>Incomes inputted</h2>
+
+  Employment: <div id="feedbackempl">{{ session['empl'] }}</div>
+  <br>
+  Interest: <div id="feedbacksavings">{{ session['savings'] }}</div>
+
+
+ <br>
+ <br>
+
+ 
+ <button type="button" onclick="save()">Save</button>
+
+
+<div id="feedbacksaved"></div>
+
+<div id="tax-emp"></div>
+<div id="tax-saving"></div>
+
+<script>
+    let feedback1 = document.getElementById("feedbacksaved");
+    let feedback2 = document.getElementById("tax-emp");
+    let feedback3 = document.getElementById("tax-saving");
+
+    function save() {
+      const a = document.getElementById('feedbackempl').textContent;
+      const b = document.getElementById('feedbacksavings').textContent;
+      feedback1.textContent = "";
+      
+      axios.post("/api/saveTax", {a, b}).then( res => {
+        feedback1.className = "result";
+        feedback1.textContent = `${res.data.message}`;
+
+        feedback2.className = "result";
+        feedback2.textContent = `Tax on income: ${res.data.taxIncome}`;
+
+        feedback3.className = "result";
+        feedback3.textContent = `Tax on savings: ${res.data.taxSavings}`;
+      }).
+      catch (err => displayError(err));
+    }
+
+    function displayError(err) {
+      if (err.response.data.error1) {
+        //feedback1.className = "error";
+        feedback1.textContent = "Please provide your income";
+      }
+      else if (err.response.data.error2) {
+        //feedback1.className = "error";
+        feedback1.textContent = "Please provide positive income";
+      }
+      //else if (err.response.error3) {
+        //feedback2.className = "error";
+        //feedback2.textContent = "No tax is paid on saving interest less than £1000";
+      //}
+      else if (err.response.error4) {
+        feedback1.className = "error";
+        feedback1.textContent = "Both incomes must be numerical";
+      }
+      else if (err.response.error) {
+        feedback.className = "error";
+        feedback.textContent = "Error saving data";
+      }
+    }    
+    
+  </script>
+
+</body>
+</html>
