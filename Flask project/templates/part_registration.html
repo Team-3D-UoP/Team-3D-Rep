@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Part Registration</title>
+</head>
+
+<!--Add header-->
+
+<body>
+    <h1>Part Registration</h1>
+
+    <h2>Upload a part to be shown to others.</h2>
+
+    <section>
+        <h3>Manual Entry:</h2>
+        <p>Enter relevant information about your product.</p>
+        <form> <!--Subject to change depending on DB-->
+            <label>
+                <p>Name: <input id="name"></input></p>
+            </label>
+            <label>
+                <p>Price: £<input id="price" type="number"></input></p>
+            </label>
+            <label>
+                <p>Description: <input id="description"></input></p>
+            </label>
+            <label>
+                <p>Image: <input id="year" type="file"></input></p>
+            </label>
+        </form>
+        <button id="manual_confirm"> <!--Onpressed = validate then add to DB-->
+            Confirm Registration
+        </button>
+    </section>
+</body>
+
+<!--Add footer-->
