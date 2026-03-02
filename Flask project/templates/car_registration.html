@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Car Registration</title>
+</head>
+
+<!--Add header-->
+
+<body>
+    <h1>Car Registration</h1>
+
+    <h2>Link a car to your account</h2>
+
+    <section>
+        <h3>Automatic Entry:</h2>
+        <p>Enter just the license plate to automatically fill out data from our database.</p>
+        <label>
+            <p>
+                License Plate: 
+                <input id="automatic_license_plate"></input>
+                <button id="automatic_confirm"> <!--onPressed = Fill manual entries from DB-->
+                    Fill Out
+                </button>
+            </p>
+        </label>
+    </section>
+
+    <section>
+        <h3>Manual Entry:</h2>
+        <p>Manually enter data to be registered.</p>
+        <form> <!--Subject to change depending on DB-->
+            <label>
+                <p>License Plate: <input id="license_plate"></input></p>
+            </label>
+            <label>
+                <p>Make: <input id="make"></input></p>
+            </label>
+            <label>
+                <p>Model: <input id="model"></input></p>
+            </label>
+            <label>
+                <p>Engine: <input id="engine"></input></p>
+            </label>
+            <label>
+                <p>Year: <input id="year"></input></p>
+            </label>
+            <label>
+                <p>Tyres: <input id="tyres"></input></p>
+            </label>
+        </form>
+        <button id="manual_confirm"> <!--Onpressed = validate fields not empty then add to DB-->
+            Confirm Registration
+        </button>
+    </section>
+</body>
+
+<!--Add footer-->
