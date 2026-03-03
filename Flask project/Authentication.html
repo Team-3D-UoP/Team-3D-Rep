@@ -55,3 +55,29 @@
         appId: "1:538171239877:web:69f49c90fe383873316fac",
         measurementId: "G-J2C6DCV2WD"
     };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.loginWithGoogle = function() {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                console.log("User logged in:", result.user);
+                result.user.getIdToken().then(token => {
+                    fetch("/api/authenticate", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ token: token })
+                    }).then(res => {
+                        if (res.ok) window.location.href = "/dashboard";
+                    });
+                });
+            })
+            .catch((error) => {
+                document.getElementById("error-message").textContent = "Login failed: " + error.message;
+            });
+    };
+</script>
