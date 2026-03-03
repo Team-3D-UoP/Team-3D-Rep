@@ -66,6 +66,10 @@ def save_incomes():
   except (ValueError, TypeError):
     return jsonify({"error": "Error saving"}), 400
 
+@app.route('/car_registration', methods=["GET"])
+def car_registration_screen():
+     print('car_registration')
+     return render_template("car_registration.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
