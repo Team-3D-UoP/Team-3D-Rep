@@ -71,5 +71,10 @@ def car_registration_screen():
      print('car_registration')
      return render_template("car_registration.html")
 
+@app.route('/part_registration', methods=["GET"])
+def part_registration_screen():
+     print('part_registration')
+     return render_template("part_registration.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
