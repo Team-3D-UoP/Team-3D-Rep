@@ -79,7 +79,19 @@
         document.getElementById("tyres").value = data.tyres
     }
 
+    // TODO: Add more error checks depending on the DB
+    function verify_data(data) {
+        for (const item in data) {
+            if (data[item].length == 0) {
+                return "Fields must not be empty"
+            }
+        }
+        return ""
+    }
+
     function save_car_registration() {
+        const errorHandler = document.getElementById("errors");
+
         const data = {
             licence_plate: document.getElementById("licence_plate").value,
             make: document.getElementById("make").value,
@@ -89,7 +101,13 @@
             tyres: document.getElementById("tyres").value
         };
 
-        axios.post("/api/save_car_registration", data);
+        const errors = verify_data(data);
+
+        if (!errors) {
+            axios.post("/api/save_car_registration", data);
+        } else {
+            errorHandler.textContent = errors;
+        }
     }
 </script>
 
