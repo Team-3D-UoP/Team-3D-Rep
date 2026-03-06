@@ -50,10 +50,25 @@
                 <p>Tyres: <input id="tyres"></input></p>
             </label>
         </form>
-        <button id="manual_confirm"> <!--Onpressed = validate fields not empty then add to DB-->
+        <button id="manual_confirm" onclick="save_car_registration()"> <!--Onpressed = validate fields not empty then add to DB-->
             Confirm Registration
         </button>
     </section>
 </body>
+
+<script>
+    function save_car_registration() {
+        const data = {
+            licence_plate: document.getElementById("licence_plate").value,
+            make: document.getElementById("make").value,
+            model: document.getElementById("model").value,
+            engine: document.getElementById("engine").value,
+            year: document.getElementById("year").value,
+            tyres: document.getElementById("tyres").value
+        };
+
+        axios.post("/api/save_car_registration", data);
+    }
+</script>
 
 <!--Add footer-->
