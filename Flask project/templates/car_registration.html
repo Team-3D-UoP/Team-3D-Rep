@@ -20,7 +20,7 @@
             <p>
                 Licence Plate: 
                 <input id="automatic_licence_plate"></input>
-                <button id="automatic_confirm"> <!--onPressed = Fill manual entries from DB-->
+                <button id="automatic_confirm" onclick="find_plate()"> <!--onPressed = Fill manual entries from DB-->
                     Fill Out
                 </button>
             </p>
@@ -57,6 +57,27 @@
 </body>
 
 <script>
+    function find_plate() {
+        const plate = document.getElementById("automatic_licence_plate").value
+
+        // TODO: find real data from DB
+        const data = {
+            licence_plate: plate,
+            make: "Toyota",
+            model: "Corolla",
+            engine: "1.8 Hybrid",
+            year: "2021",
+            tyres: "Michelin CrossClimate 2"
+        }
+
+        document.getElementById("licence_plate").value = data.licence_plate
+        document.getElementById("make").value = data.make
+        document.getElementById("model").value = data.model
+        document.getElementById("engine").value = data.engine
+        document.getElementById("year").value = data.year
+        document.getElementById("tyres").value = data.tyres
+    }
+
     function save_car_registration() {
         const data = {
             licence_plate: document.getElementById("licence_plate").value,
