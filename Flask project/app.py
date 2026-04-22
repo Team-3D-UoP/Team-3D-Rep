@@ -93,5 +93,20 @@ def save_car_registration():
 
     return jsonify({"message": "Car registration recieved"}), 200
 
+@app.route("/api/save_part_registration", methods=["POST"])
+def save_part_registration():
+    data = request.get_json(silent=True) or {}
+
+    # TODO: save to DB here
+    try:
+        print("name:", data["name"])
+        print("price:", data["price"])
+        print("description:", data["description"])
+        print("image:", data["image"])
+    except:
+       pass
+
+    return jsonify({"message": "Part registration recieved"}), 200
+
 if __name__ == "__main__":
     app.run(debug=True)
