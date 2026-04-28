@@ -1121,6 +1121,10 @@
   const chatBtn = document.getElementById('chatBtn');
   const chatModal = document.getElementById('chatModal');
   const chatModalClose = document.getElementById('chatModalClose');
+  const chatInput = document.querySelector('.chat-input');
+  const chatSendBtn = document.querySelector('.chat-send-btn');
+  const chatMessages = document.querySelector('.chat-messages');
+  const chatCounter = document.querySelector('.chat-counter');
 
   chatBtn.addEventListener('click', () => {
     chatModal.classList.add('active');
@@ -1133,6 +1137,52 @@
   chatModal.addEventListener('click', (e) => {
     if (e.target === chatModal) {
       chatModal.classList.remove('active');
+    }
+  });
+
+  function sendMessage() {
+    const messageText = chatInput.value.trim();
+    
+    if (messageText === '') return;
+    
+    // Add user message to chat
+    const userMessage = document.createElement('div');
+    userMessage.className = 'chat-message chat-message-user';
+    userMessage.innerHTML = `
+      <div>${messageText}</div>
+      <div class="chat-message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+    `;
+    chatMessages.appendChild(userMessage);
+    
+    // Clear input
+    chatInput.value = '';
+    
+    // Update message counter
+    const messageCount = chatMessages.children.length;
+    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+    
+    // Auto scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Simulate company response after 2 seconds
+    setTimeout(() => {
+      const companyMessage = document.createElement('div');
+      companyMessage.className = 'chat-message chat-message-company';
+      companyMessage.innerHTML = `
+        <div><strong>3DS Support</strong></div>
+        <div style="margin-top: 0.5rem;">Thank you for your message. A representative will respond shortly.</div>
+        <div class="chat-message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+      `;
+      chatMessages.appendChild(companyMessage);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 2000);
+  }
+
+  chatSendBtn.addEventListener('click', sendMessage);
+  
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
     }
   });
 </script>
