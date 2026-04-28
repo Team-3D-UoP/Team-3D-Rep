@@ -152,3 +152,80 @@
         }
     </style>
 </head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Team 3D</h1>
+            <p>Login to your account</p>
+        </div>
+        
+        <form id="login-form" method="POST">
+            <label for="username">
+                Username
+                <input type="text" id="username" name="username" placeholder="Enter your username" required />
+            </label>
+
+            <label for="password">
+                Password
+                <input type="password" id="password" name="password" placeholder="Enter your password" required />
+            </label>
+
+            <button type="submit">Login</button>
+
+            <div class="divider">or</div>
+
+            <button type="button" class="google-login-btn" onclick="loginWithGoogle()">
+                🔵 Login with Google
+            </button>
+
+            <div id="error-message" class="error" style="display: none;"></div>
+        </form>
+        
+        <div class="signup-link">
+            Don't have an account? <a href="#">Sign up here</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGQVog5DLCAjkG2q54LeMuEdFCt41wd0g",
+            authDomain: "team-3d.firebaseapp.com",
+            projectId: "team-3d",
+            storageBucket: "team-3d.firebasestorage.app",
+            messagingSenderId: "538171239877",
+            appId: "1:538171239877:web:69f49c90fe383873316fac",
+            measurementId: "G-J2C6DCV2WD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.loginWithGoogle = function() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    console.log("User logged in:", result.user);
+                    result.user.getIdToken().then(token => {
+                        fetch("/api/authenticate", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ token: token })
+                        }).then(res => {
+                            if (res.ok) window.location.href = "/dashboard";
+                        });
+                    });
+                })
+                .catch((error) => {
+                    const errorMsg = document.getElementById("error-message");
+                    errorMsg.textContent = "Login failed: " + error.message;
+                    errorMsg.style.display = "block";
+                });
+        };
+    </script>
+</body>
+</html>
