@@ -3,9 +3,18 @@ from data.products import OFFER_PRODUCTS
 from io import BytesIO
 from PIL import Image, ImageDraw
 import base64
+import firebase_admin
+from firebase_admin import credentials, auth
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
+
+# Initialize Firebase Admin SDK
+try:
+    cred = credentials.Certificate('path/to/serviceAccountKey.json')
+    firebase_admin.initialize_app(cred)
+except Exception as e:
+    print(f"Firebase initialization error: {e}")
 
 @app.route("/", methods=['GET'])
 def home():
@@ -94,6 +103,51 @@ def login():
 def register():
     print('register')
     return render_template("register_screen.html")
+
+@app.route("/api/authenticate", methods=['POST'])
+def authenticate():
+    """Verify Firebase token and create session"""
+    try:
+        data = request.get_json()
+        token = data.get('token')
+        
+        if not token:
+            return jsonify({"error": "No token provided"}), 400
+        
+        # Verify the Firebase token
+        decoded_token = auth.verify_id_token(token)
+        uid = decoded_token['uid']
+        email = decoded_token.get('email', '')
+        name = decoded_token.get('name', '')
+        
+        # Store in session
+        session['user_id'] = uid
+        session['email'] = email
+        session['name'] = name
+        session['authenticated'] = True
+        
+        print(f"User authenticated: {email}")
+        return jsonify({"success": True, "message": "Authenticated"}), 200
+        
+    except Exception as e:
+        print(f"Authentication error: {e}")
+        return jsonify({"error": str(e)}), 401
+
+@app.route("/dashboard", methods=['GET'])
+def dashboard():
+    """User dashboard page"""
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+    
+    return render_template("account.html", 
+                         user_name=session.get('name'),
+                         user_email=session.get('email'))
+
+@app.route("/logout", methods=['GET'])
+def logout():
+    """Log out user"""
+    session.clear()
+    return redirect(url_for('home'))
 
 if __name__ == "__main__":
     app.run(debug=True)
