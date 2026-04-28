@@ -1,0 +1,29 @@
+<section id="commonHeader">
+    <p>
+        <h1 style="display:inline;">Team 3D</h1>
+        <input id="headerSearch"></input>
+        <button>Search</button>
+        <button id="burgerButton" type="button" onclick="hideBurger()">▶</button>
+    </p>
+    <section id="burgerMenu">
+        <section>
+            <p>Jump to another page</p>
+        </section>
+            <p><a href="{{ url_for('car_registration_screen') }}">Car Registration</a></p>
+            <p><a href="{{ url_for('part_registration_screen') }}">Part Registration</a></p>
+            <!--Add more later-->
+    </section>
+</section>
+
+<script>
+    let burgerMenu = document.getElementById("burgerMenu");
+    let burgerButton = document.getElementById("burgerButton");
+
+    burgerMenu.hidden = true
+    burgerButton.textContent = "▶"
+
+    function hideBurger() {
+        burgerMenu.hidden = !burgerMenu.hidden
+        burgerButton.textContent = burgerMenu.hidden ? "▶" : "▼"
+    }
+</script>
