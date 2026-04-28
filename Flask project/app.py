@@ -7,55 +7,10 @@ import base64
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
 
-def get_footer_data():
-    return {
-        "footer_columns": [
-            {"title": "How to Shop", "links": [
-                {"label": "Easy Ways to Shop", "url": "#"},
-                {"label": "Our App", "url": "#"},
-                {"label": "Car Parts Online", "url": "#"},
-                {"label": "Store Locator", "url": "#"},
-                {"label": "Brands", "url": "#"},
-                {"label": "Safe Shopping", "url": "#"},
-                {"label": "Great Value, Always", "url": "#"}
-            ]},
-            {"title": "Customer Services", "links": [
-                {"label": "My Account", "url": "#"},
-                {"label": "Track Your Order", "url": "#"},
-                {"label": "Delivery Information", "url": "#"},
-                {"label": "Returns & Refunds", "url": "#"},
-                {"label": "Warranty", "url": "#"},
-                {"label": "Help Centre", "url": "#"},
-                {"label": "Product Recall", "url": "#"},
-                {"label": "Contact Us", "url": "#"}
-            ]},
-            {"title": "Legal Notices", "links": [
-                {"label": "Privacy Notice", "url": "#"},
-                {"label": "Security Policy", "url": "#"},
-                {"label": "Cookie Policy", "url": "#"},
-                {"label": "Terms & Conditions", "url": "#"}
-            ]},
-            {"title": "About Us", "links": [
-                {"label": "Corporate Web Site", "url": "#"},
-                {"label": "CSR", "url": "#"},
-                {"label": "Careers", "url": "#"},
-                {"label": "Newsletter Sign up", "url": "#"}
-            ]},
-            {"title": "Feedback", "links": [
-                {"label": "Send Feedback", "url": "#"}
-            ]}
-        ],
-        "payment_icons": ["💳 Visa", "💳 Mastercard", "💳 Amex", "💳 PayPal"],
-        "security_icons": ["🔒 SSL", "🛡️ Fraud protection", "✅ Verified"],
-        "paypal_text": "REPRESENTATIVE EXAMPLE: PURCHASE RATE 23.9% P.A. (VARIABLE)",
-        "footer_bottom_text": "LKQ Group (UK) Limited T/A LKQ Euro Car Parts - terms, privacy and regulatory information."
-    }
-
 @app.route("/", methods=['GET'])
 def home():
     print('home')
-    footer_ctx = get_footer_data()
-    return render_template("main_homepage.html", offer_products=OFFER_PRODUCTS, **footer_ctx)
+    return render_template("main_homepage.html", offer_products=OFFER_PRODUCTS)
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
@@ -83,8 +38,7 @@ def calcTax():
 @app.route('/confirm', methods=["GET"])
 def confirm_page():
      print('confirm')
-     footer_ctx = get_footer_data()
-     return render_template("confirm.html", **footer_ctx)
+     return render_template("confirm.html")
 
   
 @app.route("/api/saveTax", methods=["POST"])
