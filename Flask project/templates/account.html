@@ -113,6 +113,49 @@
         .btn-secondary:hover {
             background-color: #e0e0e0;
         }
+        
+        .details-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        
+        .details-section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            color: #333;
+            font-size: 15px;
+        }
+        
+        .edit-section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -122,27 +165,60 @@
             <p>Manage your account information</p>
         </div>
         
-        <form>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username">
+        <!-- User Details Section -->
+        <div class="details-section">
+            <h2>Your Details</h2>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Username:</span>
+                    <span class="detail-value" id="display-username">{{ username }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value" id="display-email">{{ email }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Member Since:</span>
+                    <span class="detail-value" id="display-joined">{{ joined_date }}</span>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email">
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password">
-            </div>
-            
-            <div class="button-group">
-                <button type="submit" class="btn-primary">Save Changes</button>
-                <button type="reset" class="btn-secondary">Cancel</button>
-            </div>
-        </form>
+        </div>
+        
+        <!-- Edit Account Section -->
+        <div class="edit-section">
+            <h2>Edit Account</h2>
+            <form method="POST" action="/update-account">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" value="{{ username }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" value="{{ email }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="full-name">Full Name</label>
+                    <input type="text" id="full-name" name="full_name" placeholder="Enter your full name" value="{{ full_name }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">New Password (leave blank to keep current)</label>
+                    <input type="password" id="password" name="password" placeholder="Enter new password">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm new password">
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                    <button type="reset" class="btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 </html>
