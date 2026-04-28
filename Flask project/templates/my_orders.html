@@ -73,7 +73,7 @@
             text-decoration: none;
             color: #333;
             transition: all 0.3s;
-            border: 1px solid transparent;
+            border: 2px solid transparent;
         }
         
         .nav-item:hover {
@@ -270,22 +270,22 @@
         <!-- Sidebar Navigation -->
         <div class="sidebar">
             <div class="sidebar-card">
-                <div class="nav-item">
+                <a href="/account" class="nav-item">
                     <span class="icon">📊</span>
-                    <span><a href="/account" style="text-decoration: none; color: inherit;">Account Overview</a></span>
-                </div>
-                <div class="nav-item active">
+                    <span>Account Overview</span>
+                </a>
+                <a href="/my-orders" class="nav-item active">
                     <span class="icon">🛍️</span>
                     <span>My Orders</span>
-                </div>
-                <div class="nav-item">
+                </a>
+                <a href="/account" class="nav-item">
                     <span class="icon">👤</span>
-                    <span><a href="/account#details-form" style="text-decoration: none; color: inherit;">Personal Details</a></span>
-                </div>
-                <div class="nav-item">
+                    <span>Personal Details</span>
+                </a>
+                <a href="/wishlist" class="nav-item">
                     <span class="icon">❤️</span>
-                    <span><a href="/wishlist" style="text-decoration: none; color: inherit;">My Wish List</a></span>
-                </div>
+                    <span>My Wish List</span>
+                </a>
             </div>
         </div>
         
