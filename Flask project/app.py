@@ -190,16 +190,23 @@ def my_orders():
         return redirect(url_for('login'))
     
     # Sample data - replace with actual database queries
-    delivery_orders = [
-        # {"order_number": "12345", "order_date": "15 Dec 2023", "total": "89.99", "status": "Processing"},
-    ]
-    collection_orders = [
-        # {"order_number": "12346", "order_date": "10 Dec 2023", "total": "45.50", "status": "Delivered"},
-    ]
+    delivery_orders = []
+    collection_orders = []
     
     return render_template("my_orders.html",
                          delivery_orders=delivery_orders,
                          collection_orders=collection_orders)
+
+@app.route("/personal-details", methods=['GET'])
+def personal_details():
+    """Personal Details page"""
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+    
+    return render_template("personal_details.html",
+                         username=session.get('name'),
+                         email=session.get('email'),
+                         full_name=session.get('name'))
 
 @app.route("/dashboard", methods=['GET'])
 def dashboard():
