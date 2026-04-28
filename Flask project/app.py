@@ -1,5 +1,6 @@
 import os
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from flask_cors import CORS
 from data.products import OFFER_PRODUCTS
 from io import BytesIO
 from PIL import Image, ImageDraw
@@ -13,6 +14,9 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key')
+
+# Enable CORS for all routes
+CORS(app)
 
 # Initialize Firebase Admin SDK
 try:
