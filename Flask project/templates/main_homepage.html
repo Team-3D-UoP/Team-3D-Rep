@@ -622,7 +622,7 @@
 
   .chat-button {
     position: fixed;
-    bottom: 5rem;
+    bottom: 2rem;
     right: 2rem;
     width: 60px;
     height: 60px;
@@ -647,7 +647,7 @@
 
   @media (max-width: 768px) {
     .chat-button {
-      bottom: 4.5rem;
+      bottom: 1.5rem;
       right: 1.5rem;
       width: 50px;
       height: 50px;
@@ -658,10 +658,11 @@
   .chat-modal {
     display: none;
     position: fixed;
-    bottom: 5rem;
+    bottom: 5.5rem;
     right: 2rem;
     width: 400px;
-    height: 600px;
+    height: 80vh;
+    max-height: 700px;
     background-color: #1a1a1a;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
@@ -714,7 +715,8 @@
       bottom: 4.5rem;
       right: 1rem;
       width: 320px;
-      height: 500px;
+      height: 75vh;
+      max-height: 600px;
     }
   }
 </style>
