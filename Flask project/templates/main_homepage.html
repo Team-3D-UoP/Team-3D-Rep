@@ -23,9 +23,41 @@
       padding: 1.5rem;
     }
   }
+  
+  .heading-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+  }
+  
+  .checkmark {
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .car-model {
+    font-weight: bold;
+  }
+  
+  .change-link {
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-left: auto;
+  }
+  
+  .change-link:hover {
+    text-decoration: underline;
+  }
 </style>
 
 <div class="content-card">
-  <!-- Your content goes here -->
+  <div class="heading-row">
+    <span>Popular parts for your <span class="checkmark">✓</span> <span class="car-model">Peugeot 2008 2018</span></span>
+    <a href="#" class="change-link">Change</a>
+  </div>
 </div>
 {% endblock %}
