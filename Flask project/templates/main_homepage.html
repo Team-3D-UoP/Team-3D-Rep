@@ -650,6 +650,19 @@
             <div class="review-rating">★★★★★</div>
             <div class="review-text">Best prices I've found online for car parts. Fast shipping and items arrived in perfect condition.</div>
           </div>
+          <div class="review-card">
+            <div class="review-header">
+              <span class="review-name">David Chen</span>
+              <span class="review-time">2 weeks ago</span>
+            </div>
+            <span class="review-badge">✓ Verified Customer</span>
+            <div class="review-rating">★★★★★</div>
+            <div class="review-text">Fantastic selection and competitive pricing. Will definitely order again. Highly recommended!</div>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <span class="review-name">Lisa Anderson</span>
+              <span class="review-time">2 weeks ago</span>
         </div>
       </div>
       
@@ -662,10 +675,16 @@
   let currentReviewIndex = 0;
   const reviewCards = document.querySelectorAll('.review-card');
   const totalReviews = reviewCards.length;
-  const reviewsPerPage = 4;
   let autoRotateInterval;
   
+  function getReviewsPerPage() {
+    if (window.innerWidth >= 1200) return 4;
+    if (window.innerWidth >= 768) return 2;
+    return 1;
+  }
+  
   function showReviews() {
+    const reviewsPerPage = getReviewsPerPage();
     reviewCards.forEach((card, index) => {
       card.style.display = 'none';
     });
@@ -676,6 +695,7 @@
   }
   
   function nextReview() {
+    const reviewsPerPage = getReviewsPerPage();
     currentReviewIndex = (currentReviewIndex + 1) % totalReviews;
     showReviews();
   }
@@ -702,6 +722,10 @@
   document.querySelector('.review-arrow-next').addEventListener('click', () => {
     nextReview();
     resetAutoRotate();
+  });
+  
+  window.addEventListener('resize', () => {
+    showReviews();
   });
   
   showReviews();
