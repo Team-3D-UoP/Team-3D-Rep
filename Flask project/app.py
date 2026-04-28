@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from data.products import OFFER_PRODUCTS
 from io import BytesIO
 from PIL import Image, ImageDraw
 import base64
@@ -54,7 +55,7 @@ def get_footer_data():
 def home():
     print('home')
     footer_ctx = get_footer_data()
-    return render_template("main_homepage.html", **footer_ctx)
+    return render_template("main_homepage.html", offer_products=OFFER_PRODUCTS, **footer_ctx)
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
