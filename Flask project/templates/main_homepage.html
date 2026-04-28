@@ -27,9 +27,11 @@
   .heading-row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: space-between;
+    gap: 1rem;
     margin-bottom: 1.5rem;
     font-size: 1.1rem;
+    flex-wrap: wrap;
   }
   
   .checkmark {
@@ -52,12 +54,39 @@
   .change-link:hover {
     text-decoration: underline;
   }
+  
+  .view-all-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  
+  .view-all-btn:hover {
+    background-color: #002d5a;
+  }
+  
+  @media (max-width: 768px) {
+    .heading-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .view-all-btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
 </style>
 
 <div class="content-card">
   <div class="heading-row">
-    <span>Popular parts for your <span class="checkmark">✓</span> <span class="car-model">Peugeot 2008 2018</span></span>
-    <a href="#" class="change-link">Change</a>
+    <span>Popular parts for your <span class="checkmark">✓</span> <span class="car-model">Peugeot 2008 2018</span> <a href="#" class="change-link">Change</a></span>
+    <button class="view-all-btn">View All Parts</button>
   </div>
 </div>
 {% endblock %}
