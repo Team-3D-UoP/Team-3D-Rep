@@ -619,6 +619,41 @@
       width: 100%;
     }
   }
+
+  .chat-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    z-index: 999;
+  }
+
+  .chat-button:hover {
+    background-color: #002d5a;
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 768px) {
+    .chat-button {
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 50px;
+      height: 50px;
+      font-size: 1.2rem;
+    }
+  }
 </style>
 
 <div class="page-header">
@@ -802,6 +837,8 @@
     </div>
   </div>
 </div>
+
+<button class="chat-button" id="chatBtn" title="Chat with us">💬</button>
 
 <script>
   // Search filter functionality
