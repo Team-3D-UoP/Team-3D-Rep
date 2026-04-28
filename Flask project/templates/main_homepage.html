@@ -3,4 +3,29 @@
 {% block title %}Home - Team 3D{% endblock %}
 
 {% block content %}
+<style>
+  body {
+    background-color: #f0f0f0;
+  }
+  
+  .content-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    .content-card {
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<div class="content-card">
+  <!-- Your content goes here -->
+</div>
 {% endblock %}
