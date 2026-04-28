@@ -85,5 +85,10 @@ def placeholder_image(part_name):
     
     return f"data:image/png;base64,{img_base64}"
 
+@app.route("/login", methods=['GET'])
+def login():
+    print('login')
+    return render_template("login.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
