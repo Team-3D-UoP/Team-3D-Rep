@@ -131,11 +131,11 @@ def authenticate():
         session['authenticated'] = True
         
         print(f"User authenticated: {email}")
-        return jsonify({"success": True, "message": "Authenticated"}), 200
+        return jsonify({"success": True, "redirect": "/dashboard"}), 200
         
     except Exception as e:
         print(f"Authentication error: {e}")
-        return jsonify({"error": str(e)}), 401
+        return jsonify({"error": str(e), "details": "Check Firebase domain authorization"}), 401
 
 @app.route("/dashboard", methods=['GET'])
 def dashboard():
