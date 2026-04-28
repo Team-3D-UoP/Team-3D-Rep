@@ -276,7 +276,45 @@
     font-weight: bold;
     margin-bottom: 0.75rem;
   }
-
+  
+  .offer-pricing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .offer-old-price {
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: line-through;
+  }
+  
+  .offer-discount {
+    font-size: 0.75rem;
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .offer-current-price {
+    font-size: 1rem;
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .offer-shop-link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .offer-shop-link:hover {
+    color: #0056b3;
+  }
+  
   @media (max-width: 1024px) {
     .offers-grid {
       grid-template-columns: repeat(2, 1fr);
