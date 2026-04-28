@@ -233,10 +233,33 @@
     transition: box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
+    position: relative;
   }
   
   .offer-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  
+  .offer-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background-color: #dc3545;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    z-index: 1;
+  }
+  
+  .offer-heart {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 1;
   }
   
   .offer-image {
@@ -244,37 +267,16 @@
     height: 120px;
     object-fit: contain;
     margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
   }
   
   .offer-name {
     font-size: 0.9rem;
     color: #003d7a;
     font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
-  
-  .offer-price {
-    font-size: 1rem;
-    color: #28a745;
-    font-weight: bold;
     margin-bottom: 0.75rem;
   }
-  
-  .offer-btn {
-    background-color: #003d7a;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background-color 0.3s ease;
-  }
-  
-  .offer-btn:hover {
-    background-color: #002d5a;
-  }
-  
+
   @media (max-width: 1024px) {
     .offers-grid {
       grid-template-columns: repeat(2, 1fr);
@@ -346,94 +348,184 @@
     
     <div class="offers-grid">
       <div class="offer-card">
+        <span class="offer-badge">-20%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-1.png') }}" alt="Product 1" class="offer-image">
         <div class="offer-name">Premium Battery</div>
-        <div class="offer-price">£45.99</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£57.99</span>
+          <span class="offer-discount">-20%</span>
+          <span class="offer-current-price">£45.99</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-25%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-2.png') }}" alt="Product 2" class="offer-image">
         <div class="offer-name">Brake Pad Set</div>
-        <div class="offer-price">£32.50</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£32.50</span>
+          <span class="offer-discount">-25%</span>
+          <span class="offer-current-price">£24.37</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-15%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-3.png') }}" alt="Product 3" class="offer-image">
         <div class="offer-name">Oil Filter Pro</div>
-        <div class="offer-price">£18.99</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£18.99</span>
+          <span class="offer-discount">-15%</span>
+          <span class="offer-current-price">£16.14</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-30%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-4.png') }}" alt="Product 4" class="offer-image">
         <div class="offer-name">LED Headlight</div>
-        <div class="offer-price">£62.00</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£62.00</span>
+          <span class="offer-discount">-30%</span>
+          <span class="offer-current-price">£43.40</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-20%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-5.png') }}" alt="Product 5" class="offer-image">
         <div class="offer-name">Engine Oil 5L</div>
-        <div class="offer-price">£28.75</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£28.75</span>
+          <span class="offer-discount">-20%</span>
+          <span class="offer-current-price">£23.00</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-25%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-6.png') }}" alt="Product 6" class="offer-image">
         <div class="offer-name">Air Filter Pack</div>
-        <div class="offer-price">£22.50</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£22.50</span>
+          <span class="offer-discount">-25%</span>
+          <span class="offer-current-price">£16.87</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-15%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-7.png') }}" alt="Product 7" class="offer-image">
         <div class="offer-name">Wiper Blades</div>
-        <div class="offer-price">£15.99</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£15.99</span>
+          <span class="offer-discount">-15%</span>
+          <span class="offer-current-price">£13.59</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-20%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-8.png') }}" alt="Product 8" class="offer-image">
         <div class="offer-name">Spark Plugs</div>
-        <div class="offer-price">£12.00</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£12.00</span>
+          <span class="offer-discount">-20%</span>
+          <span class="offer-current-price">£9.60</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-25%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-9.png') }}" alt="Product 9" class="offer-image">
         <div class="offer-name">Cabin Air Filter</div>
-        <div class="offer-price">£19.50</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£19.50</span>
+          <span class="offer-discount">-25%</span>
+          <span class="offer-current-price">£14.62</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-30%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-10.png') }}" alt="Product 10" class="offer-image">
         <div class="offer-name">Radiator Coolant</div>
-        <div class="offer-price">£24.99</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£24.99</span>
+          <span class="offer-discount">-30%</span>
+          <span class="offer-current-price">£17.49</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-20%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-11.png') }}" alt="Product 11" class="offer-image">
         <div class="offer-name">Brake Fluid</div>
-        <div class="offer-price">£16.75</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£16.75</span>
+          <span class="offer-discount">-20%</span>
+          <span class="offer-current-price">£13.40</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-25%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-12.png') }}" alt="Product 12" class="offer-image">
         <div class="offer-name">Battery Charger</div>
-        <div class="offer-price">£55.00</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£55.00</span>
+          <span class="offer-discount">-25%</span>
+          <span class="offer-current-price">£41.25</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-30%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-13.png') }}" alt="Product 13" class="offer-image">
         <div class="offer-name">Transmission Fluid</div>
-        <div class="offer-price">£31.50</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£31.50</span>
+          <span class="offer-discount">-30%</span>
+          <span class="offer-current-price">£22.05</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-20%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-14.png') }}" alt="Product 14" class="offer-image">
         <div class="offer-name">Wheel Cleaner</div>
-        <div class="offer-price">£11.99</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£11.99</span>
+          <span class="offer-discount">-20%</span>
+          <span class="offer-current-price">£9.59</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
       <div class="offer-card">
+        <span class="offer-badge">-25%</span>
+        <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/product-15.png') }}" alt="Product 15" class="offer-image">
         <div class="offer-name">Tire Sealant</div>
-        <div class="offer-price">£14.50</div>
-        <button class="offer-btn">Add to Cart</button>
+        <div class="offer-pricing">
+          <span class="offer-old-price">£14.50</span>
+          <span class="offer-discount">-25%</span>
+          <span class="offer-current-price">£10.87</span>
+        </div>
+        <a href="#" class="offer-shop-link">Shop now →</a>
       </div>
     </div>
   </div>
