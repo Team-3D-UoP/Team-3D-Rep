@@ -206,7 +206,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAGQVog5DLCAjkG2q54LeMuEdFCt41wd0g",
@@ -220,6 +220,52 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+
+        // Handle form submission
+        document.getElementById("register-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const fullname = document.getElementById("fullname").value;
+            const email = document.getElementById("email").value;
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirm-password").value;
+            const errorMsg = document.getElementById("error-message");
+            
+            if (password !== confirmPassword) {
+                errorMsg.textContent = "Passwords do not match";
+                errorMsg.style.display = "block";
+                return;
+            }
+            
+            try {
+                // Create user in Firebase
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                console.log("User registered:", userCredential.user);
+                
+                // Get ID token and authenticate with backend
+                const token = await userCredential.user.getIdToken();
+                const response = await fetch("/api/authenticate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+                
+                if (response.ok) {
+                    window.location.href = "/account";
+                } else {
+                    const data = await response.json();
+                    errorMsg.textContent = data.error || "Authentication failed";
+                    errorMsg.style.display = "block";
+                }
+            } catch (error) {
+                console.error("Registration error:", error);
+                errorMsg.textContent = "Registration failed: " + error.message;
+                errorMsg.style.display = "block";
+            }
+        });
 
         window.signupWithGoogle = function() {
             const provider = new GoogleAuthProvider();
