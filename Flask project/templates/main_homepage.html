@@ -81,12 +81,45 @@
       text-align: center;
     }
   }
+  
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .product-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
 </style>
 
 <div class="content-card">
   <div class="heading-row">
     <span>Popular parts for your <span class="checkmark">✓</span> <span class="car-model">Peugeot 2008 2018</span> <a href="#" class="change-link">Change</a></span>
     <button class="view-all-btn">View All Parts</button>
+  </div>
+  
+  <div class="products-grid">
+    <div class="product-card">Product 1</div>
+    <div class="product-card">Product 2</div>
+    <div class="product-card">Product 3</div>
+    <div class="product-card">Product 4</div>
   </div>
 </div>
 {% endblock %}
