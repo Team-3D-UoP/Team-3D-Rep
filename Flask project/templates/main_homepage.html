@@ -199,6 +199,22 @@
       height: 100px;
     }
   }
+  
+  .offers-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .offers-heading {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #003d7a;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+  }
 </style>
 
 <div class="content-card">
@@ -252,6 +268,10 @@
         <img src="{{ url_for('static', filename='images/discount.png') }}" alt="Discount" class="promo-image">
       </div>
     </div>
+  </div>
+  
+  <div class="offers-section">
+    <h2 class="offers-heading">Latest Offers & Top Sellers</h2>
   </div>
 </div>
 {% endblock %}
