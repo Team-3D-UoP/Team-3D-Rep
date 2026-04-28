@@ -342,6 +342,23 @@
       grid-template-columns: 1fr;
     }
   }
+  
+  .reviews-section {
+    background-color: #e3f2fd;
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    margin-top: 2rem;
+  }
+  
+  .reviews-heading {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #003d7a;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.5px;
+  }
 </style>
 
 <div class="content-card">
@@ -418,6 +435,10 @@
       </div>
       {% endfor %}
     </div>
+  </div>
+  
+  <div class="reviews-section">
+    <h2 class="reviews-heading">What Buyers and Sellers Think</h2>
   </div>
 </div>
 {% endblock %}
