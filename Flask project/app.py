@@ -1,4 +1,7 @@
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from io import BytesIO
+from PIL import Image, ImageDraw
+import base64
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
@@ -110,6 +113,22 @@ def save_incomes():
   except (ValueError, TypeError):
     return jsonify({"error": "Error saving"}), 400
 
+@app.route("/api/placeholder-image/<part_name>", methods=['GET'])
+def placeholder_image(part_name):
+    """Generate placeholder images for products"""
+    img = Image.new('RGB', (120, 120), color='#f0f0f0')
+    draw = ImageDraw.Draw(img)
+    
+    # Add text to image
+    draw.text((10, 50), part_name[:15], fill='#003d7a')
+    
+    # Convert to base64
+    img_io = BytesIO()
+    img.save(img_io, 'PNG')
+    img_io.seek(0)
+    img_base64 = base64.b64encode(img_io.getvalue()).decode()
+    
+    return f"data:image/png;base64,{img_base64}"
 
 if __name__ == "__main__":
     app.run(debug=True)
