@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; }
+        form { display: grid; gap: 0.75rem; max-width: 320px; }
+        label { display: block; }
+        input[type="number"], input[type="text"], input[type="password"] { padding: 0.75rem; font-size: 1rem; width: 100%; box-sizing: border-box; margin-top: 0.5rem; }
+        button { padding: 0.6rem 0.9rem; font-size: 1rem; cursor: pointer; }
+        .result { margin-top: 1rem; font-weight: 600; }
+        .error { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <h1>User Login</h1>
+</body>
+</html>
+
+<form id="login-form" method="POST">
+    <label for="username">
+        Username
+        <input type="text" id="username" name="username" placeholder="Enter your username" required />
+    </label>
+
+    <label for="password">
+        Password
+        <input type="password" id="password" name="password" placeholder="Enter your password" required />
+    </label>
+
+    <button type="submit">Login</button>
+
+    <div class="divider">or</div>
+
+    <button type="button" class="google-login-btn" onclick="loginWithGoogle()">
+        Login with Google
+    </button>
+
+    <div id="error-message" class="error"></div>
+    
+</form>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAGQVog5DLCAjkG2q54LeMuEdFCt41wd0g",
+        authDomain: "team-3d.firebaseapp.com",
+        projectId: "team-3d",
+        storageBucket: "team-3d.firebasestorage.app",
+        messagingSenderId: "538171239877",
+        appId: "1:538171239877:web:69f49c90fe383873316fac",
+        measurementId: "G-J2C6DCV2WD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.loginWithGoogle = function() {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                console.log("User logged in:", result.user);
+                result.user.getIdToken().then(token => {
+                    fetch("/api/authenticate", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ token: token })
+                    }).then(res => {
+                        if (res.ok) window.location.href = "/dashboard";
+                    });
+                });
+            })
+            .catch((error) => {
+                document.getElementById("error-message").textContent = "Login failed: " + error.message;
+            });
+    };
+</script>
