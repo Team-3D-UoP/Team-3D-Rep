@@ -460,6 +460,46 @@
       grid-template-columns: 1fr;
     }
   }
+  
+  .reviews-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .review-arrow {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+  }
+  
+  .review-arrow:hover {
+    background-color: #002d5a;
+  }
+  
+  .review-arrow-prev {
+    order: -1;
+  }
+  
+  .review-arrow-next {
+    order: 1;
+  }
+  
+  .reviews-grid-wrapper {
+    flex: 1;
+  }
 </style>
 
 <div class="content-card">
@@ -547,43 +587,51 @@
       </div>
     </div>
     
-    <div class="reviews-grid">
-      <div class="review-card">
-        <div class="review-header">
-          <span class="review-name">John Mitchell</span>
-          <span class="review-time">2 days ago</span>
+    <div class="reviews-container">
+      <button class="review-arrow review-arrow-prev">‹</button>
+      
+      <div class="reviews-grid-wrapper">
+        <div class="reviews-grid">
+          <div class="review-card">
+            <div class="review-header">
+              <span class="review-name">John Mitchell</span>
+              <span class="review-time">2 days ago</span>
+            </div>
+            <span class="review-badge">✓ Verified Customer</span>
+            <div class="review-rating">★★★★★</div>
+            <div class="review-text">Great quality parts and fast delivery. Very satisfied with my purchase and would recommend to others.</div>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <span class="review-name">Sarah Johnson</span>
+              <span class="review-time">5 days ago</span>
+            </div>
+            <span class="review-badge">✓ Verified Customer</span>
+            <div class="review-rating">★★★★★</div>
+            <div class="review-text">Excellent customer service. The team helped me find exactly what I needed. Highly recommended!</div>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <span class="review-name">Mark Thompson</span>
+              <span class="review-time">1 week ago</span>
+            </div>
+            <span class="review-badge">✓ Verified Customer</span>
+            <div class="review-rating">★★★★☆</div>
+            <div class="review-text">Good products and reasonable prices. Shipping took a bit longer than expected but overall satisfied.</div>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <span class="review-name">Emma Wilson</span>
+              <span class="review-time">1 week ago</span>
+            </div>
+            <span class="review-badge">✓ Verified Customer</span>
+            <div class="review-rating">★★★★★</div>
+            <div class="review-text">Best prices I've found online for car parts. Fast shipping and items arrived in perfect condition.</div>
+          </div>
         </div>
-        <span class="review-badge">✓ Verified Customer</span>
-        <div class="review-rating">★★★★★</div>
-        <div class="review-text">Great quality parts and fast delivery. Very satisfied with my purchase and would recommend to others.</div>
       </div>
-      <div class="review-card">
-        <div class="review-header">
-          <span class="review-name">Sarah Johnson</span>
-          <span class="review-time">5 days ago</span>
-        </div>
-        <span class="review-badge">✓ Verified Customer</span>
-        <div class="review-rating">★★★★★</div>
-        <div class="review-text">Excellent customer service. The team helped me find exactly what I needed. Highly recommended!</div>
-      </div>
-      <div class="review-card">
-        <div class="review-header">
-          <span class="review-name">Mark Thompson</span>
-          <span class="review-time">1 week ago</span>
-        </div>
-        <span class="review-badge">✓ Verified Customer</span>
-        <div class="review-rating">★★★★☆</div>
-        <div class="review-text">Good products and reasonable prices. Shipping took a bit longer than expected but overall satisfied.</div>
-      </div>
-      <div class="review-card">
-        <div class="review-header">
-          <span class="review-name">Emma Wilson</span>
-          <span class="review-time">1 week ago</span>
-        </div>
-        <span class="review-badge">✓ Verified Customer</span>
-        <div class="review-rating">★★★★★</div>
-        <div class="review-text">Best prices I've found online for car parts. Fast shipping and items arrived in perfect condition.</div>
-      </div>
+      
+      <button class="review-arrow review-arrow-next">›</button>
     </div>
   </div>
 </div>
