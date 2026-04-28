@@ -141,6 +141,22 @@
     font-weight: bold;
     text-decoration: underline;
   }
+  
+  .trending-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .trending-heading {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #003d7a;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.5px;
+  }
 </style>
 
 <div class="content-card">
@@ -178,6 +194,10 @@
       <img src="{{ url_for('static', filename='images/windshield-wiper.png') }}" alt="Windshield Wiper" class="product-image">
       <div class="product-name">Windshield Wiper</div>
     </div>
+  </div>
+  
+  <div class="trending-section">
+    <h2 class="trending-heading">Top Trending</h2>
   </div>
 </div>
 {% endblock %}
