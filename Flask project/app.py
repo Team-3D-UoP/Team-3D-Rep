@@ -107,10 +107,37 @@ def login():
     print('login')
     return render_template("login_screen.html")
 
-@app.route("/register", methods=['GET'])
+@app.route("/register", methods=['GET', 'POST'])
 def register():
-    print('register')
-    return render_template("register_screen.html")
+    if request.method == 'GET':
+        print('register')
+        return render_template("register_screen.html")
+    
+    # Handle POST registration
+    try:
+        data = request.get_json() or request.form
+        email = data.get('email')
+        password = data.get('password')
+        fullname = data.get('fullname')
+        username = data.get('username')
+        
+        if not all([email, password, fullname, username]):
+            return jsonify({"error": "All fields are required"}), 400
+        
+        # Create user in Firebase
+        user = auth.create_user(
+            email=email,
+            password=password,
+            display_name=fullname,
+            uid=username
+        )
+        
+        print(f"User created: {email}")
+        return jsonify({"success": True, "message": "Registration successful"}), 201
+        
+    except Exception as e:
+        print(f"Registration error: {e}")
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/api/authenticate", methods=['POST'])
 def authenticate():
