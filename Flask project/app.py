@@ -6,9 +6,13 @@ from PIL import Image, ImageDraw
 import base64
 import firebase_admin
 from firebase_admin import credentials, auth
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'SECRET_KEY'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key')
 
 # Initialize Firebase Admin SDK
 try:
