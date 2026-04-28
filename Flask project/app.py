@@ -76,6 +76,11 @@ def part_registration_screen():
      print('part_registration')
      return render_template("part_registration.html")
 
+@app.route('/search', methods=["GET"])
+def search_screen():
+     print('search')
+     return render_template("search.html")
+
 @app.route("/api/save_car_registration", methods=["POST"])
 def save_car_registration():
     data = request.get_json(silent=True) or {}
