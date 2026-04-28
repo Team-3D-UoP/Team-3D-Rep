@@ -118,6 +118,14 @@
             padding: 1rem;
             margin-top: 3rem;
         }
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -176,7 +184,49 @@
     </main>
 
     <footer>
-        <p>&copy; 2024 Team 3D. All rights reserved.</p>
+        <div class="footer-content">
+            {% for col in footer_columns or [] %}
+            <div class="footer-column">
+                <h3>{{ col.title }}</h3>
+                <ul>
+                    {% for link in col.links %}
+                    <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="footer-bottom">
+            <div class="payment-security">
+                <div class="payment-section">
+                    <h4>Pay with</h4>
+                    <div class="payment-icons">
+                        {% for p in payment_icons or [] %}
+                            <span>{{ p }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="security-section">
+                    <h4>Shop securely</h4>
+                    <div class="security-icons">
+                        {% for s in security_icons or [] %}
+                            <span>{{ s }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="paypal-section">
+                    <h4>PayPal Credit</h4>
+                    <p style="font-size: 0.75rem; margin-top: 0.5rem;">{{ paypal_text or "" }}</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom-text">
+                <p>{{ footer_bottom_text or "" }}</p>
+            </div>
+        </div>
     </footer>
 </body>
 </html>
