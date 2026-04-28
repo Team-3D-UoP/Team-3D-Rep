@@ -359,6 +359,33 @@
     margin-bottom: 1.5rem;
     letter-spacing: 0.5px;
   }
+  
+  .review-summary {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .review-summary-text {
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .review-stars {
+    color: #ffc107;
+    font-size: 1rem;
+    margin: 0 0.5rem;
+    letter-spacing: 0.2rem;
+  }
+  
+  .review-score {
+    font-weight: bold;
+    color: #003d7a;
+  }
+  
+  .review-count {
+    font-weight: bold;
+    color: #666;
+  }
 </style>
 
 <div class="content-card">
@@ -439,6 +466,12 @@
   
   <div class="reviews-section">
     <h2 class="reviews-heading">What Buyers and Sellers Think</h2>
+    
+    <div class="review-summary">
+      <div class="review-summary-text">
+        Excellent <span class="review-stars">★★★★★</span> <span class="review-score">4.67</span> based on <span class="review-count">267,420 reviews</span>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
