@@ -90,5 +90,10 @@ def login():
     print('login')
     return render_template("login_screen.html")
 
+@app.route("/register", methods=['GET'])
+def register():
+    print('register')
+    return render_template("register_screen.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
