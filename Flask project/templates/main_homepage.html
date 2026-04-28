@@ -182,6 +182,13 @@
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   }
   
+  .promo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
   @media (max-width: 768px) {
     .promo-grid {
       grid-template-columns: 1fr;
@@ -235,9 +242,15 @@
     <h2 class="trending-heading">Top Trending</h2>
     
     <div class="promo-grid">
-      <div class="promo-card"></div>
-      <div class="promo-card"></div>
-      <div class="promo-card"></div>
+      <div class="promo-card">
+        <img src="{{ url_for('static', filename='images/25-percent.png') }}" alt="25% Off" class="promo-image">
+      </div>
+      <div class="promo-card">
+        <img src="{{ url_for('static', filename='images/car-sales.png') }}" alt="Car Sales" class="promo-image">
+      </div>
+      <div class="promo-card">
+        <img src="{{ url_for('static', filename='images/discount.png') }}" alt="Discount" class="promo-image">
+      </div>
     </div>
   </div>
 </div>
