@@ -129,3 +129,52 @@
             border-bottom: 2px solid #e0e0e0;
             margin-bottom: 30px;
         }
+        
+        .tab-button {
+            padding: 15px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            color: #333;
+        }
+        
+        .tab-button.active {
+            color: #0052cc;
+            border-bottom-color: #0052cc;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .orders-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: grid;
+            grid-template-columns: 150px 150px 150px 150px;
+            gap: 30px;
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+        }
+ 
