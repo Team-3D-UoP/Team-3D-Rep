@@ -1000,6 +1000,25 @@
   
   showReviews();
   startAutoRotate();
+
+  // Chat modal functionality
+  const chatBtn = document.getElementById('chatBtn');
+  const chatModal = document.getElementById('chatModal');
+  const chatModalClose = document.getElementById('chatModalClose');
+
+  chatBtn.addEventListener('click', () => {
+    chatModal.classList.add('active');
+  });
+
+  chatModalClose.addEventListener('click', () => {
+    chatModal.classList.remove('active');
+  });
+
+  chatModal.addEventListener('click', (e) => {
+    if (e.target === chatModal) {
+      chatModal.classList.remove('active');
+    }
+  });
 </script>
 
 {% endblock %}
