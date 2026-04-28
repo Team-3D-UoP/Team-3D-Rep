@@ -654,6 +654,69 @@
       font-size: 1.2rem;
     }
   }
+
+  .chat-modal {
+    display: none;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 400px;
+    height: 500px;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    flex-direction: column;
+    z-index: 998;
+  }
+
+  .chat-modal.active {
+    display: flex;
+  }
+
+  .chat-modal-header {
+    background-color: #0d0d0d;
+    color: white;
+    padding: 1rem;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+  }
+
+  .chat-modal-title {
+    font-weight: bold;
+    font-size: 1rem;
+  }
+
+  .chat-modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .chat-modal-close:hover {
+    color: #999;
+  }
+
+  .chat-modal-body {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    background-color: #1a1a1a;
+  }
+
+  @media (max-width: 768px) {
+    .chat-modal {
+      bottom: 1rem;
+      right: 1rem;
+      width: 320px;
+      height: 400px;
+    }
+  }
 </style>
 
 <div class="page-header">
@@ -839,6 +902,15 @@
 </div>
 
 <button class="chat-button" id="chatBtn" title="Chat with us">💬</button>
+
+<div class="chat-modal" id="chatModal">
+  <div class="chat-modal-header">
+    <span class="chat-modal-title">Chat Support</span>
+    <button class="chat-modal-close" id="chatModalClose">✕</button>
+  </div>
+  <div class="chat-modal-body">
+  </div>
+</div>
 
 <script>
   // Search filter functionality
