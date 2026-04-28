@@ -547,6 +547,78 @@
       gap: 0.5rem;
     }
   }
+
+  .search-filter-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    align-items: center;
+  }
+
+  .search-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #003d7a;
+    box-shadow: 0 0 4px rgba(0, 61, 122, 0.2);
+  }
+
+  .search-icon {
+    color: #666;
+    font-size: 1.1rem;
+  }
+
+  .clear-btn {
+    background-color: #e9ecef;
+    color: #666;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .clear-btn:hover {
+    background-color: #dee2e6;
+  }
+
+  @media (max-width: 768px) {
+    .search-filter-container {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .search-input-wrapper {
+      width: 100%;
+    }
+
+    .search-input {
+      padding: 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .clear-btn {
+      width: 100%;
+    }
+  }
 </style>
 
 <div class="page-header">
@@ -608,6 +680,14 @@
   
   <div class="offers-section">
     <h2 class="section-heading">Latest Offers & Top Sellers</h2>
+    
+    <div class="search-filter-container">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search products by name or keyword...">
+      </div>
+      <button class="clear-btn" id="clearBtn">Clear</button>
+    </div>
     
     <div class="offers-grid">
       {% for product in offer_products %}
@@ -724,6 +804,34 @@
 </div>
 
 <script>
+  // Search filter functionality
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearBtn');
+  const offerCards = document.querySelectorAll('.offer-card');
+
+  function filterOffers() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+
+    offerCards.forEach(card => {
+      const productName = card.querySelector('.offer-name').textContent.toLowerCase();
+      
+      if (searchTerm === '' || productName.includes(searchTerm)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  searchInput.addEventListener('input', filterOffers);
+  
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    filterOffers();
+    searchInput.focus();
+  });
+
+  // Review carousel functionality
   let currentReviewIndex = 0;
   const reviewCards = document.querySelectorAll('.review-card');
   const totalReviews = reviewCards.length;
