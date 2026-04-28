@@ -280,7 +280,19 @@
                             },
                             body: JSON.stringify({ token: token })
                         }).then(res => {
-                            if (res.ok) window.location.href = "/account";
+                            if (res.ok) {
+                                console.log("Authentication successful, redirecting...");
+                                window.location.href = "/account";
+                            } else {
+                                return res.json().then(data => {
+                                    throw new Error(data.error || "Authentication failed");
+                                });
+                            }
+                        }).catch(err => {
+                            const errorMsg = document.getElementById("error-message");
+                            errorMsg.textContent = "Authentication error: " + err.message;
+                            errorMsg.style.display = "block";
+                            console.error("Auth error:", err);
                         });
                     });
                 })
@@ -288,6 +300,7 @@
                     const errorMsg = document.getElementById("error-message");
                     errorMsg.textContent = "Sign up failed: " + error.message;
                     errorMsg.style.display = "block";
+                    console.error("Google signup error:", error);
                 });
         };
     </script>
