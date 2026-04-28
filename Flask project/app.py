@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from data.products import OFFER_PRODUCTS
 from io import BytesIO
@@ -11,8 +12,11 @@ app.secret_key = 'SECRET_KEY'
 
 # Initialize Firebase Admin SDK
 try:
-    cred = credentials.Certificate('path/to/serviceAccountKey.json')
+    # Get the path to the credentials file
+    cred_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
+    cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
+    print("Firebase initialized successfully")
 except Exception as e:
     print(f"Firebase initialization error: {e}")
 
