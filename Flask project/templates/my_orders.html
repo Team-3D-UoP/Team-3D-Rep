@@ -330,3 +330,52 @@
                     {% endif %}
                 </div>
             </div>
+            
+            <!-- Collection Tab -->
+            <div id="collection" class="tab-content">
+                <div class="orders-table">
+                    <div class="table-header">
+                        <div>Order number</div>
+                        <div>Order placed</div>
+                        <div>Total</div>
+                        <div>Status</div>
+                    </div>
+                    {% if collection_orders %}
+                        {% for order in collection_orders %}
+                        <div class="table-row">
+                            <div class="table-cell">#{{ order.order_number }}</div>
+                            <div class="table-cell">{{ order.order_date }}</div>
+                            <div class="table-cell">£{{ order.total }}</div>
+                            <div class="table-cell">
+                                <span class="status-badge status-{{ order.status | lower }}">{{ order.status }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <p>No collection orders found</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(event, tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab and mark button as active
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
