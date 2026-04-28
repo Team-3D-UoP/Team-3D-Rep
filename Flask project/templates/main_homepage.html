@@ -663,6 +663,7 @@
   const reviewCards = document.querySelectorAll('.review-card');
   const totalReviews = reviewCards.length;
   const reviewsPerPage = 4;
+  let autoRotateInterval;
   
   function showReviews() {
     reviewCards.forEach((card, index) => {
@@ -674,17 +675,37 @@
     }
   }
   
-  document.querySelector('.review-arrow-prev').addEventListener('click', () => {
+  function nextReview() {
+    currentReviewIndex = (currentReviewIndex + 1) % totalReviews;
+    showReviews();
+  }
+  
+  function prevReview() {
     currentReviewIndex = (currentReviewIndex - 1 + totalReviews) % totalReviews;
     showReviews();
+  }
+  
+  function startAutoRotate() {
+    autoRotateInterval = setInterval(nextReview, 4000);
+  }
+  
+  function resetAutoRotate() {
+    clearInterval(autoRotateInterval);
+    startAutoRotate();
+  }
+  
+  document.querySelector('.review-arrow-prev').addEventListener('click', () => {
+    prevReview();
+    resetAutoRotate();
   });
   
   document.querySelector('.review-arrow-next').addEventListener('click', () => {
-    currentReviewIndex = (currentReviewIndex + 1) % totalReviews;
-    showReviews();
+    nextReview();
+    resetAutoRotate();
   });
   
   showReviews();
+  startAutoRotate();
 </script>
 
 {% endblock %}
