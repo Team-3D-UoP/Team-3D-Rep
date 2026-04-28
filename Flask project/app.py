@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 
 app = Flask(__name__)
@@ -7,7 +6,7 @@ app.secret_key = 'SECRET_KEY'
 @app.route("/", methods=['GET'])
 def home():
   print('home')
-  return render_template("index.html")
+  return render_template("main_homepage.html")
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
