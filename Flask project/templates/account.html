@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account</title>
+    <title>My Account</title>
     <style>
         * {
             margin: 0;
@@ -13,37 +13,163 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 40px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .sign-out-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 30px;
+            padding: 40px;
+        }
+        
+        .sidebar {
+            width: 200px;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #1a3a52;
+        }
+        
+        .nav-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            gap: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .nav-item.active {
+            background-color: #e8ecff;
+            color: #667eea;
+            border-color: #667eea;
+        }
+        
+        .icon {
+            font-size: 18px;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
         }
         
         .card {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 500px;
-            padding: 40px;
-        }
-        
-        .card-header {
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             text-align: center;
-            margin-bottom: 30px;
+            transition: box-shadow 0.3s;
         }
         
-        .card-header h1 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 8px;
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
         }
         
-        .card-header p {
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a3a52;
+        }
+        
+        .card-description {
+            font-size: 13px;
             color: #666;
-            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .card-button {
+            display: inline-block;
+            background-color: #0052cc;
+            color: white;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        
+        .card-button:hover {
+            background-color: #0041a3;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-top: 30px;
         }
         
         .form-group {
@@ -60,20 +186,18 @@
         
         input[type="text"],
         input[type="email"],
-        input[type="password"],
-        textarea {
+        input[type="password"] {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
             transition: border-color 0.3s;
         }
         
         input[type="text"]:focus,
         input[type="email"]:focus,
-        input[type="password"]:focus,
-        textarea:focus {
+        input[type="password"]:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -86,10 +210,9 @@
         }
         
         button {
-            flex: 1;
-            padding: 10px 20px;
+            padding: 10px 24px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -97,127 +220,137 @@
         }
         
         .btn-primary {
-            background-color: #667eea;
+            background-color: #0052cc;
             color: white;
+            flex: 1;
         }
         
         .btn-primary:hover {
-            background-color: #5568d3;
+            background-color: #0041a3;
         }
         
         .btn-secondary {
             background-color: #f0f0f0;
             color: #333;
+            flex: 1;
         }
         
         .btn-secondary:hover {
             background-color: #e0e0e0;
         }
         
-        .details-section {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 30px;
-        }
-        
-        .details-section h2 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-        
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .detail-label {
-            font-weight: 600;
-            color: #666;
-            font-size: 12px;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-        
-        .detail-value {
-            color: #333;
-            font-size: 15px;
-        }
-        
-        .edit-section h2 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 20px;
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="card-header">
-            <h1>My Account</h1>
-            <p>Manage your account information</p>
+    <!-- Header -->
+    <div class="header">
+        <div class="breadcrumb">
+            <a href="/">Home</a> / <strong>My Account</strong>
         </div>
-        
-        <!-- User Details Section -->
-        <div class="details-section">
-            <h2>Your Details</h2>
-            <div class="details-grid">
-                <div class="detail-item">
-                    <span class="detail-label">Username:</span>
-                    <span class="detail-value" id="display-username">{{ username }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Email:</span>
-                    <span class="detail-value" id="display-email">{{ email }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Member Since:</span>
-                    <span class="detail-value" id="display-joined">{{ joined_date }}</span>
-                </div>
+        <a href="/logout" class="sign-out-btn">Sign out</a>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="nav-item active">
+                <span class="icon">📊</span>
+                <span>Account Overview</span>
+            </div>
+            <div class="nav-item">
+                <span class="icon">🛍️</span>
+                <span>My Orders</span>
+            </div>
+            <div class="nav-item">
+                <span class="icon">👤</span>
+                <span>Personal Details</span>
+            </div>
+            <div class="nav-item">
+                <span class="icon">❤️</span>
+                <span>My Wish List</span>
             </div>
         </div>
         
-        <!-- Edit Account Section -->
-        <div class="edit-section">
-            <h2>Edit Account</h2>
-            <form method="POST" action="/update-account">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" value="{{ username }}">
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <h1 class="page-title">My Account</h1>
+            
+            <!-- Dashboard Cards -->
+            <div class="cards-grid">
+                <!-- My Orders Card -->
+                <div class="card">
+                    <div class="card-icon">🛒</div>
+                    <h3 class="card-title">MY ORDERS</h3>
+                    <p class="card-description">See your historic orders, order status updates and order help details.</p>
+                    <button class="card-button" onclick="location.href='/my-orders'">View My Orders</button>
                 </div>
                 
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" value="{{ email }}">
+                <!-- Personal Details Card -->
+                <div class="card">
+                    <div class="card-icon">👤</div>
+                    <h3 class="card-title">PERSONAL DETAILS</h3>
+                    <p class="card-description">Update contact details, change your newsletter preferences and personal vehicle details.</p>
+                    <button class="card-button" onclick="document.getElementById('details-form').scrollIntoView()">Edit My Personal Details</button>
                 </div>
                 
-                <div class="form-group">
-                    <label for="full-name">Full Name</label>
-                    <input type="text" id="full-name" name="full_name" placeholder="Enter your full name" value="{{ full_name }}">
+                <!-- My Wish List Card -->
+                <div class="card">
+                    <div class="card-icon">💛</div>
+                    <h3 class="card-title">MY WISH LIST</h3>
+                    <p class="card-description">View your saved items in Wish List.</p>
+                    <button class="card-button" onclick="location.href='/wishlist'">View My Wish List</button>
                 </div>
-                
-                <div class="form-group">
-                    <label for="password">New Password (leave blank to keep current)</label>
-                    <input type="password" id="password" name="password" placeholder="Enter new password">
-                </div>
-                
-                <div class="form-group">
-                    <label for="confirm-password">Confirm Password</label>
-                    <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm new password">
-                </div>
-                
-                <div class="button-group">
-                    <button type="submit" class="btn-primary">Save Changes</button>
-                    <button type="reset" class="btn-secondary">Cancel</button>
-                </div>
-            </form>
+            </div>
+            
+            <!-- Edit Form Card -->
+            <div class="form-card" id="details-form">
+                <h2 style="font-size: 20px; margin-bottom: 25px; color: #1a3a52;">Edit Personal Details</h2>
+                <form method="POST" action="/update-account">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" value="{{ username }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" value="{{ email }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="full-name">Full Name</label>
+                        <input type="text" id="full-name" name="full_name" placeholder="Enter your full name" value="{{ full_name }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">New Password (leave blank to keep current)</label>
+                        <input type="password" id="password" name="password" placeholder="Enter new password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm new password">
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                        <button type="reset" class="btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </body>
