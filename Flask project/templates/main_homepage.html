@@ -500,6 +500,28 @@
   .reviews-grid-wrapper {
     flex: 1;
   }
+  
+  @media (max-width: 1200px) {
+    .reviews-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .reviews-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .review-arrow {
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
+    }
+    
+    .reviews-container {
+      gap: 0.5rem;
+    }
+  }
 </style>
 
 <div class="content-card">
