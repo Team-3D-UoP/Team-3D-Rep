@@ -719,12 +719,13 @@
   
   function nextReview() {
     const reviewsPerPage = getReviewsPerPage();
-    currentReviewIndex = (currentReviewIndex + 1) % totalReviews;
+    currentReviewIndex = (currentReviewIndex + reviewsPerPage) % totalReviews;
     showReviews();
   }
   
   function prevReview() {
-    currentReviewIndex = (currentReviewIndex - 1 + totalReviews) % totalReviews;
+    const reviewsPerPage = getReviewsPerPage();
+    currentReviewIndex = (currentReviewIndex - reviewsPerPage + totalReviews) % totalReviews;
     showReviews();
   }
   
