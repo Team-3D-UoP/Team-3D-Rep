@@ -157,6 +157,41 @@
     margin-bottom: 1.5rem;
     letter-spacing: 0.5px;
   }
+  
+  .promo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .promo-card {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    border-radius: 8px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .promo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  }
+  
+  @media (max-width: 768px) {
+    .promo-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .promo-card {
+      height: 150px;
+    }
+  }
 </style>
 
 <div class="content-card">
@@ -198,6 +233,15 @@
   
   <div class="trending-section">
     <h2 class="trending-heading">Top Trending</h2>
+    
+    <div class="promo-grid">
+      <div class="promo-card"></div>
+      <div class="promo-card"></div>
+      <div class="promo-card"></div>
+      <div class="promo-card"></div>
+      <div class="promo-card"></div>
+      <div class="promo-card"></div>
+    </div>
   </div>
 </div>
 {% endblock %}
