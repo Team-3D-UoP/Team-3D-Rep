@@ -253,7 +253,39 @@
     margin-bottom: 0.5rem;
   }
   
-
+  .offer-price {
+    font-size: 1rem;
+    color: #28a745;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+  }
+  
+  .offer-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .offer-btn:hover {
+    background-color: #002d5a;
+  }
+  
+  @media (max-width: 1024px) {
+    .offers-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .offers-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 
 <div class="content-card">
@@ -311,6 +343,56 @@
   
   <div class="offers-section">
     <h2 class="offers-heading">Latest Offers & Top Sellers</h2>
+    
+    <div class="offers-grid">
+      <div class="offer-card">
+        <img src="{{ url_for('static', filename='images/product-1.png') }}" alt="Product 1" class="offer-image">
+        <div class="offer-name">Premium Battery</div>
+        <div class="offer-price">£45.99</div>
+        <button class="offer-btn">Add to Cart</button>
+      </div>
+      <div class="offer-card">
+        <img src="{{ url_for('static', filename='images/product-2.png') }}" alt="Product 2" class="offer-image">
+        <div class="offer-name">Brake Pad Set</div>
+        <div class="offer-price">£32.50</div>
+        <button class="offer-btn">Add to Cart</button>
+      </div>
+      <div class="offer-card">
+        <img src="{{ url_for('static', filename='images/product-3.png') }}" alt="Product 3" class="offer-image">
+        <div class="offer-name">Oil Filter Pro</div>
+        <div class="offer-price">£18.99</div>
+        <button class="offer-btn">Add to Cart</button>
+      </div>
+      <div class="offer-card">
+        <img src="{{ url_for('static', filename='images/product-4.png') }}" alt="Product 4" class="offer-image">
+        <div class="offer-name">LED Headlight</div>
+        <div class="offer-price">£62.00</div>
+        <button class="offer-btn">Add to Cart</button>
+      </div>
+      <div class="offer-card">
+        <img src="{{ url_for('static', filename='images/product-5.png') }}" alt="Product 5" class="offer-image">
+        <div class="offer-name">Engine Oil 5L</div>
+        <div class="offer-price">£28.75</div>
+        <button class="offer-btn">Add to Cart</button>
+      </div>
+      <div class="offer-card">
+        <img src="{{ url_for('static', filename='images/product-6.png') }}" alt="Product 6" class="offer-image">
+        <div class="offer-name">Air Filter Pack</div>
+        <div class="offer-price">£22.50</div>
+        <button class="offer-btn">Add to Cart</button>
+      </div>
+      <div class="offer-card">
+        <img src="{{ url_for('static', filename='images/product-7.png') }}" alt="Product 7" class="offer-image">
+        <div class="offer-name">Wiper Blades</div>
+        <div class="offer-price">£15.99</div>
+        <button class="offer-btn">Add to Cart</button>
+      </div>
+      <div class="offer-card">
+        <img src="{{ url_for('static', filename='images/product-8.png') }}" alt="Product 8" class="offer-image">
+        <div class="offer-name">Spark Plugs</div>
+        <div class="offer-price">£12.00</div>
+        <button class="offer-btn">Add to Cart</button>
+      </div>
   </div>
 </div>
 {% endblock %}
