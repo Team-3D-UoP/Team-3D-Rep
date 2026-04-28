@@ -657,4 +657,34 @@
     </div>
   </div>
 </div>
+
+<script>
+  let currentReviewIndex = 0;
+  const reviewCards = document.querySelectorAll('.review-card');
+  const totalReviews = reviewCards.length;
+  const reviewsPerPage = 4;
+  
+  function showReviews() {
+    reviewCards.forEach((card, index) => {
+      card.style.display = 'none';
+    });
+    
+    for (let i = 0; i < reviewsPerPage && currentReviewIndex + i < totalReviews; i++) {
+      reviewCards[currentReviewIndex + i].style.display = 'block';
+    }
+  }
+  
+  document.querySelector('.review-arrow-prev').addEventListener('click', () => {
+    currentReviewIndex = (currentReviewIndex - 1 + totalReviews) % totalReviews;
+    showReviews();
+  });
+  
+  document.querySelector('.review-arrow-next').addEventListener('click', () => {
+    currentReviewIndex = (currentReviewIndex + 1) % totalReviews;
+    showReviews();
+  });
+  
+  showReviews();
+</script>
+
 {% endblock %}
