@@ -27,11 +27,11 @@
   .heading-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 1rem;
     margin-bottom: 1rem;
     font-size: 1rem;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
   }
   
   .checkmark {
@@ -73,7 +73,7 @@
   @media (max-width: 768px) {
     .heading-row {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
       font-size: 0.9rem;
     }
     
@@ -103,6 +103,8 @@
     margin-top: 1rem;
     overflow-x: auto;
     padding-bottom: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
   }
   
   .product-card {
