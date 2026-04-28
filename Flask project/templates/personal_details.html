@@ -228,4 +228,80 @@
     </style>
 </head>
 <body>
-
+    <!-- Header -->
+    <div class="header">
+        <div class="breadcrumb">
+            <a href="/">Home</a> / <a href="/account">My Account</a> / <strong>Personal Details</strong>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-card">
+                <a href="/account" class="nav-item">
+                    <span class="icon">📊</span>
+                    <span>Account Overview</span>
+                </a>
+                <a href="/my-orders" class="nav-item">
+                    <span class="icon">🛍️</span>
+                    <span>My Orders</span>
+                </a>
+                <a href="/personal-details" class="nav-item active">
+                    <span class="icon">👤</span>
+                    <span>Personal Details</span>
+                </a>
+                <a href="/wishlist" class="nav-item">
+                    <span class="icon">❤️</span>
+                    <span>My Wish List</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="page-title">Personal Details</h1>
+                <a href="/account" class="back-link">← Back to My Account</a>
+            </div>
+            
+            <!-- Edit Form Card -->
+            <div class="form-card">
+                <h2>Edit Personal Details</h2>
+                <form method="POST" action="/update-account">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Alper Ozdemir" value="{{ username }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="up2264072@myport.ac.uk" value="{{ email }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="full-name">Full Name</label>
+                        <input type="text" id="full-name" name="full_name" placeholder="Alper Ozdemir" value="{{ full_name }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">New Password (leave blank to keep current)</label>
+                        <input type="password" id="password" name="password" placeholder="Enter new password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm new password">
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                        <button type="reset" class="btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
