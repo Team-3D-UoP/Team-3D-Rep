@@ -3,7 +3,6 @@
 {% block title %}Home - Team 3D{% endblock %}
 
 {% block content %}
-{% load static %}
 <style>
   body {
     background-color: #f0f0f0;
@@ -132,19 +131,19 @@
   
   <div class="products-grid">
     <div class="product-card">
-      <img src="{% static 'images/car-battery.png' %}" alt="Car Battery" class="product-image">
+      <img src="{{ url_for('static', filename='images/car-battery.png') }}" alt="Car Battery" class="product-image">
       <div class="product-name">Car Battery</div>
     </div>
     <div class="product-card">
-      <img src="{% static 'images/brake-pads.png' %}" alt="Brake Pads" class="product-image">
+      <img src="{{ url_for('static', filename='images/brake-pads.png') }}" alt="Brake Pads" class="product-image">
       <div class="product-name">Brake Pads</div>
     </div>
     <div class="product-card">
-      <img src="{% static 'images/air-filter.png' %}" alt="Air Filter" class="product-image">
+      <img src="{{ url_for('static', filename='images/air-filter.png') }}" alt="Air Filter" class="product-image">
       <div class="product-name">Air Filter</div>
     </div>
     <div class="product-card">
-      <img src="{% static 'images/spark-plugs.png' %}" alt="Spark Plugs" class="product-image">
+      <img src="{{ url_for('static', filename='images/spark-plugs.png') }}" alt="Spark Plugs" class="product-image">
       <div class="product-name">Spark Plugs</div>
     </div>
   </div>
