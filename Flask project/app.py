@@ -162,21 +162,26 @@ def authenticate():
         session['authenticated'] = True
         
         print(f"User authenticated: {email}")
-        return jsonify({"success": True, "redirect": "/dashboard"}), 200
+        return jsonify({"success": True, "redirect": "/account"}), 200
         
     except Exception as e:
         print(f"Authentication error: {e}")
         return jsonify({"error": str(e), "details": "Check Firebase domain authorization"}), 401
 
-@app.route("/dashboard", methods=['GET'])
-def dashboard():
-    """User dashboard page"""
+@app.route("/account", methods=['GET'])
+def account():
+    """User account page"""
     if not session.get('authenticated'):
         return redirect(url_for('login'))
     
     return render_template("account.html", 
                          user_name=session.get('name'),
                          user_email=session.get('email'))
+
+@app.route("/dashboard", methods=['GET'])
+def dashboard():
+    """Redirect to account"""
+    return redirect(url_for('account'))
 
 @app.route("/logout", methods=['GET'])
 def logout():
