@@ -234,3 +234,57 @@
             font-size: 48px;
             margin-bottom: 20px;
         }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .table-header,
+            .table-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="breadcrumb">
+            <a href="/">Home</a> / <a href="/account">My Account</a> / <strong>My Orders</strong>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-card">
+                <div class="nav-item">
+                    <span class="icon">📊</span>
+                    <span><a href="/account" style="text-decoration: none; color: inherit;">Account Overview</a></span>
+                </div>
+                <div class="nav-item active">
+                    <span class="icon">🛍️</span>
+                    <span>My Orders</span>
+                </div>
+                <div class="nav-item">
+                    <span class="icon">👤</span>
+                    <span><a href="/account#details-form" style="text-decoration: none; color: inherit;">Personal Details</a></span>
+                </div>
+                <div class="nav-item">
+                    <span class="icon">❤️</span>
+                    <span><a href="/wishlist" style="text-decoration: none; color: inherit;">My Wish List</a></span>
+                </div>
+            </div>
+        </div>
