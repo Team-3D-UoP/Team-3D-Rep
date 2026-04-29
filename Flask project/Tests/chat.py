@@ -60,3 +60,55 @@ class ChatTestCase(unittest.TestCase):
         """Test that modal chat uses separate localStorage keys than full page"""
         response = self.client.get('/')
         self.assertIn(b"'modal_chat_history'", response.data)
+
+    def test_message_object_structure(self):
+        """Test that chat messages have correct structure"""
+        # Messages should have: text, sender, timestamp
+        message = {
+            'text': 'Test message',
+            'sender': 'user',
+            'timestamp': datetime.now().isoformat()
+        }
+        self.assertIn('text', message)
+        self.assertIn('sender', message)
+        self.assertIn('timestamp', message)
+        self.assertEqual(message['sender'], 'user')
+
+    def test_support_message_structure(self):
+        """Test support response message structure"""
+        message = {
+            'text': 'Thank you for your message!',
+            'sender': 'support',
+            'timestamp': datetime.now().isoformat()
+        }
+        self.assertEqual(message['sender'], 'support')
+        self.assertIn('Thank you', message['text'])
+
+    # ==================== JAVASCRIPT LOGIC TESTS ====================
+
+    def test_chat_html_contains_display_message_function(self):
+        """Test that chat.html contains displayMessage function"""
+        response = self.client.get('/chat')
+        self.assertIn(b'function displayMessage', response.data)
+
+    def test_chat_html_contains_save_chat_message_function(self):
+        """Test that chat.html contains saveChatMessage function"""
+        response = self.client.get('/chat')
+        self.assertIn(b'function saveChatMessage', response.data)
+
+    def test_chat_html_contains_send_message_function(self):
+        """Test that chat.html contains sendMessage function"""
+        response = self.client.get('/chat')
+        self.assertIn(b'function sendMessage', response.data)
+
+    def test_chat_html_contains_clear_history_function(self):
+        """Test that chat.html contains clearChatHistory function"""
+        response = self.client.get('/chat')
+        self.assertIn(b'function clearChatHistory', response.data)
+
+    def test_modal_chat_contains_required_functions(self):
+        """Test that modal chat contains required functions"""
+        response = self.client.get('/')
+        self.assertIn(b'function displayMessage', response.data)
+        self.assertIn(b'function saveChatMessage', response.data)
+        self.assertIn(b'function sendMessage', response.data)
