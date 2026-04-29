@@ -16,6 +16,7 @@
           background-color: #f0f0f0;
           min-height: 100vh;
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
           padding: 1rem;
@@ -24,51 +25,52 @@
         .register-container {
           background-color: white;
           border-radius: 12px;
-          padding: 2rem;
-          max-width: 400px;
+          padding: 2.5rem;
+          max-width: 420px;
           width: 100%;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
         .register-header {
           text-align: center;
-          margin-bottom: 2rem;
+          margin-bottom: 2.5rem;
         }
         
         .register-header h1 {
-          font-size: 1.8rem;
+          font-size: 2rem;
           color: #003d7a;
           font-weight: bold;
           margin-bottom: 0.5rem;
         }
         
         .register-header p {
-          font-size: 0.9rem;
+          font-size: 0.95rem;
           color: #666;
         }
         
         form {
           display: grid;
-          gap: 1rem;
+          gap: 1.25rem;
         }
         
         label {
           display: block;
           font-weight: 600;
-          color: #003d7a;
+          color: #333;
           margin-bottom: 0.5rem;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
         }
         
         input[type="text"],
         input[type="email"],
         input[type="password"] {
-          padding: 0.75rem;
+          padding: 0.85rem;
           font-size: 1rem;
           width: 100%;
-          border: 1px solid #ddd;
+          border: 1.5px solid #ddd;
           border-radius: 6px;
-          transition: border-color 0.3s ease;
+          transition: all 0.3s ease;
+          font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
         }
         
         input[type="text"]:focus,
@@ -76,17 +78,19 @@
         input[type="password"]:focus {
           outline: none;
           border-color: #003d7a;
-          box-shadow: 0 0 0 3px rgba(0, 61, 122, 0.1);
+          box-shadow: 0 0 0 4px rgba(0, 61, 122, 0.1);
+          background-color: #f8fafb;
         }
         
         button {
-          padding: 0.75rem;
+          padding: 0.85rem;
           font-size: 1rem;
           cursor: pointer;
           border: none;
           border-radius: 6px;
           font-weight: 600;
-          transition: background-color 0.3s ease;
+          transition: all 0.3s ease;
+          width: 100%;
         }
         
         button[type="submit"] {
@@ -96,30 +100,54 @@
         
         button[type="submit"]:hover {
           background-color: #002d5a;
+          box-shadow: 0 2px 8px rgba(0, 61, 122, 0.2);
         }
         
         .divider {
           text-align: center;
-          color: #999;
-          font-size: 0.9rem;
-          margin: 1rem 0;
+          color: #bbb;
+          font-size: 0.85rem;
+          margin: 1.5rem 0;
+          position: relative;
+        }
+        
+        .divider::before,
+        .divider::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          width: 45%;
+          height: 1px;
+          background-color: #ddd;
+        }
+        
+        .divider::before {
+          left: 0;
+        }
+        
+        .divider::after {
+          right: 0;
         }
         
         .google-signup-btn {
-          background-color: #f5f5f5;
+          background-color: white;
           color: #333;
-          border: 1px solid #ddd;
+          border: 1.5px solid #ddd;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
         }
         
         .google-signup-btn:hover {
-          background-color: #e8e8e8;
+          background-color: #f8f8f8;
+          border-color: #bbb;
         }
         
         .error {
-          margin-top: 1rem;
-          padding: 0.75rem;
-          background-color: #fee;
-          border: 1px solid #fcc;
+          padding: 0.85rem;
+          background-color: #fef2f2;
+          border: 1px solid #feca5d;
           border-radius: 6px;
           color: #c33;
           font-size: 0.9rem;
@@ -129,28 +157,34 @@
         
         .login-link {
           text-align: center;
-          margin-top: 1.5rem;
+          margin-top: 1.75rem;
           font-size: 0.9rem;
           color: #666;
         }
         
         .login-link a {
-          color: #007bff;
+          color: #003d7a;
           text-decoration: none;
           font-weight: 600;
+          transition: color 0.3s ease;
         }
         
         .login-link a:hover {
+          color: #002d5a;
           text-decoration: underline;
         }
         
         @media (max-width: 480px) {
           .register-container {
-            padding: 1.5rem;
+            padding: 2rem;
           }
           
           .register-header h1 {
             font-size: 1.5rem;
+          }
+          
+          .register-header p {
+            font-size: 0.85rem;
           }
         }
     </style>
