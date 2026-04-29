@@ -106,3 +106,47 @@ class TestLoginScreen(unittest.TestCase):
         self.assertIsInstance(response_data, dict)
         self.assertIn('success', response_data)
         self.assertIn('redirect', response_data)
+
+    def test_authenticate_missing_token(self):
+        """Test authentication fails when token is missing"""
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'No token provided', response.data)
+
+    def test_authenticate_token_is_none(self):
+        """Test authentication fails when token is None"""
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': None}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'No token provided', response.data)
+
+    def test_authenticate_token_is_empty_string(self):
+        """Test authentication fails when token is empty string"""
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': ''}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'No token provided', response.data)
+
+    def test_authenticate_token_is_whitespace(self):
+        """Test authentication fails when token is only whitespace"""
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': '   '}),
+            content_type='application/json'
+        )
+
+        # Whitespace is truthy, so it should attempt verification
+        self.assertIn(response.status_code, [400, 401])
