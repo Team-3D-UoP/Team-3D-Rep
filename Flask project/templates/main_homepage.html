@@ -917,8 +917,11 @@
       <div class="featured-seller-card">
         <span class="featured-badge">⭐ FEATURED</span>
         <span class="featured-heart">♡</span>
-        <img src="{{ url_for('static', filename='images/pressure-washer.png') }}" alt="Pressure Washer" class="featured-image">
-        <div class="featured-product-name">Professional Pressure Washer</div>
+        
+        <div class="featured-image-wrapper">
+          <img src="{{ url_for('static', filename='images/pressure-washer.png') }}" alt="Pressure Washer" class="featured-image">
+          <div class="featured-product-name">Professional Pressure Washer</div>
+        </div>
         
         <div class="seller-info-container">
           <div class="seller-name-display">{{ featured_seller.name }}</div>
