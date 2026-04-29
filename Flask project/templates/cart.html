@@ -87,3 +87,35 @@
     padding: 1.5rem;
     border-bottom: 1px solid #e0e0e0;
   }
+
+  .cart-item:last-child {
+    border-bottom: none;
+  }
+
+  .cart-item-image {
+    width: 100px;
+    height: 100px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .cart-item-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .cart-item-details {
+    flex: 1;
+  }
+
+  .cart-item-name {
+    font-weight: bold;
+    color: #003d7a;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
