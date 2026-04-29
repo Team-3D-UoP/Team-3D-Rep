@@ -227,3 +227,73 @@ class TestRegisterScreen(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    @patch('app.auth.create_user')
+    def test_register_firebase_weak_password_error(self, mock_create_user):
+        """Test registration fails with Firebase weak password error"""
+        mock_create_user.side_effect = Exception('Password should be at least 6 characters')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'error', response.data)
+
+    @patch('app.auth.create_user')
+    def test_register_firebase_email_already_exists(self, mock_create_user):
+        """Test registration fails when email already exists"""
+        mock_create_user.side_effect = Exception('Email already exists')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'Email already exists', response.data)
+
+    @patch('app.auth.create_user')
+    def test_register_firebase_invalid_email(self, mock_create_user):
+        """Test registration fails with invalid email"""
+        mock_create_user.side_effect = Exception('Invalid email address')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    @patch('app.auth.create_user')
+    def test_register_firebase_uid_already_exists(self, mock_create_user):
+        """Test registration fails when UID (username) already exists"""
+        mock_create_user.side_effect = Exception('UID already exists')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'UID already exists', response.data)
+
+    @patch('app.auth.create_user')
+    def test_register_generic_firebase_error(self, mock_create_user):
+        """Test registration handles generic Firebase errors"""
+        mock_create_user.side_effect = Exception('Firebase connection error')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        response_data = json.loads(response.data)
+        self.assertIn('error', response_data)
+
