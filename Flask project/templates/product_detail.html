@@ -285,6 +285,80 @@
     font-weight: bold;
   }
 
+  .reviews-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .reviews-title {
+    font-size: 1.2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .reviews-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .review-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .review-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .review-author {
+    font-weight: bold;
+    color: #003d7a;
+    font-size: 1rem;
+  }
+
+  .review-rating {
+    color: #ffc107;
+    font-size: 0.95rem;
+    letter-spacing: 0.2rem;
+  }
+
+  .review-date {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.5rem;
+  }
+
+  .review-badge {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+  }
+
+  .review-text {
+    color: #555;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
   @media (max-width: 768px) {
     .product-grid {
       grid-template-columns: 1fr;
@@ -406,6 +480,95 @@
         <li>Bug and tar remover</li>
         <li>Durable carrying bag included</li>
       </ul>
+
+      <div class="reviews-section">
+        <h3 class="reviews-title">Buyer Reviews</h3>
+        <div class="reviews-container">
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Michael Johnson</div>
+                <div class="review-date">2 weeks ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Excellent kit! Everything is high quality and the brushes work perfectly. My car looks brand new after using this. Highly recommended!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Sarah Williams</div>
+                <div class="review-date">3 weeks ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Great value for money! The cleaning solutions are very effective and the microfiber cloths are top quality. Fast shipping too!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">David Chen</div>
+                <div class="review-date">1 month ago</div>
+              </div>
+              <div class="review-rating">★★★★☆</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Very good kit overall. All the tools are durable and work well. The carrying bag is convenient. Only minor issue with one brush bristle.
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Emma Rodriguez</div>
+                <div class="review-date">1 month ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Perfect! This kit has everything I needed. The seller was very helpful with shipping and the product arrived well-packaged. 10/10!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">James Thompson</div>
+                <div class="review-date">2 months ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Amazing quality for this price point. I've tried many cleaning kits before and this one is by far the best. Will definitely order again!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Lisa Anderson</div>
+                <div class="review-date">2 months ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Fantastic seller! Product came quickly and in perfect condition. The kit works great and customer service was excellent. Highly satisfied!
+            </p>
+          </div>
+        </div>
+      </div>
     
     {% elif product.name == "Oil Filter" %}
       <p class="description-text">
