@@ -605,3 +605,20 @@
       });
     });
 
+    star.addEventListener('mouseover', function() {
+      const rating = this.dataset.rating;
+      sellerStars.forEach(s => {
+        if(s.dataset.rating <= rating) {
+          s.style.color = '#ffc107';
+        } else {
+          s.style.color = '#ddd';
+        }
+      });
+    });
+  });
+
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
