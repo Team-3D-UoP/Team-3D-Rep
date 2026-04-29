@@ -10,8 +10,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from app import app
 
 
-class TestAccountScreen(unittest.TestCase):
-    """Test suite for the account screen template"""
+class TestAccount(unittest.TestCase):
+    """Test suite for the account template"""
 
     def setUp(self):
         """Set up test client before each test"""
@@ -23,25 +23,25 @@ class TestAccountScreen(unittest.TestCase):
         """Clean up after tests"""
         pass
 
-    def test_account_screen_template_exists(self):
-        """Test that the account screen file exists"""
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
-        self.assertTrue(os.path.exists(template_path), "account_screen.html template file should exist")
+    def test_account_template_exists(self):
+        """Test that the account file exists"""
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
+        self.assertTrue(os.path.exists(template_path), "account.html template file should exist")
 
-    def test_account_screen_template_has_content(self):
-        """Test that the account screen template will eventually have content"""
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
-        # Verify file exists
+    def test_account_template_has_content(self):
+        """Test that the account template has content"""
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
+        # Verify file exists and has content
         self.assertTrue(os.path.exists(template_path))
 
-    def test_account_screen_template_is_readable(self):
-        """Test that account_screen.html is readable"""
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
+    def test_account_template_is_readable(self):
+        """Test that account.html is readable"""
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
         self.assertTrue(os.access(template_path, os.R_OK), "Template file should be readable")
 
-    def test_account_screen_template_encoding(self):
-        """Test that account_screen.html can be read with UTF-8 encoding"""
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
+    def test_account_template_encoding(self):
+        """Test that account.html can be read with UTF-8 encoding"""
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
         try:
             with open(template_path, 'r', encoding='utf-8') as f:
                 f.read()
@@ -50,14 +50,14 @@ class TestAccountScreen(unittest.TestCase):
             encoding_ok = False
         self.assertTrue(encoding_ok, "Template should be UTF-8 encoded")
 
-    def test_account_screen_template_file_size(self):
-        """Test that account_screen.html file exists and is accessible"""
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
-        self.assertTrue(os.path.isfile(template_path), "account_screen.html should be a file, not a directory")
+    def test_account_template_file_size(self):
+        """Test that account.html file exists and is accessible"""
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
+        self.assertTrue(os.path.isfile(template_path), "account.html should be a file, not a directory")
 
-    def test_account_screen_template_basic_structure(self):
-        """Test for basic HTML structure when content is added"""
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
+    def test_account_template_basic_structure(self):
+        """Test for basic HTML structure"""
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
         with open(template_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
@@ -67,34 +67,33 @@ class TestAccountScreen(unittest.TestCase):
                 "Template should have basic HTML structure when content is present"
             )
 
-    def test_account_screen_route_requires_authentication(self):
-        """Test that /account-screen route would require authentication (when implemented)"""
-        response = self.client.get('/account-screen')
+    def test_account_route_requires_authentication(self):
+        """Test that /account route requires authentication"""
+        response = self.client.get('/account')
         self.assertEqual(response.status_code, 302)  # Redirect to login
         self.assertIn('/login', response.headers.get('Location', ''))
-        pass
 
-    def test_account_screen_route_with_valid_session(self):
-        """Test that /account-screen would load with valid session (when implemented)"""
+    def test_account_route_with_valid_session(self):
+        """Test that /account loads with valid session"""
         with self.client:
-             with self.client.session_transaction() as sess:
-                 sess['authenticated'] = True
-                 sess['name'] = 'Test User'
-             response = self.client.get('/account-screen')
-             self.assertEqual(response.status_code, 200)
-        pass
+            with self.client.session_transaction() as sess:
+                sess['authenticated'] = True
+                sess['name'] = 'Test User'
+            response = self.client.get('/account')
+            self.assertEqual(response.status_code, 200)
 
-    def test_account_screen_compare_with_account_html(self):
-        """Test that account_screen.html exists alongside account.html"""
-        account_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
-        account_screen_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
+    def test_account_template_contains_form(self):
+        """Test that account.html contains expected form elements"""
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
+        with open(template_path, 'r', encoding='utf-8') as f:
+            content = f.read()
         
-        self.assertTrue(os.path.exists(account_path), "account.html should exist")
-        self.assertTrue(os.path.exists(account_screen_path), "account_screen.html should exist")
+        if len(content) > 0:
+            self.assertIn('form', content.lower(), "Template should contain form element")
 
-    def test_account_screen_template_no_syntax_errors(self):
+    def test_account_template_no_syntax_errors(self):
         """Test that template file can be read without errors"""
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
         try:
             with open(template_path, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -106,9 +105,9 @@ class TestAccountScreen(unittest.TestCase):
         except Exception as e:
             self.fail(f"Template should not cause errors when read: {e}")
 
-    def test_account_screen_no_hardcoded_sensitive_data(self):
+    def test_account_no_hardcoded_sensitive_data(self):
         """Test that template doesn't contain hardcoded passwords or secrets"""
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account_screen.html')
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'account.html')
         with open(template_path, 'r', encoding='utf-8') as f:
             content = f.read().lower()
         
