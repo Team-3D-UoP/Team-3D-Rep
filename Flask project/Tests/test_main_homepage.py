@@ -85,7 +85,7 @@ class TestMainHomepage(unittest.TestCase):
                 self.assertGreaterEqual(price, 0, f"Product {product['id']} has negative price")
             except (ValueError, TypeError):
                 self.fail(f"Product {product['id']} has invalid price format")
-
+                
     def test_all_sellers_have_required_fields(self):
         """Test that all sellers have required fields (id, name)"""
         required_fields = ['id', 'name']
@@ -118,3 +118,22 @@ class TestMainHomepage(unittest.TestCase):
             self.assertGreater(len(products), 0,
                              f"Seller {seller['name']} has no products assigned")
 
+    def test_all_reviews_have_required_fields(self):
+        """Test that all reviews have required fields"""
+        required_fields = ['rating', 'text']
+        for review in REVIEWS_DATA:
+            for field in required_fields:
+                self.assertIn(field, review, f"Review missing required field: {field}")
+
+    def test_review_ratings_are_valid(self):
+        """Test that all review ratings are between 1 and 5"""
+        for review in REVIEWS_DATA:
+            self.assertIsInstance(review['rating'], int)
+            self.assertGreaterEqual(review['rating'], 1)
+            self.assertLessEqual(review['rating'], 5)
+
+    def test_review_text_is_non_empty(self):
+        """Test that all review text is non-empty"""
+        for review in REVIEWS_DATA:
+            self.assertIsInstance(review['text'], str)
+            self.assertGreater(len(review['text']), 0)
