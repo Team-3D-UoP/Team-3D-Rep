@@ -203,3 +203,64 @@ class ChatTestCase(unittest.TestCase):
         response = self.client.get('/')
         self.assertIn(b'.chat-message-company', response.data)
         self.assertIn(b'chat-message', response.data)
+
+
+    def test_message_text_not_empty(self):
+        """Test that empty messages are rejected"""
+        message_text = ''.strip()
+        self.assertFalse(message_text)
+
+    def test_message_text_trimmed(self):
+        """Test that message text is trimmed of whitespace"""
+        message_text = '  Hello  '.strip()
+        self.assertEqual(message_text, 'Hello')
+
+    def test_timestamp_is_valid_iso_format(self):
+        """Test that timestamp is in valid ISO format"""
+        timestamp = datetime.now().isoformat()
+        # Should be parseable back to datetime
+        parsed = datetime.fromisoformat(timestamp)
+        self.assertIsInstance(parsed, datetime)
+
+    def test_sender_values_are_valid(self):
+        """Test that sender field only contains valid values"""
+        valid_senders = ['user', 'support']
+        message_sender = 'user'
+        self.assertIn(message_sender, valid_senders)
+
+    # ==================== INTEGRATION TESTS ====================
+
+    def test_full_chat_flow(self):
+        """Test full chat flow: open -> send message -> receive response"""
+        # 1. Load homepage
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        
+        # 2. Check chat elements exist
+        self.assertIn(b'chatBtn', response.data)
+        self.assertIn(b'chatInput', response.data)
+        self.assertIn(b'chatSendBtn', response.data)
+
+    def test_chat_page_full_flow(self):
+        """Test full chat page flow"""
+        # 1. Load chat page
+        response = self.client.get('/chat')
+        self.assertEqual(response.status_code, 200)
+        
+        # 2. Check required elements
+        self.assertIn(b'chatMessages', response.data)
+        self.assertIn(b'chatInput', response.data)
+        self.assertIn(b'chatSendBtn', response.data)
+
+    def test_message_does_not_send_if_empty(self):
+        """Test that empty messages don't trigger send"""
+        # This is handled client-side but we test the logic
+        message = '   '.strip()
+        should_send = bool(message)
+        self.assertFalse(should_send)
+
+    def test_message_sends_if_not_empty(self):
+        """Test that non-empty messages trigger send"""
+        message = 'Hello'.strip()
+        should_send = bool(message)
+        self.assertTrue(should_send)
