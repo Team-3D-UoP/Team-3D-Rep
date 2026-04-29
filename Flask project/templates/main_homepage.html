@@ -956,33 +956,35 @@
         </div>
         
         <div class="featured-seller-info-section">
-          <div class="seller-info-header">
-            <div class="seller-avatar">{{ featured_seller.pfp }}</div>
-            <div class="seller-header-info">
-              <div class="seller-name-display">{{ featured_seller.name }}</div>
-              <div>
-                <span class="seller-rating-small">{{ '★' * featured_seller.rating|int }}{{ '☆' * (5 - featured_seller.rating|int) }}</span>
-                <span class="seller-rating-count">({{ featured_seller.reviews }} reviews)</span>
+          <div>
+            <div class="seller-info-header">
+              <div class="seller-avatar">{{ featured_seller.pfp }}</div>
+              <div class="seller-header-info">
+                <div class="seller-name-display">{{ featured_seller.name }}</div>
+                <div>
+                  <span class="seller-rating-small">{{ '★' * featured_seller.rating|int }}{{ '☆' * (5 - featured_seller.rating|int) }}</span>
+                  <span class="seller-rating-count">({{ featured_seller.reviews }} reviews)</span>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div class="seller-info-grid">
-            <div class="seller-info-item">
-              <span class="seller-info-label">Positive Feedback:</span>
-              <span class="seller-info-value">{{ featured_seller.positive_feedback }}%</span>
-            </div>
-            <div class="seller-info-item">
-              <span class="seller-info-label">Items Sold:</span>
-              <span class="seller-info-value">{{ featured_seller.products_sold }}</span>
-            </div>
-            <div class="seller-info-item">
-              <span class="seller-info-label">Response Time:</span>
-              <span class="seller-info-value">{{ featured_seller.response_time }}</span>
-            </div>
-            <div class="seller-info-item">
-              <span class="seller-info-label">Member Since:</span>
-              <span class="seller-info-value">{{ featured_seller.joined }}</span>
+            
+            <div class="seller-info-grid">
+              <div class="seller-info-item">
+                <span class="seller-info-label">Positive Feedback:</span>
+                <span class="seller-info-value">{{ featured_seller.positive_feedback }}%</span>
+              </div>
+              <div class="seller-info-item">
+                <span class="seller-info-label">Items Sold:</span>
+                <span class="seller-info-value">{{ featured_seller.products_sold }}</span>
+              </div>
+              <div class="seller-info-item">
+                <span class="seller-info-label">Response Time:</span>
+                <span class="seller-info-value">{{ featured_seller.response_time }}</span>
+              </div>
+              <div class="seller-info-item">
+                <span class="seller-info-label">Member Since:</span>
+                <span class="seller-info-value">{{ featured_seller.joined }}</span>
+              </div>
             </div>
           </div>
           
