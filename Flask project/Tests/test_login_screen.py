@@ -256,3 +256,16 @@ class TestLoginScreen(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_authenticate_only_accepts_post(self):
+        """Test that authenticate endpoint only accepts POST requests"""
+        # GET should not be allowed
+        response = self.client.get('/api/authenticate')
+        self.assertEqual(response.status_code, 405)
+
+        # PUT should not be allowed
+        response = self.client.put('/api/authenticate')
+        self.assertEqual(response.status_code, 405)
+
+        # DELETE should not be allowed
+        response = self.client.delete('/api/authenticate')
+        self.assertEqual(response.status_code, 405)
