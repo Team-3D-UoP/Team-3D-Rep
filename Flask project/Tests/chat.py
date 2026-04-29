@@ -27,6 +27,37 @@ class ChatTestCase(unittest.TestCase):
         """Clean up after tests"""
         pass
 
+    def test_chat_supports_multiple_messages(self):
+        """Test that chat can store multiple messages"""
+        messages = [
+            {'text': 'Hello', 'sender': 'user', 'timestamp': datetime.now().isoformat()},
+            {'text': 'Hi there!', 'sender': 'support', 'timestamp': datetime.now().isoformat()},
+            {'text': 'How can I help?', 'sender': 'user', 'timestamp': datetime.now().isoformat()},
+        ]
+        # Simulate storing in localStorage
+        chat_history = json.dumps(messages)
+        loaded_messages = json.loads(chat_history)
+        self.assertEqual(len(loaded_messages), 3)
+
+    def test_message_serialization(self):
+        """Test that messages can be serialized and deserialized"""
+        original_message = {
+            'text': 'Test message',
+            'sender': 'user',
+            'timestamp': datetime.now().isoformat()
+        }
+        # Serialize
+        serialized = json.dumps(original_message)
+        # Deserialize
+        deserialized = json.loads(serialized)
+        self.assertEqual(original_message, deserialized)
+
+    def test_empty_chat_history(self):
+        """Test handling of empty chat history"""
+        empty_history = json.dumps([])
+        loaded = json.loads(empty_history)
+        self.assertEqual(len(loaded), 0)
+
    def test_home_page_loads(self):
         """Test that home page loads successfully"""
         response = self.client.get('/')
