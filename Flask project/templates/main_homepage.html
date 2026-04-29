@@ -940,27 +940,6 @@
         <div class="featured-image-wrapper">
           <img src="{{ url_for('static', filename='images/pressure-washer.png') }}" alt="Pressure Washer" class="featured-image">
           <div class="featured-product-name">Professional Pressure Washer</div>
-          <div class="seller-info-container">
-            <div class="seller-name-display">{{ featured_seller.name }}</div>
-            <div class="seller-rating-small">{{ '★' * featured_seller.rating|int }}{{ '☆' * (5 - featured_seller.rating|int) }} {{ featured_seller.rating }}</div>
-            
-            <div class="seller-info-item">
-              <span class="seller-info-label">Reviews:</span>
-              <span class="seller-info-value">{{ featured_seller.reviews }}</span>
-            </div>
-            <div class="seller-info-item">
-              <span class="seller-info-label">Sold:</span>
-              <span class="seller-info-value">{{ featured_seller.products_sold }}</span>
-            </div>
-            <div class="seller-info-item">
-              <span class="seller-info-label">Response:</span>
-              <span class="seller-info-value">{{ featured_seller.response_time }}</span>
-            </div>
-            <div class="seller-info-item">
-              <span class="seller-info-label">Feedback:</span>
-              <span class="seller-info-value">{{ featured_seller.positive_feedback }}%</span>
-            </div>
-          </div>
         </div>
         
         <div class="seller-info-container">
@@ -984,6 +963,8 @@
             <span class="seller-info-value">{{ featured_seller.positive_feedback }}%</span>
           </div>
         </div>
+        
+        <button class="featured-shop-btn">Shop Now</button>
       </div>
     </div>
     {% endif %}
