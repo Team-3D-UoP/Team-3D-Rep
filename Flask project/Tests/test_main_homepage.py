@@ -137,3 +137,40 @@ class TestMainHomepage(unittest.TestCase):
         for review in REVIEWS_DATA:
             self.assertIsInstance(review['text'], str)
             self.assertGreater(len(review['text']), 0)
+
+    def test_products_have_sellers_assigned(self):
+        """Test that all products get a seller assigned via _get_seller_for_product"""
+        for product in OFFER_PRODUCTS:
+            seller = _get_seller_for_product(product)
+            self.assertIsNotNone(seller, f"Product {product['id']} has no seller assigned")
+            self.assertIn('id', seller)
+            self.assertIn('name', seller)
+
+    def test_seller_assignment_is_deterministic(self):
+        """Test that the same product always gets the same seller"""
+        if OFFER_PRODUCTS and SELLERS_DATA:
+            product = OFFER_PRODUCTS[0]
+            seller1 = _get_seller_for_product(product)
+            seller2 = _get_seller_for_product(product)
+            self.assertEqual(seller1['id'], seller2['id'],
+                           "Seller assignment should be deterministic")
+
+    def test_seller_assignment_cycles_through_sellers(self):
+        """Test that seller assignment uses a round-robin distribution"""
+        if len(OFFER_PRODUCTS) > len(SELLERS_DATA):
+            # Check that not all products are assigned to the same seller
+            assigned_sellers = set()
+            for product in OFFER_PRODUCTS[:len(SELLERS_DATA) + 1]:
+                seller = _get_seller_for_product(product)
+                assigned_sellers.add(seller['id'])
+            self.assertGreater(len(assigned_sellers), 1,
+                             "Products should be distributed across multiple sellers")
+
+    def test_seller_assignment_modulo_operation(self):
+        """Test that seller assignment follows modulo pattern"""
+        if OFFER_PRODUCTS and SELLERS_DATA:
+            for i, product in enumerate(OFFER_PRODUCTS[:5]):
+                expected_seller = SELLERS_DATA[i % len(SELLERS_DATA)]
+                actual_seller = _get_seller_for_product(product)
+                self.assertEqual(actual_seller['id'], expected_seller['id'])
+
