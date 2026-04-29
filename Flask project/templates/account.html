@@ -296,6 +296,10 @@
                     <span class="icon">👤</span>
                     <span>Personal Details</span>
                 </a>
+                <a href="#my-reviews" class="nav-item" onclick="scrollToReviews()">
+                    <span class="icon">⭐</span>
+                    <span>My Reviews</span>
+                </a>
                 <a href="/wishlist" class="nav-item">
                     <span class="icon">❤️</span>
                     <span>My Wish List</span>
@@ -325,6 +329,14 @@
                     <button class="card-button" onclick="document.getElementById('details-form').scrollIntoView()">Edit My Personal Details</button>
                 </div>
                 
+                <!-- My Reviews Card -->
+                <div class="card">
+                    <div class="card-icon">⭐</div>
+                    <h3 class="card-title">MY REVIEWS</h3>
+                    <p class="card-description">View and manage all the reviews you've left on products and sellers.</p>
+                    <button class="card-button" onclick="scrollToReviews()">View My Reviews</button>
+                </div>
+
                 <!-- My Wish List Card -->
                 <div class="card">
                     <div class="card-icon">💛</div>
@@ -368,6 +380,14 @@
                         <button type="reset" class="btn-secondary">Cancel</button>
                     </div>
                 </form>
+            </div>
+
+            <!-- My Reviews Section -->
+            <div class="form-card" id="my-reviews">
+                <h2 style="font-size: 20px; margin-bottom: 25px; color: #1a3a52;">My Reviews</h2>
+                <div id="reviewsContainer" style="min-height: 200px;">
+                    <p style="text-align: center; color: #666; padding: 40px 20px;">Loading reviews...</p>
+                </div>
             </div>
         </div>
     </div>
