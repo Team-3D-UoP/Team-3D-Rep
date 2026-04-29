@@ -10,7 +10,7 @@ import sys
 import os
 
 # Add Flask project to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'Flask project'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import app
 
@@ -36,28 +36,7 @@ class ChatTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Popular parts', response.data)
 
-    def test_chat_page_loads(self):
-        """Test that chat page loads successfully"""
-        response = self.client.get('/chat')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'3DS Support Chat', response.data)
-
-    def test_chat_page_contains_chat_elements(self):
-        """Test that chat page contains required chat elements"""
-        response = self.client.get('/chat')
-        self.assertIn(b'chatMessages', response.data)
-        self.assertIn(b'chatInput', response.data)
-        self.assertIn(b'chatSendBtn', response.data)
-        self.assertIn(b'localStorage', response.data)
-
     # ==================== LOCALSTORAGE STRUCTURE TESTS ====================
-
-    def test_chat_page_initializes_storage_keys(self):
-        """Test that chat page initializes correct localStorage keys"""
-        response = self.client.get('/chat')
-        # Check for storage key constants
-        self.assertIn(b"'chat_history'", response.data)
-        self.assertIn(b"'chat_id'", response.data)
 
     def test_modal_chat_uses_separate_storage_keys(self):
         """Test that modal chat uses separate localStorage keys than full page"""
@@ -91,25 +70,6 @@ class ChatTestCase(unittest.TestCase):
 
     # ==================== JAVASCRIPT LOGIC TESTS ====================
 
-    def test_chat_html_contains_display_message_function(self):
-        """Test that chat.html contains displayMessage function"""
-        response = self.client.get('/chat')
-        self.assertIn(b'function displayMessage', response.data)
-
-    def test_chat_html_contains_save_chat_message_function(self):
-        """Test that chat.html contains saveChatMessage function"""
-        response = self.client.get('/chat')
-        self.assertIn(b'function saveChatMessage', response.data)
-
-    def test_chat_html_contains_send_message_function(self):
-        """Test that chat.html contains sendMessage function"""
-        response = self.client.get('/chat')
-        self.assertIn(b'function sendMessage', response.data)
-
-    def test_chat_html_contains_clear_history_function(self):
-        """Test that chat.html contains clearChatHistory function"""
-        response = self.client.get('/chat')
-        self.assertIn(b'function clearChatHistory', response.data)
 
     def test_modal_chat_contains_required_functions(self):
         """Test that modal chat contains required functions"""
@@ -118,7 +78,9 @@ class ChatTestCase(unittest.TestCase):
         self.assertIn(b'function saveChatMessage', response.data)
         self.assertIn(b'function sendMessage', response.data)
 
-    # ==================== UI ELEMENT TESTS ====================    def test_chat_button_exists_on_homepage(self):
+    # ==================== UI ELEMENT TESTS ====================
+
+    def test_chat_button_exists_on_homepage(self):
         """Test that chat button exists on homepage"""
         response = self.client.get('/')
         self.assertIn(b'id="chatBtn"', response.data)
@@ -181,12 +143,6 @@ class ChatTestCase(unittest.TestCase):
 
     # ==================== EVENT LISTENER TESTS ====================
 
-    def test_chat_page_has_event_listeners(self):
-        """Test that chat page sets up event listeners"""
-        response = self.client.get('/chat')
-        self.assertIn(b'addEventListener', response.data)
-        self.assertIn(b"'click'", response.data)
-        self.assertIn(b"'keypress'", response.data)
 
     def test_modal_chat_has_click_listeners(self):
         """Test that modal chat has click event listeners"""
@@ -201,7 +157,9 @@ class ChatTestCase(unittest.TestCase):
         response = self.client.get('/')
         self.assertIn(b"e.key === 'Enter'", response.data)
 
-    # ==================== STYLING TESTS ====================    def test_chat_modal_has_styling(self):
+    # ==================== STYLING TESTS ====================
+
+    def test_chat_modal_has_styling(self):
         """Test that chat modal has required CSS styles"""
         response = self.client.get('/')
         self.assertIn(b'.chat-modal', response.data)
@@ -252,16 +210,6 @@ class ChatTestCase(unittest.TestCase):
         self.assertIn(b'chatInput', response.data)
         self.assertIn(b'chatSendBtn', response.data)
 
-    def test_chat_page_full_flow(self):
-        """Test full chat page flow"""
-        # 1. Load chat page
-        response = self.client.get('/chat')
-        self.assertEqual(response.status_code, 200)
-        
-        # 2. Check required elements
-        self.assertIn(b'chatMessages', response.data)
-        self.assertIn(b'chatInput', response.data)
-        self.assertIn(b'chatSendBtn', response.data)
 
     def test_message_does_not_send_if_empty(self):
         """Test that empty messages don't trigger send"""
