@@ -23,3 +23,26 @@ class TestMainHomepage(unittest.TestCase):
     def tearDown(self):
         """Clean up after each test"""
         pass
+
+    def test_homepage_loads_successfully(self):
+        """Test that the homepage route returns a 200 status code"""
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_homepage_renders_correct_template(self):
+        """Test that the homepage renders the main_homepage.html template"""
+        response = self.client.get('/')
+        self.assertIn(b'Team 3D', response.data)  # Check for content from base template
+
+    def test_homepage_passes_products_to_template(self):
+        """Test that products are passed to the template"""
+        response = self.client.get('/')
+        # Products should be included in the response
+        self.assertGreater(len(response.data), 0)
+
+    def test_homepage_passes_reviews_to_template(self):
+        """Test that reviews are passed to the template"""
+        response = self.client.get('/')
+        # Check if reviews data is available
+        self.assertIsNotNone(REVIEWS_DATA)
+
