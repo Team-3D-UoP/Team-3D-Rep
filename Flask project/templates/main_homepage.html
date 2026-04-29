@@ -928,129 +928,24 @@
           </div>
           <a href="#" class="offer-shop-link">Shop now →</a>
           
-          {% if product.name == "Pressure Washer" and featured_seller %}
+          {% if product.seller %}
           <div class="seller-info-divider"></div>
           <div class="card-seller-info">
             <div class="card-seller-header">
-              <div class="card-seller-avatar">{{ featured_seller.pfp }}</div>
+              <div class="card-seller-avatar">{{ product.seller.pfp }}</div>
               <div class="card-seller-details">
-                <div class="card-seller-name">{{ featured_seller.name }}</div>
-                <div class="card-seller-rating">{{ '★' * featured_seller.rating|int }}{{ '☆' * (5 - featured_seller.rating|int) }} ({{ featured_seller.reviews }})</div>
+                <div class="card-seller-name">{{ product.seller.name }}</div>
+                <div class="card-seller-rating">{{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }} ({{ product.seller.reviews }})</div>
               </div>
             </div>
             <div class="card-seller-stats">
               <div class="card-stat-item">
                 <span class="card-stat-label">Feedback:</span>
-                <span class="card-stat-value">{{ featured_seller.positive_feedback }}%</span>
+                <span class="card-stat-value">{{ product.seller.positive_feedback }}%</span>
               </div>
               <div class="card-stat-item">
                 <span class="card-stat-label">Sold:</span>
-                <span class="card-stat-value">{{ featured_seller.products_sold }}</span>
-              </div>
-            </div>
-          </div>
-          {% elif product.name == "Car Cleaning Kit" and secondary_seller %}
-          <div class="seller-info-divider"></div>
-          <div class="card-seller-info">
-            <div class="card-seller-header">
-              <div class="card-seller-avatar alt">{{ secondary_seller.pfp }}</div>
-              <div class="card-seller-details">
-                <div class="card-seller-name">{{ secondary_seller.name }}</div>
-                <div class="card-seller-rating">{{ '★' * secondary_seller.rating|int }}{{ '☆' * (5 - secondary_seller.rating|int) }} ({{ secondary_seller.reviews }})</div>
-              </div>
-            </div>
-            <div class="card-seller-stats">
-              <div class="card-stat-item">
-                <span class="card-stat-label">Feedback:</span>
-                <span class="card-stat-value">{{ secondary_seller.positive_feedback }}%</span>
-              </div>
-              <div class="card-stat-item">
-                <span class="card-stat-label">Sold:</span>
-                <span class="card-stat-value">{{ secondary_seller.products_sold }}</span>
-              </div>
-            </div>
-          </div>
-          {% elif product.name == "Oil Filter" and tertiary_seller %}
-          <div class="seller-info-divider"></div>
-          <div class="card-seller-info">
-            <div class="card-seller-header">
-              <div class="card-seller-avatar alt-2">{{ tertiary_seller.pfp }}</div>
-              <div class="card-seller-details">
-                <div class="card-seller-name">{{ tertiary_seller.name }}</div>
-                <div class="card-seller-rating">{{ '★' * tertiary_seller.rating|int }}{{ '☆' * (5 - tertiary_seller.rating|int) }} ({{ tertiary_seller.reviews }})</div>
-              </div>
-            </div>
-            <div class="card-seller-stats">
-              <div class="card-stat-item">
-                <span class="card-stat-label">Feedback:</span>
-                <span class="card-stat-value">{{ tertiary_seller.positive_feedback }}%</span>
-              </div>
-              <div class="card-stat-item">
-                <span class="card-stat-label">Sold:</span>
-                <span class="card-stat-value">{{ tertiary_seller.products_sold }}</span>
-              </div>
-            </div>
-          </div>
-          {% elif product.name == "Air Freshener Pack" and quaternary_seller %}
-          <div class="seller-info-divider"></div>
-          <div class="card-seller-info">
-            <div class="card-seller-header">
-              <div class="card-seller-avatar alt-3">{{ quaternary_seller.pfp }}</div>
-              <div class="card-seller-details">
-                <div class="card-seller-name">{{ quaternary_seller.name }}</div>
-                <div class="card-seller-rating">{{ '★' * quaternary_seller.rating|int }}{{ '☆' * (5 - quaternary_seller.rating|int) }} ({{ quaternary_seller.reviews }})</div>
-              </div>
-            </div>
-            <div class="card-seller-stats">
-              <div class="card-stat-item">
-                <span class="card-stat-label">Feedback:</span>
-                <span class="card-stat-value">{{ quaternary_seller.positive_feedback }}%</span>
-              </div>
-              <div class="card-stat-item">
-                <span class="card-stat-label">Sold:</span>
-                <span class="card-stat-value">{{ quaternary_seller.products_sold }}</span>
-              </div>
-            </div>
-          </div>
-          {% elif product.name == "Roof Bars Set" and quinary_seller %}
-          <div class="seller-info-divider"></div>
-          <div class="card-seller-info">
-            <div class="card-seller-header">
-              <div class="card-seller-avatar alt-4">{{ quinary_seller.pfp }}</div>
-              <div class="card-seller-details">
-                <div class="card-seller-name">{{ quinary_seller.name }}</div>
-                <div class="card-seller-rating">{{ '★' * quinary_seller.rating|int }}{{ '☆' * (5 - quinary_seller.rating|int) }} ({{ quinary_seller.reviews }})</div>
-              </div>
-            </div>
-            <div class="card-seller-stats">
-              <div class="card-stat-item">
-                <span class="card-stat-label">Feedback:</span>
-                <span class="card-stat-value">{{ quinary_seller.positive_feedback }}%</span>
-              </div>
-              <div class="card-stat-item">
-                <span class="card-stat-label">Sold:</span>
-                <span class="card-stat-value">{{ quinary_seller.products_sold }}</span>
-              </div>
-            </div>
-          </div>
-          {% elif product.name == "Engine Oil 5L" and senary_seller %}
-          <div class="seller-info-divider"></div>
-          <div class="card-seller-info">
-            <div class="card-seller-header">
-              <div class="card-seller-avatar alt-5">{{ senary_seller.pfp }}</div>
-              <div class="card-seller-details">
-                <div class="card-seller-name">{{ senary_seller.name }}</div>
-                <div class="card-seller-rating">{{ '★' * senary_seller.rating|int }}{{ '☆' * (5 - senary_seller.rating|int) }} ({{ senary_seller.reviews }})</div>
-              </div>
-            </div>
-            <div class="card-seller-stats">
-              <div class="card-stat-item">
-                <span class="card-stat-label">Feedback:</span>
-                <span class="card-stat-value">{{ senary_seller.positive_feedback }}%</span>
-              </div>
-              <div class="card-stat-item">
-                <span class="card-stat-label">Sold:</span>
-                <span class="card-stat-value">{{ senary_seller.products_sold }}</span>
+                <span class="card-stat-value">{{ product.seller.products_sold }}</span>
               </div>
             </div>
           </div>
