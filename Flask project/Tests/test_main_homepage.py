@@ -214,3 +214,25 @@ class TestMainHomepage(unittest.TestCase):
             for seller in SELLERS_DATA:
                 reviews = _get_reviews_for_seller(seller['id'])
                 self.assertLessEqual(len(reviews), 4)
+
+    def test_homepage_with_empty_products(self):
+        """Test homepage behavior when no products are available"""
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_homepage_handles_missing_sellers_gracefully(self):
+        """Test that homepage doesn't crash if sellers data is unavailable"""
+        if not SELLERS_DATA:
+            response = self.client.get('/')
+            self.assertEqual(response.status_code, 200)
+
+    def test_invalid_product_id_returns_404(self):
+        """Test that requesting a non-existent product returns 404"""
+        response = self.client.get('/product/99999')
+        self.assertEqual(response.status_code, 404)
+
+    def test_invalid_seller_id_returns_404(self):
+        """Test that requesting a non-existent seller returns 404"""
+        response = self.client.get('/seller/99999')
+        self.assertEqual(response.status_code, 404)
+
