@@ -11,7 +11,11 @@
 
         <a href="{{ url_for('account') }}" class="headerButton">Account</a>
 
-        <a href="{{ url_for('my_orders') }}" class="headerButton">Basket</a>
+        {% if session.get('authenticated') %}
+        <a href="{{ url_for('view_cart') }}" class="headerButton cartButton" id="cartButton">
+          🛒 Cart <span class="cart-count" id="cartCount">0</span>
+        </a>
+        {% endif %}
 
         <button id="burgerButton" type="button" onclick="hideBurger()">▶</button>
     </div>
@@ -22,7 +26,10 @@
             <section id="headerAccounts">
                 <p>Must <a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('register') }}">Register</a></p>
                 <p><a href="{{ url_for('account') }}">Account</a></p>
-                <p><a href="{{ url_for('my_orders') }}">Basket</a></p>
+                {% if session.get('authenticated') %}
+                <p><a href="{{ url_for('view_cart') }}">Shopping Cart</a></p>
+                {% endif %}
+                <p><a href="{{ url_for('my_orders') }}">Orders</a></p>
             </section>
             
             <p><a href="{{ url_for('car_registration_screen') }}">Car Registration</a></p>
@@ -42,6 +49,28 @@
         burgerMenu.hidden = !burgerMenu.hidden
         burgerButton.textContent = burgerMenu.hidden ? "▶" : "▼"
     }
+
+    // Update cart count in header
+    async function updateCartCount() {
+        const cartCountElement = document.getElementById('cartCount');
+        if (!cartCountElement) return; // Cart button only shows for logged-in users
+
+        try {
+            const response = await fetch('/api/cart');
+            if (response.ok) {
+                const data = await response.json();
+                cartCountElement.textContent = data.count || 0;
+            }
+        } catch (error) {
+            console.error('Error updating cart count:', error);
+        }
+    }
+
+    // Update cart count when page loads
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+
+    // Listen for custom event to update cart when item is added
+    document.addEventListener('cartUpdated', updateCartCount);
 </script>
 
 <style>
@@ -147,5 +176,27 @@
         transition: background-color 0.3s ease;
         text-decoration: none;
         display: inline-block;
+    }
+    .headerButton:hover {
+        background-color: #002d5a;
+    }
+    .cartButton {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .cart-count {
+        background-color: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+        min-width: 22px;
     }
 </style>
