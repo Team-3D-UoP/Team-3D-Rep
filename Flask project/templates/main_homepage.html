@@ -1012,6 +1012,27 @@
               </div>
             </div>
           </div>
+          {% elif product.name == "Roof Bars Set" and quinary_seller %}
+          <div class="seller-info-divider"></div>
+          <div class="card-seller-info">
+            <div class="card-seller-header">
+              <div class="card-seller-avatar alt-4">{{ quinary_seller.pfp }}</div>
+              <div class="card-seller-details">
+                <div class="card-seller-name">{{ quinary_seller.name }}</div>
+                <div class="card-seller-rating">{{ '★' * quinary_seller.rating|int }}{{ '☆' * (5 - quinary_seller.rating|int) }} ({{ quinary_seller.reviews }})</div>
+              </div>
+            </div>
+            <div class="card-seller-stats">
+              <div class="card-stat-item">
+                <span class="card-stat-label">Feedback:</span>
+                <span class="card-stat-value">{{ quinary_seller.positive_feedback }}%</span>
+              </div>
+              <div class="card-stat-item">
+                <span class="card-stat-label">Sold:</span>
+                <span class="card-stat-value">{{ quinary_seller.products_sold }}</span>
+              </div>
+            </div>
+          </div>
           {% endif %}
         </div>
       </div>
