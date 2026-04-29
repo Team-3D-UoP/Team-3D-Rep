@@ -927,72 +927,33 @@
             <span class="offer-current-price">£{{ "%.2f"|format(product.current_price) }}</span>
           </div>
           <a href="#" class="offer-shop-link">Shop now →</a>
+          
+          {% if product.name == "Pressure Washer" and featured_seller %}
+          <div class="seller-info-divider"></div>
+          <div class="card-seller-info">
+            <div class="card-seller-header">
+              <div class="card-seller-avatar">{{ featured_seller.pfp }}</div>
+              <div class="card-seller-details">
+                <div class="card-seller-name">{{ featured_seller.name }}</div>
+                <div class="card-seller-rating">{{ '★' * featured_seller.rating|int }}{{ '☆' * (5 - featured_seller.rating|int) }} ({{ featured_seller.reviews }})</div>
+              </div>
+            </div>
+            <div class="card-seller-stats">
+              <div class="card-stat-item">
+                <span class="card-stat-label">Feedback:</span>
+                <span class="card-stat-value">{{ featured_seller.positive_feedback }}%</span>
+              </div>
+              <div class="card-stat-item">
+                <span class="card-stat-label">Sold:</span>
+                <span class="card-stat-value">{{ featured_seller.products_sold }}</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
-
-    {% if featured_seller %}
-    <div class="featured-seller-section">
-      <div class="featured-seller-card">
-        <span class="featured-badge">🔥 SALE</span>
-        <span class="featured-heart">♡</span>
-        
-        <div class="featured-product-section">
-          <div class="featured-image-wrapper">
-            <img src="{{ url_for('static', filename='images/pressure-washer.png') }}" alt="Pressure Washer" class="featured-image">
-          </div>
-          
-          <div class="featured-product-details">
-            <div>
-              <div class="featured-product-name">Professional Pressure Washer</div>
-              <div class="featured-product-status">New - Never used</div>
-            </div>
-            <div>
-              <div class="featured-product-price">£249.99</div>
-              <div class="featured-shipping">+ £15.00 Shipping</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="featured-seller-info-section">
-          <div>
-            <div class="seller-info-header">
-              <div class="seller-avatar">{{ featured_seller.pfp }}</div>
-              <div class="seller-header-info">
-                <div class="seller-name-display">{{ featured_seller.name }}</div>
-                <div>
-                  <span class="seller-rating-small">{{ '★' * featured_seller.rating|int }}{{ '☆' * (5 - featured_seller.rating|int) }}</span>
-                  <span class="seller-rating-count">({{ featured_seller.reviews }} reviews)</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="seller-info-grid">
-              <div class="seller-info-item">
-                <span class="seller-info-label">Positive Feedback:</span>
-                <span class="seller-info-value">{{ featured_seller.positive_feedback }}%</span>
-              </div>
-              <div class="seller-info-item">
-                <span class="seller-info-label">Items Sold:</span>
-                <span class="seller-info-value">{{ featured_seller.products_sold }}</span>
-              </div>
-              <div class="seller-info-item">
-                <span class="seller-info-label">Response Time:</span>
-                <span class="seller-info-value">{{ featured_seller.response_time }}</span>
-              </div>
-              <div class="seller-info-item">
-                <span class="seller-info-label">Member Since:</span>
-                <span class="seller-info-value">{{ featured_seller.joined }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <button class="featured-action-btn">Contact Seller</button>
-        </div>
-      </div>
-    </div>
-    {% endif %}
   </div>
   
   <div class="reviews-section">
