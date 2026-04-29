@@ -344,3 +344,73 @@ class TestRegisterScreen(unittest.TestCase):
         response_data = json.loads(response.data)
         self.assertIn('error', response_data)
 
+    def test_register_with_special_characters_in_data(self):
+        """Test registration with special characters in fields"""
+        data = self.valid_data.copy()
+        data['fullname'] = 'José María García-López'
+        data['email'] = 'test+special@example.co.uk'
+
+        with patch('app.auth.create_user') as mock_create_user:
+            mock_create_user.return_value = MagicMock(uid='testuser123')
+
+            response = self.client.post(
+                '/register',
+                data=json.dumps(data),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 201)
+
+    def test_register_with_very_long_input(self):
+        """Test registration with very long input strings"""
+        data = self.valid_data.copy()
+        data['fullname'] = 'A' * 500
+        data['username'] = 'B' * 500
+
+        with patch('app.auth.create_user') as mock_create_user:
+            mock_create_user.return_value = MagicMock(uid='testuser123')
+
+            response = self.client.post(
+                '/register',
+                data=json.dumps(data),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 201)
+
+    def test_register_with_whitespace_only_fields(self):
+        """Test registration fails with whitespace-only fields"""
+        data = self.valid_data.copy()
+        data['email'] = '   '
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    @patch('app.auth.create_user')
+    def test_register_duplicate_registration_attempt(self, mock_create_user):
+        """Test that attempting to register twice with same email fails appropriately"""
+        mock_create_user.return_value = MagicMock(uid='testuser123')
+        response1 = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+        self.assertEqual(response1.status_code, 201)
+
+        # Second registration with same email fails
+        mock_create_user.side_effect = Exception('Email already exists')
+        response2 = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+        self.assertEqual(response2.status_code, 400)
+
+
+if __name__ == '__main__':
+    unittest.main()
