@@ -271,4 +271,30 @@
     messages.forEach(msg => {
       displayMessage(msg.text, msg.sender, msg.timestamp);
     });
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Display a message in the chat UI
+  function displayMessage(text, sender, timestamp) {
+    const msgDiv = document.createElement('div');
+    const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    if (sender === 'system') {
+      msgDiv.className = 'chat-message chat-message-system';
+      msgDiv.innerHTML = `<div>${text}</div>`;
+    } else {
+      msgDiv.className = `chat-message chat-message-${sender === 'user' ? 'user' : 'support'}`;
+      msgDiv.innerHTML = `
+        <div>${text}</div>
+        <div class="chat-message-time">${time}</div>
+      `;
+    }
+
+    if (chatMessages.querySelector('.empty-state')) {
+      chatMessages.innerHTML = '';
+    }
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
 
