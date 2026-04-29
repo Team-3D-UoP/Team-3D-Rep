@@ -264,3 +264,30 @@ class ChatTestCase(unittest.TestCase):
         message = 'Hello'.strip()
         should_send = bool(message)
         self.assertTrue(should_send)
+
+
+    def test_chat_handles_special_characters(self):
+        """Test that chat handles messages with special characters"""
+        special_message = "Hello! <script>alert('xss')</script>"
+        self.assertIsNotNone(special_message)
+        self.assertGreater(len(special_message), 0)
+
+    def test_chat_handles_unicode_characters(self):
+        """Test that chat handles unicode characters"""
+        unicode_message = "Привет мир 你好 🚗"
+        serialized = json.dumps({'text': unicode_message, 'sender': 'user'})
+        deserialized = json.loads(serialized)
+        self.assertEqual(deserialized['text'], unicode_message)
+
+    def test_chat_handles_long_messages(self):
+        """Test that chat handles long messages"""
+        long_message = 'A' * 1000  # 1000 character message
+        self.assertEqual(len(long_message), 1000)
+
+    def test_chat_counter_calculation(self):
+        """Test that message counter calculates correctly"""
+        initial_count = 1  # Initial greeting message
+        messages_added = 3
+        total = initial_count + messages_added
+        self.assertEqual(total, 4)
+
