@@ -198,3 +198,51 @@
     .chat-body {
       padding: 1rem;
 
+    }
+
+    .chat-footer {
+      padding: 0.75rem;
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #999;
+    padding: 2rem;
+    font-style: italic;
+  }
+</style>
+
+<a href="/" class="back-link">← Back to Home</a>
+
+<div class="chat-container">
+  <div class="chat-header">
+    <div>
+      <div class="chat-title">3DS Support Chat</div>
+      <div class="chat-status">Always here to help 24/7</div>
+    </div>
+    <button class="chat-clear-btn" id="clearHistoryBtn" title="Clear chat history">Clear History</button>
+  </div>
+
+  <div class="chat-body" id="chatMessages">
+    <div class="empty-state">No messages yet. Start a conversation!</div>
+  </div>
+
+  <div class="chat-footer">
+    <div class="chat-input-group">
+      <input 
+        type="text" 
+        class="chat-input" 
+        id="chatInput" 
+        placeholder="Type your message here..."
+        autocomplete="off"
+      >
+      <button class="chat-send-btn" id="chatSendBtn">Send</button>
+    </div>
+  </div>
+
+  <div class="chat-info">
+    💾 Your chat history is saved locally and will persist across page refreshes.
+  </div>
+</div>
+
