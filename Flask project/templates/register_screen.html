@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Team 3D</title>
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Team 3D{% endblock %}
+
+{% block extra_css %}
     <style>
         * {
           margin: 0;
@@ -188,9 +187,11 @@
           }
         }
     </style>
-</head>
-<body>
-    <div class="register-container">
+{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 2rem;">
+        <div class="register-container">
         <div class="register-header">
             <h1>Team 3D</h1>
             <p>Create your account</p>
@@ -235,6 +236,7 @@
         
         <div class="login-link">
             Already have an account? <a href="/login">Login here</a>
+        </div>
         </div>
     </div>
 
@@ -338,5 +340,4 @@
                 });
         };
     </script>
-</body>
-</html>
+{% endblock %}
