@@ -28,7 +28,6 @@ class ChatTestCase(unittest.TestCase):
         """Clean up after tests"""
         pass
 
-    # ==================== ROUTE TESTS ====================
 
     def test_home_page_loads(self):
         """Test that home page loads successfully"""
@@ -36,14 +35,12 @@ class ChatTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Popular parts', response.data)
 
-    # ==================== LOCALSTORAGE STRUCTURE TESTS ====================
 
     def test_modal_chat_uses_separate_storage_keys(self):
         """Test that modal chat uses separate localStorage keys than full page"""
         response = self.client.get('/')
         self.assertIn(b"'modal_chat_history'", response.data)
 
-    # ==================== CHAT FUNCTIONALITY TESTS ====================
 
     def test_message_object_structure(self):
         """Test that chat messages have correct structure"""
@@ -68,8 +65,6 @@ class ChatTestCase(unittest.TestCase):
         self.assertEqual(message['sender'], 'support')
         self.assertIn('Thank you', message['text'])
 
-    # ==================== JAVASCRIPT LOGIC TESTS ====================
-
 
     def test_modal_chat_contains_required_functions(self):
         """Test that modal chat contains required functions"""
@@ -78,7 +73,6 @@ class ChatTestCase(unittest.TestCase):
         self.assertIn(b'function saveChatMessage', response.data)
         self.assertIn(b'function sendMessage', response.data)
 
-    # ==================== UI ELEMENT TESTS ====================
 
     def test_chat_button_exists_on_homepage(self):
         """Test that chat button exists on homepage"""
@@ -108,7 +102,6 @@ class ChatTestCase(unittest.TestCase):
         response = self.client.get('/')
         self.assertIn(b'class="chat-messages"', response.data)
 
-    # ==================== MESSAGE PERSISTENCE TESTS ====================
 
     def test_chat_supports_multiple_messages(self):
         """Test that chat can store multiple messages"""
@@ -141,7 +134,6 @@ class ChatTestCase(unittest.TestCase):
         loaded = json.loads(empty_history)
         self.assertEqual(len(loaded), 0)
 
-    # ==================== EVENT LISTENER TESTS ====================
 
 
     def test_modal_chat_has_click_listeners(self):
@@ -157,7 +149,6 @@ class ChatTestCase(unittest.TestCase):
         response = self.client.get('/')
         self.assertIn(b"e.key === 'Enter'", response.data)
 
-    # ==================== STYLING TESTS ====================
 
     def test_chat_modal_has_styling(self):
         """Test that chat modal has required CSS styles"""
@@ -172,7 +163,6 @@ class ChatTestCase(unittest.TestCase):
         self.assertIn(b'.chat-message-company', response.data)
         self.assertIn(b'chat-message', response.data)
 
-    # ==================== DATA VALIDATION TESTS ====================
 
     def test_message_text_not_empty(self):
         """Test that empty messages are rejected"""
@@ -197,7 +187,6 @@ class ChatTestCase(unittest.TestCase):
         message_sender = 'user'
         self.assertIn(message_sender, valid_senders)
 
-    # ==================== INTEGRATION TESTS ====================
 
     def test_full_chat_flow(self):
         """Test full chat flow: open -> send message -> receive response"""
@@ -224,7 +213,6 @@ class ChatTestCase(unittest.TestCase):
         should_send = bool(message)
         self.assertTrue(should_send)
 
-    # ==================== ERROR HANDLING TESTS ====================
 
     def test_chat_handles_special_characters(self):
         """Test that chat handles messages with special characters"""
@@ -251,7 +239,6 @@ class ChatTestCase(unittest.TestCase):
         total = initial_count + messages_added
         self.assertEqual(total, 4)
 
-    # ==================== RESPONSIVE DESIGN TESTS ====================
 
     def test_chat_modal_responsive_styles(self):
         """Test that chat modal has responsive CSS media queries"""
