@@ -113,6 +113,104 @@ def seller_detail(seller_id):
                            products=seller_products,
                            reviews=seller_reviews)
 
+
+@app.route("/seller/<int:seller_id>/review", methods=['POST'])
+def submit_seller_review(seller_id):
+    """Submit a review for a seller"""
+    # Check if user is logged in
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    # Get the review data
+    data = request.get_json(silent=True)
+
+    if not data or 'rating' not in data or 'review_text' not in data:
+        return jsonify({"error": "Missing review data"}), 400
+
+    try:
+        rating = int(data['rating'])
+        review_text = data['review_text'].strip()
+
+        if rating < 1 or rating > 5:
+            return jsonify({"error": "Invalid rating"}), 400
+
+        if not review_text or len(review_text) < 10:
+            return jsonify({"error": "Review must be at least 10 characters"}), 400
+
+        # Check if seller exists
+        seller = next((s for s in SELLERS_DATA if s['id'] == seller_id), None)
+        if not seller:
+            return jsonify({"error": "Seller not found"}), 404
+
+        # Check if user already reviewed this seller
+        existing_review = SellerReview.query.filter_by(
+            seller_id=seller_id,
+            user_id=session['user_id']
+        ).first()
+
+        if existing_review:
+            # Update existing review
+            existing_review.rating = rating
+            existing_review.review_text = review_text
+            db.session.commit()
+            return jsonify({
+                "success": True,
+                "message": "Review updated successfully",
+                "review_id": existing_review.id
+            }), 200
+        else:
+            # Create new review
+            new_review = SellerReview(
+                seller_id=seller_id,
+                user_id=session['user_id'],
+                user_email=session.get('email', ''),
+                user_name=session.get('name', 'Anonymous'),
+                rating=rating,
+                review_text=review_text
+            )
+            db.session.add(new_review)
+            db.session.commit()
+
+            return jsonify({
+                "success": True,
+                "message": "Review submitted successfully",
+                "review_id": new_review.id
+            }), 201
+
+    except (ValueError, TypeError) as e:
+        print(f"ValueError/TypeError in submit_seller_review: {str(e)}")
+        return jsonify({"error": "Invalid data format"}), 400
+    except Exception as e:
+        print(f"Exception in submit_seller_review: {str(e)}")
+        db.session.rollback()
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Error: {str(e)}"}), 500
+
+
+@app.route("/seller/<int:seller_id>/reviews", methods=['GET'])
+def get_seller_reviews(seller_id):
+    """Get all user reviews for a seller"""
+    try:
+        reviews = SellerReview.query.filter_by(seller_id=seller_id).order_by(
+            SellerReview.created_at.desc()
+        ).all()
+
+        return jsonify({
+            "success": True,
+            "reviews": [review.to_dict() for review in reviews],
+            "count": len(reviews)
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/user/reviews", methods=['GET'])
+def get_user_reviews():
+    """Get all reviews submitted by the current user (both product and seller reviews)"""
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
 @app.route("/product/<int:product_id>/review", methods=['POST'])
 def submit_review(product_id):
     """Submit a review for a product"""
