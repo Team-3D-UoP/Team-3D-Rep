@@ -2,7 +2,7 @@
 -- Reusable queries for Database1.sql 
 
 -- Search cars by keyword across make, model, year, license, engine, wheels
---    Use a parameter :term such as '%Toyota%' or '%Hybrid%'.
+--   Use :term such as '%Toyota%', '%Hybrid%' or %2025%.
 SELECT
     rcs.CarID,
     rcs.make,
