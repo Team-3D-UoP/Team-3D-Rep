@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sellers - Team 3D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .sellers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .seller-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .seller-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .seller-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .pfp {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .seller-name {
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .seller-title {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+        }
+        
+        .seller-body {
+            padding: 20px;
+        }
+        
+        .rating-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stars {
+            color: #ffc107;
+            font-size: 1em;
+        }
+        
+        .rating-text {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .reviews {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em;
+        }
+        
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .btn-view {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn-view:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Our Sellers</h1>
+            <p>Discover trusted sellers on Team 3D</p>
+        </div>
+        
+        <div class="sellers-grid">
+            {% for seller in sellers %}
+            <div class="seller-card">
+                <div class="seller-header">
+                    <div class="pfp">{{ seller.pfp }}</div>
+                    <div class="seller-name">{{ seller.name }}</div>
+                    <div class="seller-title">{{ seller.title }}</div>
+                </div>
+                <div class="seller-body">
+                    <div class="rating-section">
+                        <div class="stars">{{ '★' * seller.rating|int }}{{ '☆' * (5 - seller.rating|int) }}</div>
+                        <div class="rating-text">{{ seller.rating }}</div>
+                        <div class="reviews">({{ seller.reviews }} reviews)</div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Joined:</span>
+                        <span class="info-value">{{ seller.joined }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Products Sold:</span>
+                        <span class="info-value">{{ seller.products_sold }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Response Time:</span>
+                        <span class="info-value">{{ seller.response_time }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Positive Feedback:</span>
+                        <span class="info-value">{{ seller.positive_feedback }}%</span>
+                    </div>
+                    <span class="status-badge {% if seller.active %}status-active{% else %}status-inactive{% endif %}">
+                        ● {% if seller.active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                    <button class="btn-view">View Profile</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
