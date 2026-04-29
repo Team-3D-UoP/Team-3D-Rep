@@ -617,8 +617,94 @@
     });
   });
 
-      '"': '&quot;',
-      "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-  }
+  document.getElementById('sellerRatingInput').addEventListener('mouseleave', function() {
+    const activeRating = sellerRatingValue.value;
+    sellerStars.forEach(s => {
+      if(s.dataset.rating <= activeRating) {
+        s.style.color = '#ffc107';
+      } else {
+        s.style.color = '#ddd';
+      }
+    });
+  });
+
+  // Form submission for seller reviews
+  document.getElementById('sellerReviewForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const rating = document.getElementById('sellerRatingValue').value;
+    const reviewText = document.getElementById('sellerReviewText').value;
+
+    if(!rating || !reviewText) {
+      alert('Please provide both a rating and review text.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/seller/{{ seller.id }}/review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          rating: parseInt(rating),
+          review_text: reviewText
+        })
+      });
+
+      if(response.ok) {
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('sellerReviewText').value = '';
+        document.getElementById('sellerRatingValue').value = 0;
+        sellerStars.forEach(s => s.classList.remove('active'));
+
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          document.getElementById('successMessage').style.display = 'none';
+          loadUserSellerReviews(); // Reload user reviews
+        }, 500);
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Error submitting review. Please try again.');
+      }
+    } catch(error) {
+      console.error('Error:', error);
+      alert('Error submitting review. Please try again.');
+    }
+  });
+
+  // Load user seller reviews from database
+  async function loadUserSellerReviews() {
+    try {
+      const response = await fetch('/seller/{{ seller.id }}/reviews');
+      const data = await response.json();
+
+      const container = document.getElementById('userSellerReviewsContainer');
+
+      if (!data.reviews || data.reviews.length === 0) {
+        container.innerHTML = '<p class="no-reviews-message">No reviews yet for this seller. Be the first to review!</p>';
+        return;
+      }
+
+      let reviewsHTML = '';
+      data.reviews.forEach(review => {
+        const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        reviewsHTML += `
+          <div class="user-review-card">
+            <div class="user-review-header">
+              <div>
+                <div class="user-review-author">${escapeHtml(review.user_name)}</div>
+                <div class="user-review-date">${reviewDate}</div>
+              </div>
+              <div class="user-review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+            </div>
+            <p class="user-review-text">${escapeHtml(review.review_text)}</p>
+          </div>
+        `;
+      });
+
