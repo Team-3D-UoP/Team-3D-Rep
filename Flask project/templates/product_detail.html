@@ -634,7 +634,7 @@
       </div>
 
       <div class="action-buttons">
-        <button class="btn-primary">Add to Cart</button>
+        <button class="btn-primary" id="addToCartBtn">Add to Cart</button>
         <button class="btn-secondary">Add to Wishlist</button>
       </div>
 
@@ -1315,6 +1315,48 @@
 
   // Load reviews when page loads
   loadUserReviews();
+
+  // Add to Cart functionality
+  const addToCartBtn = document.getElementById('addToCartBtn');
+  if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', async function() {
+      // Check if user is logged in
+      const userLoggedIn = '{{ session.get("user_id") }}' !== '';
+
+      if (!userLoggedIn) {
+        alert('Please log in to add items to your cart.');
+        window.location.href = '{{ url_for("login") }}';
+        return;
+      }
+
+      try {
+        const productId = {{ product.id }};
+        const response = await fetch('/api/cart/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert('Item added to cart successfully!');
+          // Optionally, redirect to cart or update UI
+          // window.location.href = '{{ url_for("view_cart") }}';
+        } else {
+          alert(data.error || 'Error adding item to cart.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error adding item to cart. Please try again.');
+      }
+    });
+  }
 </script>
 
 {% endblock %}
