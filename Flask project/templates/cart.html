@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - Team 3D{% endblock %}
+
+{% block content %}
+<style>
+  .cart-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .cart-breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .cart-breadcrumb a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  .cart-breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .cart-title {
+    font-size: 2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 2rem;
+  }
+
+  .cart-content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .cart-items-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .empty-cart {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #666;
+  }
+
+  .empty-cart-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .empty-cart-text {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .continue-shopping-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+  }
+
+  .continue-shopping-btn:hover {
+    background-color: #002d5a;
+  }
+
+  .cart-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
