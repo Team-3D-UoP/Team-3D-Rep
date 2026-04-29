@@ -1,4 +1,5 @@
 import os
+import random
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 from data.products import OFFER_PRODUCTS
@@ -125,7 +126,8 @@ sellers_data = [
 
 @app.route("/", methods=['GET'])
 def home():
-    return render_template("main_homepage.html", offer_products=OFFER_PRODUCTS)
+    random_seller = random.choice(sellers_data)
+    return render_template("main_homepage.html", offer_products=OFFER_PRODUCTS, featured_seller=random_seller)
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
