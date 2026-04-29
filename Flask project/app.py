@@ -82,11 +82,7 @@ def submit_review(product_id):
         
         if not review_text or len(review_text) < 10:
             return jsonify({"error": "Review must be at least 10 characters"}), 400
-        
-        # Here you would normally save the review to a database
-        # For now, we'll just return success
-        # In a real application, you would save this to your database
-        
+    
         return jsonify({
             "success": True,
             "message": "Review submitted successfully"

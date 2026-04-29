@@ -40,14 +40,18 @@
 
 <style>
     #commonHeader {
-        background-color: lightgrey;
+        background-color: white;
         padding: 1rem 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-bottom: 2px solid #003d7a;
     }
     #commonHeader .headerRow {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
         flex-wrap: wrap;
+        max-width: 1200px;
+        margin: 0 auto;
     }
     #commonHeader img {
         height: 2.25rem;
@@ -57,5 +61,57 @@
     #commonHeader h1 {
         margin: 0;
         font-size: 1.5rem;
+        color: #003d7a;
+        font-weight: bold;
+        flex: 1;
+        min-width: 150px;
+    }
+    #commonHeader input {
+        padding: 0.6rem 0.9rem;
+        font-size: 0.9rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        flex: 1;
+        min-width: 200px;
+    }
+    #commonHeader button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        background-color: #003d7a;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    #commonHeader button:hover {
+        background-color: #002d5a;
+    }
+    #commonHeader #burgerButton {
+        flex: 0 0 auto;
+    }
+    #burgerMenu {
+        background-color: #f9f9f9;
+        border-top: 1px solid #e0e0e0;
+        padding: 1rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    #burgerMenu section {
+        margin-bottom: 0.75rem;
+    }
+    #burgerMenu p {
+        margin: 0.5rem 0;
+        color: #333;
+    }
+    #burgerMenu a {
+        color: #003d7a;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    #burgerMenu a:hover {
+        color: #002d5a;
+        text-decoration: underline;
     }
 </style>
