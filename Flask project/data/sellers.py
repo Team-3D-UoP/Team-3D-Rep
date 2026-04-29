@@ -2,6 +2,7 @@
 
 SELLERS_DATA = [
     {
+        'id': 1,
         'name': 'Alex Mitchell',
         'title': '3D Printing Expert',
         'pfp': 'A',
@@ -11,9 +12,11 @@ SELLERS_DATA = [
         'products_sold': 542,
         'response_time': '2 hours',
         'positive_feedback': 98,
-        'active': True
+        'active': True,
+        'bio': 'Specialist in high-precision 3D printed automotive parts with over a decade of CAD experience.'
     },
     {
+        'id': 2,
         'name': 'Bella Chen',
         'title': 'CAD Designer',
         'pfp': 'B',
@@ -23,9 +26,11 @@ SELLERS_DATA = [
         'products_sold': 389,
         'response_time': '4 hours',
         'positive_feedback': 96,
-        'active': True
+        'active': True,
+        'bio': 'CAD designer focused on bespoke replacement parts and rapid prototyping for hobbyists.'
     },
     {
+        'id': 3,
         'name': 'Carlos Rodriguez',
         'title': 'Prototype Builder',
         'pfp': 'C',
@@ -35,9 +40,11 @@ SELLERS_DATA = [
         'products_sold': 478,
         'response_time': '1 hour',
         'positive_feedback': 99,
-        'active': True
+        'active': True,
+        'bio': 'Award-winning prototype builder delivering durable, road-ready 3D printed components.'
     },
     {
+        'id': 4,
         'name': 'Diana Thompson',
         'title': 'Model Creator',
         'pfp': 'D',
@@ -47,9 +54,11 @@ SELLERS_DATA = [
         'products_sold': 267,
         'response_time': '3 hours',
         'positive_feedback': 94,
-        'active': True
+        'active': True,
+        'bio': 'Creates highly detailed scale models and aftermarket trims for classic cars.'
     },
     {
+        'id': 5,
         'name': 'Eric Kim',
         'title': 'Tech Specialist',
         'pfp': 'E',
@@ -59,9 +68,11 @@ SELLERS_DATA = [
         'products_sold': 612,
         'response_time': '1 hour',
         'positive_feedback': 97,
-        'active': True
+        'active': True,
+        'bio': 'Tech specialist offering smart accessories, sensor mounts, and electronics enclosures.'
     },
     {
+        'id': 6,
         'name': 'Fiona Walsh',
         'title': 'Quality Assurance',
         'pfp': 'F',
@@ -71,9 +82,11 @@ SELLERS_DATA = [
         'products_sold': 145,
         'response_time': '8 hours',
         'positive_feedback': 88,
-        'active': False
+        'active': False,
+        'bio': 'Quality assurance specialist providing hand-finished, batch-tested parts.'
     },
     {
+        'id': 7,
         'name': 'Gabriel Santos',
         'title': 'Custom Fabrication',
         'pfp': 'G',
@@ -83,9 +96,11 @@ SELLERS_DATA = [
         'products_sold': 531,
         'response_time': '2 hours',
         'positive_feedback': 98,
-        'active': True
+        'active': True,
+        'bio': 'Custom fabrication expert producing one-off and small-batch performance parts.'
     },
     {
+        'id': 8,
         'name': 'Hannah Price',
         'title': 'Consulting Expert',
         'pfp': 'H',
@@ -95,6 +110,7 @@ SELLERS_DATA = [
         'products_sold': 423,
         'response_time': '5 hours',
         'positive_feedback': 93,
-        'active': True
+        'active': True,
+        'bio': 'Consulting expert advising on part fitment, material selection, and durability.'
     }
 ]
