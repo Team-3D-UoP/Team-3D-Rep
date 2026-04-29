@@ -11,7 +11,7 @@ import base64
 import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
-from models import db, ProductReview, SellerReview
+from models import db, ProductReview, SellerReview, CartItem
 
 load_dotenv()
 
@@ -234,6 +234,176 @@ def delete_review(product_id, review_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/cart/add", methods=['POST'])
+def add_to_cart():
+    """Add an item to the user's cart"""
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    try:
+        data = request.get_json(silent=True)
+
+        if not data or 'product_id' not in data:
+            return jsonify({"error": "Product ID is required"}), 400
+
+        product_id = int(data['product_id'])
+        quantity = int(data.get('quantity', 1))
+
+        if quantity < 1:
+            return jsonify({"error": "Quantity must be at least 1"}), 400
+
+        # Check if product exists
+        product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
+        if not product:
+            return jsonify({"error": "Product not found"}), 404
+
+        # Check if item already in cart
+        existing_item = CartItem.query.filter_by(
+            user_id=session['user_id'],
+            product_id=product_id
+        ).first()
+
+        if existing_item:
+            # Update quantity
+            existing_item.quantity += quantity
+            db.session.commit()
+            return jsonify({
+                "success": True,
+                "message": "Item quantity updated",
+                "item_id": existing_item.id
+            }), 200
+        else:
+            # Create new cart item
+            new_item = CartItem(
+                user_id=session['user_id'],
+                product_id=product_id,
+                quantity=quantity
+            )
+            db.session.add(new_item)
+            db.session.commit()
+
+            return jsonify({
+                "success": True,
+                "message": "Item added to cart",
+                "item_id": new_item.id
+            }), 201
+
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid data format"}), 400
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error in add_to_cart: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cart", methods=['GET'])
+def get_cart():
+    """Get all items in user's cart"""
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    try:
+        cart_items = CartItem.query.filter_by(user_id=session['user_id']).all()
+
+        items_with_details = []
+        for item in cart_items:
+            product = next((p for p in OFFER_PRODUCTS if p['id'] == item.product_id), None)
+            if product:
+                item_data = item.to_dict()
+                item_data['product'] = product
+                item_data['total_price'] = product['current_price'] * item.quantity
+                items_with_details.append(item_data)
+
+        total_price = sum(item['total_price'] for item in items_with_details)
+
+        return jsonify({
+            "success": True,
+            "items": items_with_details,
+            "count": len(items_with_details),
+            "total_price": total_price
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cart/item/<int:item_id>", methods=['DELETE'])
+def remove_from_cart(item_id):
+    """Remove an item from the user's cart"""
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    try:
+        cart_item = CartItem.query.filter_by(
+            id=item_id,
+            user_id=session['user_id']
+        ).first()
+
+        if not cart_item:
+            return jsonify({"error": "Cart item not found"}), 404
+
+        db.session.delete(cart_item)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Item removed from cart"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cart/item/<int:item_id>", methods=['PUT'])
+def update_cart_item(item_id):
+    """Update quantity of an item in the cart"""
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    try:
+        data = request.get_json(silent=True)
+
+        if not data or 'quantity' not in data:
+            return jsonify({"error": "Quantity is required"}), 400
+
+        quantity = int(data['quantity'])
+
+        if quantity < 1:
+            return jsonify({"error": "Quantity must be at least 1"}), 400
+
+        cart_item = CartItem.query.filter_by(
+            id=item_id,
+            user_id=session['user_id']
+        ).first()
+
+        if not cart_item:
+            return jsonify({"error": "Cart item not found"}), 404
+
+        cart_item.quantity = quantity
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Cart item updated"
+        }), 200
+
+    except ValueError:
+        return jsonify({"error": "Invalid quantity format"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/cart", methods=['GET'])
+def view_cart():
+    """Display the shopping cart page"""
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+
+    return render_template("cart.html")
+
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
