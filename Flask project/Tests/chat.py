@@ -170,3 +170,36 @@ class ChatTestCase(unittest.TestCase):
         """Test that chat messages container exists"""
         response = self.client.get('/')
         self.assertIn(b'class="chat-messages"', response.data)
+        
+    def test_chat_page_has_event_listeners(self):
+        """Test that chat page sets up event listeners"""
+        response = self.client.get('/chat')
+        self.assertIn(b'addEventListener', response.data)
+        self.assertIn(b"'click'", response.data)
+        self.assertIn(b"'keypress'", response.data)
+
+    def test_modal_chat_has_click_listeners(self):
+        """Test that modal chat has click event listeners"""
+        response = self.client.get('/')
+        # Check for send button click listener
+        self.assertIn(b'chatSendBtn.addEventListener', response.data)
+        # Check for modal close listener
+        self.assertIn(b'chatModalClose.addEventListener', response.data)
+
+    def test_modal_chat_has_keypress_listener(self):
+        """Test that modal chat has keypress event listener for Enter key"""
+        response = self.client.get('/')
+        self.assertIn(b"e.key === 'Enter'", response.data)
+
+    # ==================== STYLING TESTS ====================    def test_chat_modal_has_styling(self):
+        """Test that chat modal has required CSS styles"""
+        response = self.client.get('/')
+        self.assertIn(b'.chat-modal', response.data)
+        self.assertIn(b'.chat-input', response.data)
+        self.assertIn(b'.chat-send-btn', response.data)
+
+    def test_chat_message_styling(self):
+        """Test that chat messages have proper styling classes"""
+        response = self.client.get('/')
+        self.assertIn(b'.chat-message-company', response.data)
+        self.assertIn(b'chat-message', response.data)
