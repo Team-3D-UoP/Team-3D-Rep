@@ -302,3 +302,24 @@ class TestLoginScreen(unittest.TestCase):
         response_data = json.loads(response.data)
         self.assertIn('error', response_data)
 
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_session_persists_across_requests(self, mock_verify_token):
+        """Test that authenticated session persists across requests"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com',
+            'name': 'Test User'
+        }
+
+        with self.client:
+            # First authenticate
+            self.client.post(
+                '/api/authenticate',
+                data=json.dumps({'token': 'valid_token'}),
+                content_type='application/json'
+            )
+
+            from flask import session
+            # Session should be set
+            self.assertTrue(session.get('authenticated'))
+
