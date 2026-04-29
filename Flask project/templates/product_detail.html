@@ -1,0 +1,1127 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Team 3D{% endblock %}
+
+{% block content %}
+<style>
+  .product-detail-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .breadcrumb a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 2rem;
+  }
+
+  .product-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .product-image-main {
+    width: 100%;
+    max-width: 400px;
+    height: 400px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .product-image-main img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .product-info-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-title {
+    font-size: 2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .rating-stars {
+    color: #ffc107;
+    font-size: 1.1rem;
+    letter-spacing: 0.2rem;
+  }
+
+  .rating-count {
+    color: #666;
+  }
+
+  .price-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: #f0f8ff;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .price-label {
+    color: #666;
+    font-weight: 500;
+  }
+
+  .old-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 1.1rem;
+  }
+
+  .discount-badge {
+    background-color: #dc3545;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  .current-price {
+    font-size: 1.8rem;
+    color: #28a745;
+    font-weight: bold;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .btn-primary {
+    flex: 1;
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #002d5a;
+  }
+
+  .btn-secondary {
+    flex: 1;
+    background-color: white;
+    color: #003d7a;
+    border: 2px solid #003d7a;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: #f0f0f0;
+  }
+
+  .seller-info-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .seller-info-title {
+    font-size: 1.1rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  .seller-card {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .seller-avatar {
+    width: 60px;
+    height: 60px;
+    background-color: #003d7a;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .seller-details {
+    flex: 1;
+  }
+
+  .seller-name {
+    font-weight: bold;
+    color: #003d7a;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .seller-rating {
+    color: #ffc107;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .seller-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .stat-item {
+    font-size: 0.85rem;
+  }
+
+  .stat-label {
+    color: #666;
+    display: block;
+  }
+
+  .stat-value {
+    color: #003d7a;
+    font-weight: bold;
+    display: block;
+  }
+
+  .product-description {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .description-title {
+    font-size: 1.2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  .description-text {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .features-list li {
+    padding: 0.5rem 0;
+    color: #555;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .features-list li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #28a745;
+    font-weight: bold;
+  }
+
+  .reviews-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .reviews-title {
+    font-size: 1.2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .reviews-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .review-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .review-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .review-author {
+    font-weight: bold;
+    color: #003d7a;
+    font-size: 1rem;
+  }
+
+  .review-rating {
+    color: #ffc107;
+    font-size: 0.95rem;
+    letter-spacing: 0.2rem;
+  }
+
+  .review-date {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.5rem;
+  }
+
+  .review-badge {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+  }
+
+  .review-text {
+    color: #555;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .review-form-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background-color: #f0f8ff;
+    border-radius: 8px;
+    border: 2px solid #003d7a;
+  }
+
+  .review-form-title {
+    font-size: 1.2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    color: #003d7a;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #003d7a;
+    box-shadow: 0 0 4px rgba(0, 61, 122, 0.2);
+  }
+
+  .rating-input {
+    display: flex;
+    gap: 1rem;
+    font-size: 2rem;
+  }
+
+  .rating-star {
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.2s ease;
+  }
+
+  .rating-star:hover,
+  .rating-star.active {
+    color: #ffc107;
+  }
+
+  .textarea-control {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .form-submit-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .form-submit-btn:hover {
+    background-color: #002d5a;
+  }
+
+  .form-submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .login-prompt {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .login-prompt-text {
+    color: #856404;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-prompt-link {
+    color: #003d7a;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .login-prompt-link:hover {
+    text-decoration: underline;
+  }
+
+  .success-message {
+    background-color: #d4edda;
+    border: 1px solid #28a745;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .product-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .product-title {
+      font-size: 1.5rem;
+    }
+
+    .current-price {
+      font-size: 1.5rem;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+    }
+
+    .seller-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="product-detail-container">
+  <div class="breadcrumb">
+    <a href="{{ url_for('home') }}">Home</a> > <span>{{ product.name }}</span>
+  </div>
+
+  <div class="product-grid">
+    <div class="product-image-section">
+      <div class="product-image-main">
+        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+      </div>
+    </div>
+
+    <div class="product-info-section">
+      <h1 class="product-title">{{ product.name }}</h1>
+
+      <div class="price-section">
+        <div class="price-row">
+          <span class="price-label">Original Price:</span>
+          <span class="old-price">£{{ "%.2f"|format(product.old_price) }}</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">Discount:</span>
+          <span class="discount-badge">-{{ product.discount_percent }}%</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">Final Price:</span>
+          <span class="current-price">£{{ "%.2f"|format(product.current_price) }}</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-primary">Add to Cart</button>
+        <button class="btn-secondary">Add to Wishlist</button>
+      </div>
+
+      {% if product.seller %}
+      <div class="seller-info-section">
+        <div class="seller-info-title">Sold by</div>
+        <div class="seller-card">
+          <div class="seller-avatar">{{ product.seller.pfp }}</div>
+          <div class="seller-details">
+            <div class="seller-name">{{ product.seller.name }}</div>
+            <div class="seller-rating">
+              {{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }}
+              <span style="color: #666; margin-left: 0.5rem;">({{ product.seller.reviews }} reviews)</span>
+            </div>
+            <div class="seller-stats">
+              <div class="stat-item">
+                <span class="stat-label">Feedback:</span>
+                <span class="stat-value">{{ product.seller.positive_feedback }}%</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Sold:</span>
+                <span class="stat-value">{{ product.seller.products_sold }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Response:</span>
+                <span class="stat-value">{{ product.seller.response_time }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="product-description">
+    <h2 class="description-title">Product Details</h2>
+    
+    {% if product.name == "Pressure Washer" %}
+      <p class="description-text">
+        Professional-grade pressure washer perfect for deep cleaning vehicles, patios, and outdoor surfaces. 
+        Delivers powerful cleaning performance with adjustable pressure settings for delicate and tough surfaces.
+      </p>
+      <ul class="features-list">
+        <li>3000 PSI maximum pressure</li>
+        <li>Adjustable pressure settings</li>
+        <li>15-meter high-pressure hose</li>
+        <li>Multiple nozzle attachments included</li>
+        <li>Compact and portable design</li>
+        <li>1 year manufacturer warranty</li>
+      </ul>
+
+      <div class="reviews-section">
+        <h3 class="reviews-title">Buyer Reviews</h3>
+        <div class="reviews-container">
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Robert Martinez</div>
+                <div class="review-date">1 week ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Fantastic pressure washer! Cleaned my entire driveway in minutes. The adjustable settings work great and it's very quiet. Best purchase ever!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Jennifer Lee</div>
+                <div class="review-date">2 weeks ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Excellent power and very portable! Used it on my car and patio. The hose is long enough for all areas. Highly recommend this model!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Mark Peterson</div>
+                <div class="review-date">3 weeks ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Amazing value for the price! Works as advertised with great pressure control. Nozzle attachments are high quality. Shipping was fast too!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Nicole Taylor</div>
+                <div class="review-date">1 month ago</div>
+              </div>
+              <div class="review-rating">★★★★☆</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Very good pressure washer overall. Powerful enough for tough cleaning jobs. Only minor issue with storage, but works perfectly otherwise!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Chris Anderson</div>
+                <div class="review-date">1 month ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Impressive performance! Used it to clean my whole house exterior. Adjustable pressure prevents damage to delicate surfaces. 10/10!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Victoria Brown</div>
+                <div class="review-date">2 months ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Outstanding product! Seller provided excellent support and answered all my questions. Fast delivery and packed well. Highly satisfied!
+            </p>
+          </div>
+        </div>
+      </div>
+    
+    {% elif product.name == "Car Cleaning Kit" %}
+      <p class="description-text">
+        Complete car cleaning kit containing everything you need for professional-grade car care. 
+        Includes premium quality brushes, microfiber cloths, and specialized cleaning solutions.
+      </p>
+      <ul class="features-list">
+        <li>Professional-grade cleaning brushes</li>
+        <li>5 microfiber towels</li>
+        <li>Wheel cleaner concentrate</li>
+        <li>Car wash concentrate</li>
+        <li>Bug and tar remover</li>
+        <li>Durable carrying bag included</li>
+      </ul>
+
+      <div class="reviews-section">
+        <h3 class="reviews-title">Buyer Reviews</h3>
+        <div class="reviews-container">
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Michael Johnson</div>
+                <div class="review-date">2 weeks ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Excellent kit! Everything is high quality and the brushes work perfectly. My car looks brand new after using this. Highly recommended!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Sarah Williams</div>
+                <div class="review-date">3 weeks ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Great value for money! The cleaning solutions are very effective and the microfiber cloths are top quality. Fast shipping too!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">David Chen</div>
+                <div class="review-date">1 month ago</div>
+              </div>
+              <div class="review-rating">★★★★☆</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Very good kit overall. All the tools are durable and work well. The carrying bag is convenient. Only minor issue with one brush bristle.
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Emma Rodriguez</div>
+                <div class="review-date">1 month ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Perfect! This kit has everything I needed. The seller was very helpful with shipping and the product arrived well-packaged. 10/10!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">James Thompson</div>
+                <div class="review-date">2 months ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Amazing quality for this price point. I've tried many cleaning kits before and this one is by far the best. Will definitely order again!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Lisa Anderson</div>
+                <div class="review-date">2 months ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Fantastic seller! Product came quickly and in perfect condition. The kit works great and customer service was excellent. Highly satisfied!
+            </p>
+          </div>
+        </div>
+      </div>
+    
+    {% elif product.name == "Oil Filter" %}
+      <p class="description-text">
+        High-performance oil filter designed to protect your engine by removing contaminants and ensuring 
+        optimal oil circulation. Compatible with most vehicle makes and models.
+      </p>
+      <ul class="features-list">
+        <li>Advanced filtration technology</li>
+        <li>Removes 99.7% of particles</li>
+        <li>Long service life</li>
+        <li>Easy installation</li>
+        <li>Compatible with major vehicle brands</li>
+        <li>Eco-friendly disposal</li>
+      </ul>
+
+      <div class="reviews-section">
+        <h3 class="reviews-title">Buyer Reviews</h3>
+        <div class="reviews-container">
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Tom Bradley</div>
+                <div class="review-date">5 days ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Great oil filter! Easy to install and fits perfectly. My engine runs smoother and quieter after changing with this filter. Excellent quality!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Amanda Foster</div>
+                <div class="review-date">1 week ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Outstanding filter! Better quality than the OEM part and at a fraction of the price. Engine performance noticeably improved. Highly satisfied!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Kevin Walsh</div>
+                <div class="review-date">2 weeks ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Perfect fit and excellent build quality. Instructions were clear and installation took only 10 minutes. Best oil filter I've used!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Patricia Moore</div>
+                <div class="review-date">3 weeks ago</div>
+              </div>
+              <div class="review-rating">★★★★☆</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Good quality filter for the price. Works as expected and no issues so far. Slight delay in shipping but product arrived well-packaged.
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Daniel Wong</div>
+                <div class="review-date">1 month ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Excellent filtration performance! Used it for 6 months now with no problems. My oil stays cleaner longer. Great value for money!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Susan Rivera</div>
+                <div class="review-date">2 months ago</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Fantastic product and fantastic seller! Quick responses to my questions and fast shipping. Filter works perfectly and looks premium quality!
+            </p>
+          </div>
+        </div>
+      </div>
+    
+    {% else %}
+      <p class="description-text">
+        Premium quality product designed for durability and performance. 
+        Carefully crafted to meet the highest standards of quality and reliability.
+      </p>
+      <ul class="features-list">
+        <li>Premium quality materials</li>
+        <li>Durable construction</li>
+        <li>Easy to use</li>
+        <li>Professional grade</li>
+        <li>Long-lasting performance</li>
+      </ul>
+
+      <div class="reviews-section">
+        <h3 class="reviews-title">Buyer Reviews</h3>
+        <div class="reviews-container">
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Customer 1</div>
+                <div class="review-date">Recently</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Excellent product! Great quality and works as expected. Very satisfied with this purchase and would recommend to others.
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Customer 2</div>
+                <div class="review-date">Recently</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Outstanding value for money! Fast shipping and excellent seller service. Product arrived in perfect condition.
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Customer 3</div>
+                <div class="review-date">Recently</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Fantastic product! Exactly as described and high quality. Will definitely purchase again from this seller!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Customer 4</div>
+                <div class="review-date">Recently</div>
+              </div>
+              <div class="review-rating">★★★★☆</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Very good product for the price. Works well and looks great. Minor packaging issue but overall very satisfied.
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Customer 5</div>
+                <div class="review-date">Recently</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Perfect! High quality construction and excellent performance. Customer service was very helpful. Highly recommended!
+            </p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <div class="review-author">Customer 6</div>
+                <div class="review-date">Recently</div>
+              </div>
+              <div class="review-rating">★★★★★</div>
+            </div>
+            <span class="review-badge">✓ Verified Purchase</span>
+            <p class="review-text">
+              Amazing! Best product I've bought in a long time. Great quality and fantastic seller. Will buy again!
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Review Submission Form -->
+  {% if session.get('user_id') %}
+  <div class="review-form-section">
+    <h2 class="review-form-title">Share Your Experience</h2>
+    <form id="reviewForm">
+      <div id="successMessage" class="success-message" style="display: none;">
+        Thank you for your review! It has been submitted successfully.
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Your Rating</label>
+        <div class="rating-input" id="ratingInput">
+          <span class="rating-star" data-rating="1">★</span>
+          <span class="rating-star" data-rating="2">★</span>
+          <span class="rating-star" data-rating="3">★</span>
+          <span class="rating-star" data-rating="4">★</span>
+          <span class="rating-star" data-rating="5">★</span>
+        </div>
+        <input type="hidden" id="ratingValue" name="rating" value="0">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reviewText">Your Review</label>
+        <textarea class="form-control textarea-control" id="reviewText" name="review_text" placeholder="Share your experience with this product..." required></textarea>
+      </div>
+
+      <button type="submit" class="form-submit-btn">Submit Review</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="review-form-section">
+    <div class="login-prompt">
+      <p class="login-prompt-text">
+        Would you like to leave a review? 
+        <a href="{{ url_for('login') }}" class="login-prompt-link">Log in</a> or 
+        <a href="{{ url_for('register') }}" class="login-prompt-link">Sign up</a> to share your experience.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  // Rating star selection
+  const stars = document.querySelectorAll('.rating-star');
+  const ratingValue = document.getElementById('ratingValue');
+
+  stars.forEach(star => {
+    star.addEventListener('click', function() {
+      const rating = this.dataset.rating;
+      ratingValue.value = rating;
+      
+      stars.forEach(s => {
+        if(s.dataset.rating <= rating) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+    });
+
+    star.addEventListener('mouseover', function() {
+      const rating = this.dataset.rating;
+      stars.forEach(s => {
+        if(s.dataset.rating <= rating) {
+          s.style.color = '#ffc107';
+        } else {
+          s.style.color = '#ddd';
+        }
+      });
+    });
+  });
+
+  document.getElementById('ratingInput').addEventListener('mouseleave', function() {
+    const activeRating = ratingValue.value;
+    stars.forEach(s => {
+      if(s.dataset.rating <= activeRating) {
+        s.style.color = '#ffc107';
+      } else {
+        s.style.color = '#ddd';
+      }
+    });
+  });
+
+  // Form submission
+  document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const rating = document.getElementById('ratingValue').value;
+    const reviewText = document.getElementById('reviewText').value;
+
+    if(!rating || !reviewText) {
+      alert('Please provide both a rating and review text.');
+      return;
+    }
+
+    try {
+      const response = await fetch('{{ url_for("submit_review", product_id=product.id) }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          rating: parseInt(rating),
+          review_text: reviewText
+        })
+      });
+
+      if(response.ok) {
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('reviewText').value = '';
+        document.getElementById('ratingValue').value = 0;
+        stars.forEach(s => s.classList.remove('active'));
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          document.getElementById('successMessage').style.display = 'none';
+        }, 3000);
+      } else {
+        alert('Error submitting review. Please try again.');
+      }
+    } catch(error) {
+      console.error('Error:', error);
+      alert('Error submitting review. Please try again.');
+    }
+  });
+</script>
+
+{% endblock %}
