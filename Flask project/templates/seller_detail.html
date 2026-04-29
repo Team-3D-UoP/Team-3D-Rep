@@ -708,3 +708,28 @@
         `;
       });
 
+      container.innerHTML = reviewsHTML;
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      document.getElementById('userSellerReviewsContainer').innerHTML =
+        '<p class="no-reviews-message">Error loading reviews. Please try again.</p>';
+    }
+  }
+
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Load reviews when page loads
+  loadUserSellerReviews();
+</script>
+
+{% endblock %}
