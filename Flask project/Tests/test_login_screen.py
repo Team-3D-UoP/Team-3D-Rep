@@ -323,3 +323,49 @@ class TestLoginScreen(unittest.TestCase):
             # Session should be set
             self.assertTrue(session.get('authenticated'))
 
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_with_special_characters_in_name(self, mock_verify_token):
+        """Test authentication with special characters in user data"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com',
+            'name': 'José María García-López'
+        }
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'valid_token'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_with_very_long_token(self, mock_verify_token):
+        """Test authentication with a very long token string"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com',
+            'name': 'Test User'
+        }
+
+        long_token = 'a' * 10000
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': long_token}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_authenticate_without_json_content_type(self):
+        """Test authentication with missing content type"""
+        response = self.client.post(
+            '/api/authenticate',
+            data={'token': 'some_token'}
+        )
+
+        # Should fail because request.get_json() won't parse form data
+        self.assertEqual(response.status_code, 400)
+
