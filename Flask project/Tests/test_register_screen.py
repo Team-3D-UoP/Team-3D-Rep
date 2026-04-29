@@ -297,3 +297,13 @@ class TestRegisterScreen(unittest.TestCase):
         response_data = json.loads(response.data)
         self.assertIn('error', response_data)
 
+    def test_register_only_accepts_get_and_post(self):
+        """Test that register route only accepts GET and POST methods"""
+        # PUT should not be allowed
+        response = self.client.put('/register')
+        self.assertEqual(response.status_code, 405)  # Method Not Allowed
+
+        # DELETE should not be allowed
+        response = self.client.delete('/register')
+        self.assertEqual(response.status_code, 405)
+
