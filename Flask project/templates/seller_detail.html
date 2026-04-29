@@ -565,3 +565,43 @@
     color: #856404;
     margin-bottom: 0.5rem;
   }
+
+  .login-prompt-link {
+    color: #003d7a;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .login-prompt-link:hover {
+    text-decoration: underline;
+  }
+
+  .success-message {
+    background-color: #d4edda;
+    border: 1px solid #28a745;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+</style>
+
+<script>
+  // Rating star selection for seller reviews
+  const sellerStars = document.querySelectorAll('#sellerRatingInput .rating-star');
+  const sellerRatingValue = document.getElementById('sellerRatingValue');
+
+  sellerStars.forEach(star => {
+    star.addEventListener('click', function() {
+      const rating = this.dataset.rating;
+      sellerRatingValue.value = rating;
+
+      sellerStars.forEach(s => {
+        if(s.dataset.rating <= rating) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+    });
+
