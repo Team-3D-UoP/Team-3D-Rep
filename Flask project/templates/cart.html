@@ -326,3 +326,52 @@
         </div>
       </div>
     </div>
+
+    <div class="cart-summary">
+      <div class="summary-title">Order Summary</div>
+
+      <div class="summary-row">
+        <span class="summary-label">Items:</span>
+        <span class="summary-value" id="cartItemCount">0</span>
+      </div>
+
+      <div class="summary-row">
+        <span class="summary-label">Subtotal:</span>
+        <span class="summary-value">£<span id="cartSubtotal">0.00</span></span>
+      </div>
+
+      <div class="summary-row">
+        <span class="summary-label">Shipping:</span>
+        <span class="summary-value">£<span id="cartShipping">0.00</span></span>
+      </div>
+
+      <div class="summary-divider"></div>
+
+      <div class="summary-row summary-total">
+        <span>Total:</span>
+        <span>£<span id="cartTotal">0.00</span></span>
+      </div>
+
+      <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+      <a href="{{ url_for('home') }}" class="continue-btn">Continue Shopping</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Load cart items on page load
+  async function loadCart() {
+    try {
+      const response = await fetch('/api/cart');
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = '{{ url_for("login") }}';
+          return;
+        }
+        throw new Error(data.error || 'Failed to load cart');
+      }
+
+      const container = document.getElementById('cartItemsContainer');
+      const items = data.items || [];
