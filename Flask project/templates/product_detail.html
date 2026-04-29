@@ -1346,6 +1346,8 @@
 
         if (response.ok) {
           alert('Item added to cart successfully!');
+          // Trigger custom event to update cart count in header
+          document.dispatchEvent(new Event('cartUpdated'));
           // Optionally, redirect to cart or update UI
           // window.location.href = '{{ url_for("view_cart") }}';
         } else {
