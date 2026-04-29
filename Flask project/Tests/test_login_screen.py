@@ -269,3 +269,36 @@ class TestLoginScreen(unittest.TestCase):
         # DELETE should not be allowed
         response = self.client.delete('/api/authenticate')
         self.assertEqual(response.status_code, 405)
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_returns_json_on_success(self, mock_verify_token):
+        """Test that successful authentication returns JSON"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com',
+            'name': 'Test User'
+        }
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'valid_token'}),
+            content_type='application/json'
+        )
+
+        self.assertIn('application/json', response.content_type)
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_returns_json_on_error(self, mock_verify_token):
+        """Test that authentication errors return JSON"""
+        mock_verify_token.side_effect = Exception('Token error')
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'invalid_token'}),
+            content_type='application/json'
+        )
+
+        self.assertIn('application/json', response.content_type)
+        response_data = json.loads(response.data)
+        self.assertIn('error', response_data)
+
