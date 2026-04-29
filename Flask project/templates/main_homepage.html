@@ -942,7 +942,9 @@
             <div class="card-seller-header">
               <div class="card-seller-avatar">{{ product.seller.pfp }}</div>
               <div class="card-seller-details">
-                <div class="card-seller-name">{{ product.seller.name }}</div>
+                <a href="/seller/{{ product.seller.id }}" class="card-seller-link">
+                  <div class="card-seller-name">{{ product.seller.name }}</div>
+                </a>
                 <div class="card-seller-rating">{{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }} ({{ product.seller.reviews }})</div>
               </div>
             </div>
