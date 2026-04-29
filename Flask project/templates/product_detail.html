@@ -1283,12 +1283,11 @@
     }
 
     try {
-      const response = await fetch(
-        '{{ url_for("delete_review", product_id=product.id, review_id="PLACEHOLDER") }}'.replace('PLACEHOLDER', reviewId),
-        {
-          method: 'DELETE'
-        }
-      );
+      const productId = {{ product.id }};
+      const deleteUrl = `/product/${productId}/review/${reviewId}`;
+      const response = await fetch(deleteUrl, {
+        method: 'DELETE'
+      });
 
       if (response.ok) {
         alert('Review deleted successfully!');
