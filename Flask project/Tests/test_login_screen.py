@@ -22,3 +22,23 @@ class TestLoginScreen(unittest.TestCase):
         """Clean up after each test"""
         pass
 
+    def test_login_page_loads_successfully(self):
+        """Test that the login page returns a 200 status code"""
+        response = self.client.get('/login')
+        self.assertEqual(response.status_code, 200)
+
+    def test_login_page_renders_correct_template(self):
+        """Test that the login page renders the login_screen.html template"""
+        response = self.client.get('/login')
+        self.assertGreater(len(response.data), 0)
+
+    def test_login_page_response_content_type(self):
+        """Test that the login page returns HTML content"""
+        response = self.client.get('/login')
+        self.assertIn('text/html', response.content_type)
+
+    def test_login_page_only_accepts_get(self):
+        """Test that login page only accepts GET requests"""
+        # POST should not be allowed on /login
+        response = self.client.post('/login')
+        self.assertEqual(response.status_code, 405)  # Method Not Allowed
