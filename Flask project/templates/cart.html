@@ -375,3 +375,42 @@
 
       const container = document.getElementById('cartItemsContainer');
       const items = data.items || [];
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <p class="empty-cart-text">Your cart is empty</p>
+            <a href="{{ url_for('home') }}" class="continue-shopping-btn">Continue Shopping</a>
+          </div>
+        `;
+      } else {
+        let cartHTML = '';
+        items.forEach(item => {
+          const product = item.product;
+          cartHTML += `
+            <div class="cart-item" data-item-id="${item.id}">
+              <div class="cart-item-image">
+                <img src="{{ url_for('static', filename='images/') }}${product.image}" alt="${product.name}">
+              </div>
+              <div class="cart-item-details">
+                <a href="{{ url_for('product_detail', product_id=0) }}".replace('/0', '/' + product.id) class="cart-item-name-link">
+                  <div class="cart-item-name">${escapeHtml(product.name)}</div>
+                </a>
+                <div class="cart-item-price">£${(product.current_price).toFixed(2)}</div>
+                <div class="cart-item-controls">
+                  <div class="quantity-control">
+                    <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">−</button>
+                    <input type="number" class="quantity-input" value="${item.quantity}" min="1" onchange="updateQuantity(${item.id}, this.value)">
+                    <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                  </div>
+                  <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = cartHTML;
+      }
+
+      updateSummary(data);
