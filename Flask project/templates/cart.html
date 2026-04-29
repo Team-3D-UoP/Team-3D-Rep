@@ -414,3 +414,55 @@
       }
 
       updateSummary(data);
+
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      document.getElementById('cartItemsContainer').innerHTML =
+        '<div class="empty-cart"><p>Error loading cart. Please try again.</p></div>';
+    }
+  }
+
+
+  function updateSummary(cartData) {
+    const itemCount = cartData.count || 0;
+    const subtotal = cartData.total_price || 0;
+    const shipping = itemCount > 0 ? 5.00 : 0;
+    const total = subtotal + shipping;
+
+    document.getElementById('cartItemCount').textContent = itemCount;
+    document.getElementById('cartSubtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('cartShipping').textContent = shipping.toFixed(2);
+    document.getElementById('cartTotal').textContent = total.toFixed(2);
+  }
+
+  async function updateQuantity(itemId, quantity) {
+    quantity = parseInt(quantity);
+
+    if (isNaN(quantity) || quantity < 1) {
+      alert('Please enter a valid quantity');
+      loadCart();
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/cart/item/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: quantity })
+      });
+
+      if (response.ok) {
+        loadCart();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Error updating cart item');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error updating cart item');
+    }
+  }
+
+
