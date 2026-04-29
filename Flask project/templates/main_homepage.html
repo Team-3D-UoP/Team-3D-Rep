@@ -911,7 +911,56 @@
       </div>
       <button class="clear-btn" id="clearBtn">Clear</button>
     </div>
-    
+
+    {% if featured_seller %}
+    <div class="offers-grid">
+      <div class="featured-seller-card">
+        <span class="featured-badge">⭐ FEATURED</span>
+        <span class="featured-heart">♡</span>
+        <img src="{{ url_for('static', filename='images/pressure-washer.png') }}" alt="Pressure Washer" class="featured-image">
+        <div class="featured-product-name">Professional Pressure Washer</div>
+        
+        <div class="seller-info-container">
+          <div class="seller-name-display">{{ featured_seller.name }}</div>
+          <div class="seller-rating-small">{{ '★' * featured_seller.rating|int }}{{ '☆' * (5 - featured_seller.rating|int) }} {{ featured_seller.rating }}</div>
+          
+          <div class="seller-info-item">
+            <span class="seller-info-label">Reviews:</span>
+            <span class="seller-info-value">{{ featured_seller.reviews }}</span>
+          </div>
+          <div class="seller-info-item">
+            <span class="seller-info-label">Sold:</span>
+            <span class="seller-info-value">{{ featured_seller.products_sold }}</span>
+          </div>
+          <div class="seller-info-item">
+            <span class="seller-info-label">Response:</span>
+            <span class="seller-info-value">{{ featured_seller.response_time }}</span>
+          </div>
+          <div class="seller-info-item">
+            <span class="seller-info-label">Feedback:</span>
+            <span class="seller-info-value">{{ featured_seller.positive_feedback }}%</span>
+          </div>
+        </div>
+      </div>
+
+      {% for product in offer_products %}
+      <div class="offer-card">
+        <span class="offer-badge">-{{ product.discount_percent }}%</span>
+        <span class="offer-heart">♡</span>
+        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="offer-image">
+        <div class="offer-item">
+          <div class="offer-name">{{ product.name }}</div>
+          <div class="offer-pricing">
+            <span class="offer-old-price">£{{ "%.2f"|format(product.old_price) }}</span>
+            <span class="offer-discount">-{{ product.discount_percent }}%</span>
+            <span class="offer-current-price">£{{ "%.2f"|format(product.current_price) }}</span>
+          </div>
+          <a href="#" class="offer-shop-link">Shop now →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
     <div class="offers-grid">
       {% for product in offer_products %}
       <div class="offer-card">
@@ -930,6 +979,7 @@
       </div>
       {% endfor %}
     </div>
+    {% endif %}
   </div>
   
   <div class="reviews-section">
