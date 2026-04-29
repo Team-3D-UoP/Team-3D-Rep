@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Car Registration</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<header>
+    {% include 'header.html' %}
+</header>
+
+<body>
+    <h1>Car Registration</h1>
+
+    <h2>Link a car to your account</h2>
+
+    <section>
+        <h3>Automatic Entry:</h2>
+        <p>Enter just the licence plate to automatically fill out data from our database.</p>
+        <label>
+            <p>
+                Licence Plate: 
+                <input id="automatic_licence_plate"></input>
+                <button id="automatic_confirm" onclick="find_plate()"> <!--onPressed = Fill manual entries from DB-->
+                    Fill Out
+                </button>
+            </p>
+        </label>
+    </section>
+
+    <section>
+        <h3>Manual Entry:</h2>
+        <p>Manually enter data to be registered.</p>
+        <form> <!--Subject to change depending on DB-->
+            <label>
+                <p>Licence Plate: <input id="licence_plate"></input></p>
+            </label>
+            <label>
+                <p>Make: <input id="make"></input></p>
+            </label>
+            <label>
+                <p>Model: <input id="model"></input></p>
+            </label>
+            <label>
+                <p>Engine: <input id="engine"></input></p>
+            </label>
+            <label>
+                <p>Year: <input id="year"></input></p>
+            </label>
+            <label>
+                <p>Tyres: <input id="tyres"></input></p>
+            </label>
+        </form>
+        <button id="manual_confirm" onclick="save_car_registration()"> <!--Onpressed = validate fields not empty then add to DB-->
+            Confirm Registration
+        </button>
+    </section>
+    <p id="errors"></p>
+</body>
+
+<footer id="footer">
+    {% include 'footer.html' %}
+</footer>
+
+<script>
+    function find_plate() {
+        const plate = document.getElementById("automatic_licence_plate").value
+
+        // TODO: find real data from DB
+        const data = {
+            licence_plate: plate,
+            make: "Toyota",
+            model: "Corolla",
+            engine: "1.8 Hybrid",
+            year: "2021",
+            tyres: "Michelin CrossClimate 2"
+        }
+
+        document.getElementById("licence_plate").value = data.licence_plate
+        document.getElementById("make").value = data.make
+        document.getElementById("model").value = data.model
+        document.getElementById("engine").value = data.engine
+        document.getElementById("year").value = data.year
+        document.getElementById("tyres").value = data.tyres
+    }
+
+    // TODO: Add more error checks depending on the DB
+    function verify_data(data) {
+        for (const item in data) {
+            if (data[item].length == 0) {
+                return "Fields must not be empty"
+            }
+        }
+        return ""
+    }
+
+    function save_car_registration() {
+        const errorHandler = document.getElementById("errors");
+
+        const data = {
+            licence_plate: document.getElementById("licence_plate").value,
+            make: document.getElementById("make").value,
+            model: document.getElementById("model").value,
+            engine: document.getElementById("engine").value,
+            year: document.getElementById("year").value,
+            tyres: document.getElementById("tyres").value
+        };
+
+        const errors = verify_data(data);
+
+        if (!errors) {
+            axios.post("/api/save_car_registration", data);
+        } else {
+            errorHandler.textContent = errors;
+        }
+    }
+</script>

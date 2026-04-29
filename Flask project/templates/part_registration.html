@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Part Registration</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<header>
+    {% include 'header.html' %}
+</header>
+
+<body>
+    <h1>Part Registration</h1>
+
+    <h2>Upload a part to be shown to others.</h2>
+
+    <section>
+        <h3>Manual Entry:</h3>
+        <p>Enter relevant information about your product.</p>
+        <form> <!--Subject to change depending on DB-->
+            <label>
+                <p>Name: <input id="name"></input></p>
+            </label>
+            <label>
+                <p>Price: £<input id="price" type="number"></input></p>
+            </label>
+            <label>
+                <p>Description: <input id="description"></input></p>
+            </label>
+            <label>
+                <p>Image: <input id="image" type="file"></input></p>
+            </label>
+        </form>
+        <button id="manual_confirm" onclick="save_part_registration()"> <!--Onpressed = validate then add to DB-->
+            Confirm Registration
+        </button>
+    </section>
+    <p id="errors"></p>
+</body>
+
+<footer>
+    {% include 'footer.html' %}
+</footer>
+
+<script>
+
+    // TODO: Add more error checks depending on the DB
+    function verify_data(data) {
+        for (const item in data) {
+            if (data[item].length == 0) {
+                return "Fields must not be empty"
+            }
+        }
+        return ""
+    }
+
+    function save_part_registration() {
+        const errorHandler = document.getElementById("errors");
+
+        const data = {
+            // TODO: May change depending on the DB
+            name: document.getElementById("name").value,
+            price: document.getElementById("price").value,
+            description: document.getElementById("description").value,
+            image: document.getElementById("image").value
+        };
+
+        const errors = verify_data(data);
+
+        if (!errors) {
+            axios.post("/api/save_part_registration", data);
+        } else {
+            errorHandler.textContent = errors;
+        }
+    }
+</script>

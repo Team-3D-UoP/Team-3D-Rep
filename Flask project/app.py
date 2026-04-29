@@ -256,5 +256,47 @@ def logout():
 def sellers():
     return render_template('sellers.html', sellers=SELLERS_DATA)
 
+@app.route('/car_registration', methods=["GET"])
+def car_registration_screen():
+     print('car_registration')
+     return render_template("car_registration.html")
+
+@app.route('/part_registration', methods=["GET"])
+def part_registration_screen():
+     print('part_registration')
+     return render_template("part_registration.html")
+
+@app.route("/api/save_car_registration", methods=["POST"])
+def save_car_registration():
+    data = request.get_json(silent=True) or {}
+
+    # TODO: save to DB here
+    try:
+        print("licence_plate:", data["licence_plate"])
+        print("make:", data["make"])
+        print("model:", data["model"])
+        print("engine:", data["engine"])
+        print("year:", data["year"])
+        print("tyres:", data["tyres"])
+    except:
+       pass
+
+    return jsonify({"message": "Car registration recieved"}), 200
+
+@app.route("/api/save_part_registration", methods=["POST"])
+def save_part_registration():
+    data = request.get_json(silent=True) or {}
+
+    # TODO: save to DB here
+    try:
+        print("name:", data["name"])
+        print("price:", data["price"])
+        print("description:", data["description"])
+        print("image:", data["image"])
+    except:
+       pass
+
+    return jsonify({"message": "Part registration recieved"}), 200
+
 if __name__ == "__main__":
     app.run(debug=True)
