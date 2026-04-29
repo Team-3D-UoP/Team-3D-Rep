@@ -177,26 +177,20 @@ reviews_data = [
 
 @app.route("/", methods=['GET'])
 def home():
-    random_seller = random.choice(sellers_data)
-    remaining_sellers = [s for s in sellers_data if s != random_seller]
-    random_secondary_seller = random.choice(remaining_sellers)
-    remaining_sellers_two = [s for s in remaining_sellers if s != random_secondary_seller]
-    random_tertiary_seller = random.choice(remaining_sellers_two)
-    remaining_sellers_three = [s for s in remaining_sellers_two if s != random_tertiary_seller]
-    random_quaternary_seller = random.choice(remaining_sellers_three)
-    remaining_sellers_four = [s for s in remaining_sellers_three if s != random_quaternary_seller]
-    random_quinary_seller = random.choice(remaining_sellers_four)
-    remaining_sellers_five = [s for s in remaining_sellers_four if s != random_quinary_seller]
-    random_senary_seller = random.choice(remaining_sellers_five)
+    # Assign sellers to each product
+    products_with_sellers = []
+    seller_index = 0
+    shuffled_sellers = random.sample(sellers_data, len(sellers_data))
+    
+    for product in OFFER_PRODUCTS:
+        product_with_seller = product.copy()
+        # Cycle through sellers if we have more products than sellers
+        product_with_seller['seller'] = shuffled_sellers[seller_index % len(shuffled_sellers)]
+        products_with_sellers.append(product_with_seller)
+        seller_index += 1
     
     return render_template("main_homepage.html", 
-                         offer_products=OFFER_PRODUCTS, 
-                         featured_seller=random_seller, 
-                         secondary_seller=random_secondary_seller,
-                         tertiary_seller=random_tertiary_seller,
-                         quaternary_seller=random_quaternary_seller,
-                         quinary_seller=random_quinary_seller,
-                         senary_seller=random_senary_seller,
+                         offer_products=products_with_sellers,
                          reviews=reviews_data)
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
