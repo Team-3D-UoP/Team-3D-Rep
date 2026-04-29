@@ -386,3 +386,43 @@ class TestLoginScreen(unittest.TestCase):
 
         response_data = json.loads(response.data)
         self.assertEqual(response_data['redirect'], '/account')
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_multiple_times_with_different_users(self, mock_verify_token):
+        """Test authenticating multiple times with different user tokens"""
+        with self.client:
+            # First user
+            mock_verify_token.return_value = {
+                'uid': 'user1',
+                'email': 'user1@example.com',
+                'name': 'User One'
+            }
+
+            response1 = self.client.post(
+                '/api/authenticate',
+                data=json.dumps({'token': 'token1'}),
+                content_type='application/json'
+            )
+            self.assertEqual(response1.status_code, 200)
+
+            from flask import session
+            self.assertEqual(session.get('user_id'), 'user1')
+
+            # Second user (session should update)
+            mock_verify_token.return_value = {
+                'uid': 'user2',
+                'email': 'user2@example.com',
+                'name': 'User Two'
+            }
+
+            response2 = self.client.post(
+                '/api/authenticate',
+                data=json.dumps({'token': 'token2'}),
+                content_type='application/json'
+            )
+            self.assertEqual(response2.status_code, 200)
+            self.assertEqual(session.get('user_id'), 'user2')
+
+
+if __name__ == '__main__':
+    unittest.main()
