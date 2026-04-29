@@ -313,3 +313,66 @@
   <div class="breadcrumb">
     <a href="{{ url_for('home') }}">Home</a> > <span>{{ product.name }}</span>
   </div>
+
+  <div class="product-grid">
+    <div class="product-image-section">
+      <div class="product-image-main">
+        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+      </div>
+    </div>
+
+    <div class="product-info-section">
+      <h1 class="product-title">{{ product.name }}</h1>
+
+      <div class="price-section">
+        <div class="price-row">
+          <span class="price-label">Original Price:</span>
+          <span class="old-price">£{{ "%.2f"|format(product.old_price) }}</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">Discount:</span>
+          <span class="discount-badge">-{{ product.discount_percent }}%</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">Final Price:</span>
+          <span class="current-price">£{{ "%.2f"|format(product.current_price) }}</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-primary">Add to Cart</button>
+        <button class="btn-secondary">Add to Wishlist</button>
+      </div>
+
+      {% if product.seller %}
+      <div class="seller-info-section">
+        <div class="seller-info-title">Sold by</div>
+        <div class="seller-card">
+          <div class="seller-avatar">{{ product.seller.pfp }}</div>
+          <div class="seller-details">
+            <div class="seller-name">{{ product.seller.name }}</div>
+            <div class="seller-rating">
+              {{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }}
+              <span style="color: #666; margin-left: 0.5rem;">({{ product.seller.reviews }} reviews)</span>
+            </div>
+            <div class="seller-stats">
+              <div class="stat-item">
+                <span class="stat-label">Feedback:</span>
+                <span class="stat-value">{{ product.seller.positive_feedback }}%</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Sold:</span>
+                <span class="stat-value">{{ product.seller.products_sold }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Response:</span>
+                <span class="stat-value">{{ product.seller.response_time }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
