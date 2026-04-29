@@ -68,4 +68,5 @@ SELECT
     rps.*
 FROM RegisteredParts AS rps
 WHERE
-    rps.price BETWEEN :minPrice AND :maxPrice;
+    rps.price BETWEEN :minPrice AND :maxPrice
+    OR rps.name LIKE :nameFilter;
