@@ -1,7 +1,7 @@
 -- search_logic.sql
--- Reusable search queries for Database1.sql schema
+-- Reusable queries for Database1.sql 
 
--- 1. Search cars by keyword across make, model, year, license, engine, wheels
+-- Search cars by keyword across make, model, year, license, engine, wheels
 --    Use a parameter :term such as '%Toyota%' or '%Hybrid%'.
 SELECT
     rcs.CarID,
@@ -27,7 +27,7 @@ WHERE
 
 -- e.g., SELECT * FROM RegisteredCars WHERE make LIKE '%Toyota%';
 
--- 2. Search by owner username/email
+-- Search by owner username/email
 --    Use :ownerTerm such as '%olivergrant%' or '%gmail.com%'.
 SELECT
     rcs.CarID,
@@ -47,7 +47,7 @@ WHERE
     u.username LIKE :ownerTerm
     OR u.email LIKE :ownerTerm;
 
--- 3. Search by year range and optional make/model filters
+-- Search by year range and optional make/model filters
 SELECT
     rcs.CarID,
     rcs.make,
@@ -61,3 +61,11 @@ WHERE
     CAST(rcs.year AS INTEGER) BETWEEN :minYear AND :maxYear
     AND rcs.model LIKE :modelFilter
     AND rcs.make LIKE :makeFilter;
+
+-- Search registered parts by price range
+--    :minPrice and :maxPrice.
+SELECT
+    rps.*
+FROM RegisteredParts AS rps
+WHERE
+    rps.price BETWEEN :minPrice AND :maxPrice;
