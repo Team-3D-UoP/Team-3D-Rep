@@ -4,12 +4,13 @@
 
         <h1>AutoPartFinder</h1>
 
+        <a href="{{ url_for('home') }}" class="headerButton">Home</a>
+
         <input id="headerSearch"></input>
         <button>Search</button>
 
-        <!--Will be login later-->
         <a href="{{ url_for('account') }}" class="headerButton">Account</a>
-        <!--Route to basket later-->
+
         <a href="{{ url_for('my_orders') }}" class="headerButton">Basket</a>
 
         <button id="burgerButton" type="button" onclick="hideBurger()">▶</button>
