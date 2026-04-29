@@ -42,3 +42,67 @@ class TestLoginScreen(unittest.TestCase):
         # POST should not be allowed on /login
         response = self.client.post('/login')
         self.assertEqual(response.status_code, 405)  # Method Not Allowed
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_with_valid_token(self, mock_verify_token):
+        """Test authentication with a valid token"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com',
+            'name': 'Test User'
+        }
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'valid_token_here'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(response.data)
+        self.assertTrue(response_data.get('success'))
+        self.assertEqual(response_data.get('redirect'), '/account')
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_sets_session_data(self, mock_verify_token):
+        """Test that authentication properly sets session data"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com',
+            'name': 'Test User'
+        }
+
+        with self.client:
+            self.client.post(
+                '/api/authenticate',
+                data=json.dumps({'token': 'valid_token_here'}),
+                content_type='application/json'
+            )
+
+            # Check session data was set
+            from flask import session
+            self.assertEqual(session.get('user_id'), 'user123')
+            self.assertEqual(session.get('email'), 'user@example.com')
+            self.assertEqual(session.get('name'), 'Test User')
+            self.assertTrue(session.get('authenticated'))
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_response_json_format(self, mock_verify_token):
+        """Test that authenticate returns proper JSON response"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com',
+            'name': 'Test User'
+        }
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'valid_token_here'}),
+            content_type='application/json'
+        )
+
+        self.assertIn('application/json', response.content_type)
+        response_data = json.loads(response.data)
+        self.assertIsInstance(response_data, dict)
+        self.assertIn('success', response_data)
+        self.assertIn('redirect', response_data)
