@@ -926,7 +926,7 @@
             <span class="offer-discount">-{{ product.discount_percent }}%</span>
             <span class="offer-current-price">£{{ "%.2f"|format(product.current_price) }}</span>
           </div>
-          <a href="#" class="offer-shop-link">Shop now →</a>
+          <a href="{{ url_for('product_detail', product_id=product.id) }}" class="offer-shop-link">Shop now →</a>
           
           {% if product.seller %}
           <div class="seller-info-divider"></div>
