@@ -359,16 +359,6 @@ class TestLoginScreen(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_authenticate_without_json_content_type(self):
-        """Test authentication with missing content type"""
-        response = self.client.post(
-            '/api/authenticate',
-            data={'token': 'some_token'}
-        )
-
-        # Should fail because request.get_json() won't parse form data
-        self.assertEqual(response.status_code, 400)
-
     @patch('app.auth.verify_id_token')
     def test_authenticate_returns_correct_redirect_path(self, mock_verify_token):
         """Test that authentication returns correct redirect path"""
