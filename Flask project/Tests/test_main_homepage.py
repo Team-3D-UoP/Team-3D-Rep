@@ -174,3 +174,20 @@ class TestMainHomepage(unittest.TestCase):
                 actual_seller = _get_seller_for_product(product)
                 self.assertEqual(actual_seller['id'], expected_seller['id'])
 
+    def test_get_products_for_seller_returns_list(self):
+        """Test that _get_products_for_seller returns a list"""
+        if SELLERS_DATA:
+            seller = SELLERS_DATA[0]
+            products = _get_products_for_seller(seller['id'])
+            self.assertIsInstance(products, list)
+
+    def test_get_products_for_seller_returns_valid_products(self):
+        """Test that products returned for seller are valid products"""
+        if SELLERS_DATA:
+            seller = SELLERS_DATA[0]
+            products = _get_products_for_seller(seller['id'])
+            for product in products:
+                self.assertIn('id', product)
+                self.assertIn('name', product)
+                # Verify the product is actually in OFFER_PRODUCTS
+                self.assertIn(product['id'], [p['id'] for p in OFFER_PRODUCTS])
