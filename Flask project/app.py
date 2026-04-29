@@ -61,6 +61,40 @@ def product_detail(product_id):
     
     return render_template("product_detail.html", product=product_with_seller)
 
+@app.route("/product/<int:product_id>/review", methods=['POST'])
+def submit_review(product_id):
+    # Check if user is logged in
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+    
+    # Get the review data
+    data = request.get_json(silent=True)
+    
+    if not data or 'rating' not in data or 'review_text' not in data:
+        return jsonify({"error": "Missing review data"}), 400
+    
+    try:
+        rating = int(data['rating'])
+        review_text = data['review_text'].strip()
+        
+        if rating < 1 or rating > 5:
+            return jsonify({"error": "Invalid rating"}), 400
+        
+        if not review_text or len(review_text) < 10:
+            return jsonify({"error": "Review must be at least 10 characters"}), 400
+        
+        # Here you would normally save the review to a database
+        # For now, we'll just return success
+        # In a real application, you would save this to your database
+        
+        return jsonify({
+            "success": True,
+            "message": "Review submitted successfully"
+        }), 200
+        
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid data format"}), 400
+
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
     if request.method == 'POST':
