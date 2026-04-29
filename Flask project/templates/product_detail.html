@@ -1,10 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}Product Details - Team 3D{% endblock %}
+{% block title %}{{ product.name }} - Team 3D{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h1>Product Details</h1>
-  <!-- Product details will go here -->
-</div>
+<style>
+  .product-detail-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .breadcrumb a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 2rem;
+  }
+
+
 {% endblock %}
