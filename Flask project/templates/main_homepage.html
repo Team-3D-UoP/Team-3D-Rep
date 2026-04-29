@@ -826,6 +826,76 @@
       max-width: 100%;
     }
   }
+
+  .card-seller-info {
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-radius 0.2s ease;
+  }
+
+  .card-seller-info:hover {
+    background-color: #f9f9f9;
+    border-radius: 4px;
+  }
+
+  .card-seller-info a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-seller-header {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .card-seller-avatar {
+    font-weight: bold;
+    color: #003d7a;
+  }
+
+  .card-seller-details {
+    flex: 1;
+  }
+
+  .card-seller-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #003d7a;
+    transition: color 0.2s ease;
+  }
+
+  .card-seller-info:hover .card-seller-name {
+    color: #002d5a;
+    text-decoration: underline;
+  }
+
+  .card-seller-rating {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  .card-seller-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .card-stat-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-stat-label {
+    color: #999;
+    font-size: 0.75rem;
+  }
+
+  .card-stat-value {
+    color: #003d7a;
+    font-weight: 600;
+  }
 </style>
 
 <div class="content-card">
@@ -918,23 +988,25 @@
           {% if product.seller %}
           <div class="seller-info-divider"></div>
           <div class="card-seller-info">
-            <div class="card-seller-header">
-              <div class="card-seller-avatar">{{ product.seller.pfp }}</div>
-              <div class="card-seller-details">
-                <div class="card-seller-name">{{ product.seller.name }}</div>
-                <div class="card-seller-rating">{{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }} ({{ product.seller.reviews }})</div>
+            <a href="{{ url_for('seller_detail', seller_id=product.seller.id) }}" style="text-decoration: none; color: inherit;">
+              <div class="card-seller-header">
+                <div class="card-seller-avatar">{{ product.seller.pfp }}</div>
+                <div class="card-seller-details">
+                  <div class="card-seller-name">{{ product.seller.name }}</div>
+                  <div class="card-seller-rating">{{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }} ({{ product.seller.reviews }})</div>
+                </div>
               </div>
-            </div>
-            <div class="card-seller-stats">
-              <div class="card-stat-item">
-                <span class="card-stat-label">Feedback:</span>
-                <span class="card-stat-value">{{ product.seller.positive_feedback }}%</span>
+              <div class="card-seller-stats">
+                <div class="card-stat-item">
+                  <span class="card-stat-label">Feedback:</span>
+                  <span class="card-stat-value">{{ product.seller.positive_feedback }}%</span>
+                </div>
+                <div class="card-stat-item">
+                  <span class="card-stat-label">Sold:</span>
+                  <span class="card-stat-value">{{ product.seller.products_sold }}</span>
+                </div>
               </div>
-              <div class="card-stat-item">
-                <span class="card-stat-label">Sold:</span>
-                <span class="card-stat-value">{{ product.seller.products_sold }}</span>
-              </div>
-            </div>
+            </a>
           </div>
           {% endif %}
         </div>
