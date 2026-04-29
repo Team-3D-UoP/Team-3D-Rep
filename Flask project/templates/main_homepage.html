@@ -949,6 +949,27 @@
               </div>
             </div>
           </div>
+          {% elif product.name == "Car Cleaning Kit" and secondary_seller %}
+          <div class="seller-info-divider"></div>
+          <div class="card-seller-info">
+            <div class="card-seller-header">
+              <div class="card-seller-avatar alt">{{ secondary_seller.pfp }}</div>
+              <div class="card-seller-details">
+                <div class="card-seller-name">{{ secondary_seller.name }}</div>
+                <div class="card-seller-rating">{{ '★' * secondary_seller.rating|int }}{{ '☆' * (5 - secondary_seller.rating|int) }} ({{ secondary_seller.reviews }})</div>
+              </div>
+            </div>
+            <div class="card-seller-stats">
+              <div class="card-stat-item">
+                <span class="card-stat-label">Feedback:</span>
+                <span class="card-stat-value">{{ secondary_seller.positive_feedback }}%</span>
+              </div>
+              <div class="card-stat-item">
+                <span class="card-stat-label">Sold:</span>
+                <span class="card-stat-value">{{ secondary_seller.products_sold }}</span>
+              </div>
+            </div>
+          </div>
           {% endif %}
         </div>
       </div>
