@@ -150,3 +150,61 @@ class TestLoginScreen(unittest.TestCase):
 
         # Whitespace is truthy, so it should attempt verification
         self.assertIn(response.status_code, [400, 401])
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_invalid_token_error(self, mock_verify_token):
+        """Test authentication fails with invalid token error"""
+        mock_verify_token.side_effect = Exception('Invalid token')
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'invalid_token'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertIn(b'Invalid token', response.data)
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_expired_token_error(self, mock_verify_token):
+        """Test authentication fails with expired token error"""
+        mock_verify_token.side_effect = Exception('Token expired')
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'expired_token'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertIn(b'Token expired', response.data)
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_malformed_token_error(self, mock_verify_token):
+        """Test authentication fails with malformed token error"""
+        mock_verify_token.side_effect = Exception('Malformed token')
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'malformed.token'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_firebase_connection_error(self, mock_verify_token):
+        """Test authentication handles Firebase connection errors"""
+        mock_verify_token.side_effect = Exception('Firebase connection error')
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'valid_token'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 401)
+        response_data = json.loads(response.data)
+        self.assertIn('error', response_data)
+        self.assertIn('details', response_data)
+
