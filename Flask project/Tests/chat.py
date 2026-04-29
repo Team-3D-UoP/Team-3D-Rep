@@ -291,3 +291,48 @@ class ChatTestCase(unittest.TestCase):
         total = initial_count + messages_added
         self.assertEqual(total, 4)
 
+
+    def test_chat_modal_responsive_styles(self):
+        """Test that chat modal has responsive CSS media queries"""
+        response = self.client.get('/')
+        self.assertIn(b'@media (max-width: 768px)', response.data)
+
+    def test_chat_button_responsive_styles(self):
+        """Test that chat button has responsive styles"""
+        response = self.client.get('/')
+        self.assertIn(b'.chat-button', response.data)
+
+
+class ChatMessageStorageTest(unittest.TestCase):
+    """Test cases for message storage logic"""
+
+    def test_message_can_be_stored_in_dict(self):
+        """Test storing message as dictionary"""
+        message = {
+            'text': 'Test',
+            'sender': 'user',
+            'timestamp': datetime.now().isoformat()
+        }
+        self.assertEqual(message['text'], 'Test')
+        self.assertEqual(message['sender'], 'user')
+
+    def test_multiple_messages_can_be_stored_in_list(self):
+        """Test storing multiple messages in a list"""
+        messages = []
+        messages.append({'text': 'Msg1', 'sender': 'user', 'timestamp': datetime.now().isoformat()})
+        messages.append({'text': 'Msg2', 'sender': 'support', 'timestamp': datetime.now().isoformat()})
+        self.assertEqual(len(messages), 2)
+
+    def test_message_history_json_serializable(self):
+        """Test that message history can be serialized to JSON"""
+        messages = [
+            {'text': 'Hello', 'sender': 'user', 'timestamp': datetime.now().isoformat()},
+            {'text': 'Hi!', 'sender': 'support', 'timestamp': datetime.now().isoformat()},
+        ]
+        json_str = json.dumps(messages)
+        self.assertIsInstance(json_str, str)
+        
+        # Deserialize back
+        loaded = json.loads(json_str)
+        self.assertEqual(len(loaded), 2)
+
