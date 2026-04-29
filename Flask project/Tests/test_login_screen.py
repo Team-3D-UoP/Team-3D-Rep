@@ -208,3 +208,51 @@ class TestLoginScreen(unittest.TestCase):
         self.assertIn('error', response_data)
         self.assertIn('details', response_data)
 
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_token_missing_uid(self, mock_verify_token):
+        """Test authentication with token missing uid claim"""
+        # This should raise an error since 'uid' is required
+        mock_verify_token.side_effect = KeyError('uid')
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'token_without_uid'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_token_missing_email(self, mock_verify_token):
+        """Test authentication with token missing email claim (should still work)"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'name': 'Test User'
+            # email is missing, should default to empty string
+        }
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'token_without_email'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_token_missing_name(self, mock_verify_token):
+        """Test authentication with token missing name claim (should still work)"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com'
+            # name is missing, should default to empty string
+        }
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'token_without_name'}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
