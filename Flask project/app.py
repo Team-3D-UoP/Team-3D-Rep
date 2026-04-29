@@ -46,6 +46,21 @@ def home():
                          offer_products=products_with_sellers,
                          reviews=REVIEWS_DATA)
 
+@app.route("/product/<int:product_id>", methods=['GET'])
+def product_detail(product_id):
+    # Find the product by ID
+    product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
+    
+    if not product:
+        return "Product not found", 404
+    
+    # Get a random seller for this product
+    seller = random.choice(SELLERS_DATA)
+    product_with_seller = product.copy()
+    product_with_seller['seller'] = seller
+    
+    return render_template("product_detail.html", product=product_with_seller)
+
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
     if request.method == 'POST':
