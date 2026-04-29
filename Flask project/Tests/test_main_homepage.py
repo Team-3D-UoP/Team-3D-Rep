@@ -75,3 +75,46 @@ class TestMainHomepage(unittest.TestCase):
         for product in OFFER_PRODUCTS:
             self.assertIsInstance(product['name'], str)
             self.assertGreater(len(product['name']), 0)
+
+    def test_product_prices_are_valid(self):
+        """Test that all product prices are positive numbers"""
+        for product in OFFER_PRODUCTS:
+            self.assertIn('price', product)
+            try:
+                price = float(product['price'])
+                self.assertGreaterEqual(price, 0, f"Product {product['id']} has negative price")
+            except (ValueError, TypeError):
+                self.fail(f"Product {product['id']} has invalid price format")
+
+    def test_all_sellers_have_required_fields(self):
+        """Test that all sellers have required fields (id, name)"""
+        required_fields = ['id', 'name']
+        for seller in SELLERS_DATA:
+            for field in required_fields:
+                self.assertIn(field, seller, f"Seller missing required field: {field}")
+
+    def test_seller_ids_are_unique(self):
+        """Test that all seller IDs are unique"""
+        seller_ids = [s['id'] for s in SELLERS_DATA]
+        self.assertEqual(len(seller_ids), len(set(seller_ids)),
+                        "Seller IDs should be unique")
+
+    def test_seller_ids_are_positive_integers(self):
+        """Test that all seller IDs are positive integers"""
+        for seller in SELLERS_DATA:
+            self.assertIsInstance(seller['id'], int)
+            self.assertGreater(seller['id'], 0)
+
+    def test_seller_names_are_non_empty(self):
+        """Test that all seller names are non-empty strings"""
+        for seller in SELLERS_DATA:
+            self.assertIsInstance(seller['name'], str)
+            self.assertGreater(len(seller['name']), 0)
+
+    def test_seller_has_products(self):
+        """Test that each seller has at least some products assigned"""
+        for seller in SELLERS_DATA:
+            products = _get_products_for_seller(seller['id'])
+            self.assertGreater(len(products), 0,
+                             f"Seller {seller['name']} has no products assigned")
+
