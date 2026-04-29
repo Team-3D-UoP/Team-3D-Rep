@@ -18,7 +18,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key')
 
 CORS(app)
-
+#test
 try:
     cred_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
     cred = credentials.Certificate(cred_path)
