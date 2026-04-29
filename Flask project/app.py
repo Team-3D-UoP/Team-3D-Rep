@@ -11,13 +11,25 @@ import base64
 import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
+from models import db, ProductReview, SellerReview
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key')
 
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///team3d.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+db.init_app(app)
+
 CORS(app)
+
+# Create database tables
+with app.app_context():
+    db.create_all()
 
 try:
     cred_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
@@ -103,33 +115,121 @@ def seller_detail(seller_id):
 
 @app.route("/product/<int:product_id>/review", methods=['POST'])
 def submit_review(product_id):
+    """Submit a review for a product"""
     # Check if user is logged in
     if 'user_id' not in session:
         return jsonify({"error": "User not logged in"}), 401
-    
+
     # Get the review data
     data = request.get_json(silent=True)
-    
+
     if not data or 'rating' not in data or 'review_text' not in data:
         return jsonify({"error": "Missing review data"}), 400
-    
+
     try:
         rating = int(data['rating'])
         review_text = data['review_text'].strip()
-        
+
         if rating < 1 or rating > 5:
             return jsonify({"error": "Invalid rating"}), 400
-        
+
         if not review_text or len(review_text) < 10:
             return jsonify({"error": "Review must be at least 10 characters"}), 400
-    
+
+        # Check if product exists
+        product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
+        if not product:
+            return jsonify({"error": "Product not found"}), 404
+
+        # Check if user already reviewed this product
+        existing_review = ProductReview.query.filter_by(
+            product_id=product_id,
+            user_id=session['user_id']
+        ).first()
+
+        if existing_review:
+            # Update existing review
+            existing_review.rating = rating
+            existing_review.review_text = review_text
+            db.session.commit()
+            return jsonify({
+                "success": True,
+                "message": "Review updated successfully",
+                "review_id": existing_review.id
+            }), 200
+        else:
+            # Create new review
+            new_review = ProductReview(
+                product_id=product_id,
+                user_id=session['user_id'],
+                user_email=session.get('email', ''),
+                user_name=session.get('name', 'Anonymous'),
+                rating=rating,
+                review_text=review_text
+            )
+            db.session.add(new_review)
+            db.session.commit()
+
+            return jsonify({
+                "success": True,
+                "message": "Review submitted successfully",
+                "review_id": new_review.id
+            }), 201
+
+    except (ValueError, TypeError) as e:
+        return jsonify({"error": "Invalid data format"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/product/<int:product_id>/reviews", methods=['GET'])
+def get_product_reviews(product_id):
+    """Get all reviews for a product"""
+    try:
+        reviews = ProductReview.query.filter_by(product_id=product_id).order_by(
+            ProductReview.created_at.desc()
+        ).all()
+
         return jsonify({
             "success": True,
-            "message": "Review submitted successfully"
+            "reviews": [review.to_dict() for review in reviews],
+            "count": len(reviews)
         }), 200
-        
-    except (ValueError, TypeError):
-        return jsonify({"error": "Invalid data format"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/product/<int:product_id>/review/<int:review_id>", methods=['DELETE'])
+def delete_review(product_id, review_id):
+    """Delete a review (only by the user who posted it)"""
+    # Check if user is logged in
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    try:
+        review = ProductReview.query.filter_by(
+            id=review_id,
+            product_id=product_id
+        ).first()
+
+        if not review:
+            return jsonify({"error": "Review not found"}), 404
+
+        # Check if user owns this review
+        if review.user_id != session['user_id']:
+            return jsonify({"error": "You can only delete your own reviews"}), 403
+
+        db.session.delete(review)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Review deleted successfully"
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
