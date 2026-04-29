@@ -186,6 +186,8 @@ def home():
     random_quaternary_seller = random.choice(remaining_sellers_three)
     remaining_sellers_four = [s for s in remaining_sellers_three if s != random_quaternary_seller]
     random_quinary_seller = random.choice(remaining_sellers_four)
+    remaining_sellers_five = [s for s in remaining_sellers_four if s != random_quinary_seller]
+    random_senary_seller = random.choice(remaining_sellers_five)
     
     return render_template("main_homepage.html", 
                          offer_products=OFFER_PRODUCTS, 
@@ -194,6 +196,7 @@ def home():
                          tertiary_seller=random_tertiary_seller,
                          quaternary_seller=random_quaternary_seller,
                          quinary_seller=random_quinary_seller,
+                         senary_seller=random_senary_seller,
                          reviews=reviews_data)
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])

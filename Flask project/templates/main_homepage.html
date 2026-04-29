@@ -1033,6 +1033,27 @@
               </div>
             </div>
           </div>
+          {% elif product.name == "Engine Oil 5L" and senary_seller %}
+          <div class="seller-info-divider"></div>
+          <div class="card-seller-info">
+            <div class="card-seller-header">
+              <div class="card-seller-avatar alt-5">{{ senary_seller.pfp }}</div>
+              <div class="card-seller-details">
+                <div class="card-seller-name">{{ senary_seller.name }}</div>
+                <div class="card-seller-rating">{{ '★' * senary_seller.rating|int }}{{ '☆' * (5 - senary_seller.rating|int) }} ({{ senary_seller.reviews }})</div>
+              </div>
+            </div>
+            <div class="card-seller-stats">
+              <div class="card-stat-item">
+                <span class="card-stat-label">Feedback:</span>
+                <span class="card-stat-value">{{ senary_seller.positive_feedback }}%</span>
+              </div>
+              <div class="card-stat-item">
+                <span class="card-stat-label">Sold:</span>
+                <span class="card-stat-value">{{ senary_seller.products_sold }}</span>
+              </div>
+            </div>
+          </div>
           {% endif %}
         </div>
       </div>
