@@ -843,6 +843,89 @@
       max-width: 100%;
     }
   }
+
+  /* Seller info on each offer card */
+  .seller-info-divider {
+    border-top: 1px solid #eee;
+    margin: 0.6rem 0;
+  }
+
+  .card-seller-info {
+    text-align: left;
+    font-size: 0.8rem;
+  }
+
+  .card-seller-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-seller-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #003d7a;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+  }
+
+  .card-seller-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-seller-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-seller-link:hover .card-seller-name {
+    text-decoration: underline;
+    color: #002d5a;
+  }
+
+  .card-seller-name {
+    font-weight: bold;
+    color: #003d7a;
+    font-size: 0.85rem;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-seller-rating {
+    color: #ffc107;
+    font-size: 0.75rem;
+  }
+
+  .card-seller-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .card-stat-item {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .card-stat-label {
+    color: #666;
+  }
+
+  .card-stat-value {
+    color: #003d7a;
+    font-weight: 600;
+  }
 </style>
 
 <div class="page-header">
@@ -942,7 +1025,7 @@
             <div class="card-seller-header">
               <div class="card-seller-avatar">{{ product.seller.pfp }}</div>
               <div class="card-seller-details">
-                <a href="/seller/{{ product.seller.id }}" class="card-seller-link">
+                <a href="{{ url_for('seller_detail', seller_id=product.seller.id) }}" class="card-seller-link">
                   <div class="card-seller-name">{{ product.seller.name }}</div>
                 </a>
                 <div class="card-seller-rating">{{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }} ({{ product.seller.reviews }})</div>
