@@ -218,6 +218,21 @@
     margin-bottom: 0.5rem;
   }
 
+  .seller-name-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .seller-name-link:hover .seller-name {
+    text-decoration: underline;
+    color: #002d5a;
+  }
+
+  .seller-avatar-link {
+    text-decoration: none;
+    display: block;
+  }
+
   .seller-rating {
     color: #ffc107;
     font-size: 0.9rem;
@@ -552,9 +567,13 @@
       <div class="seller-info-section">
         <div class="seller-info-title">Sold by</div>
         <div class="seller-card">
-          <div class="seller-avatar">{{ product.seller.pfp }}</div>
+          <a href="{{ url_for('seller_detail', seller_id=product.seller.id) }}" class="seller-avatar-link">
+            <div class="seller-avatar">{{ product.seller.pfp }}</div>
+          </a>
           <div class="seller-details">
-            <div class="seller-name">{{ product.seller.name }}</div>
+            <a href="{{ url_for('seller_detail', seller_id=product.seller.id) }}" class="seller-name-link">
+              <div class="seller-name">{{ product.seller.name }}</div>
+            </a>
             <div class="seller-rating">
               {{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }}
               <span style="color: #666; margin-left: 0.5rem;">({{ product.seller.reviews }} reviews)</span>
