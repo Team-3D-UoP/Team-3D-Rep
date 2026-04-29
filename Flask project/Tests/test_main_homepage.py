@@ -46,3 +46,32 @@ class TestMainHomepage(unittest.TestCase):
         # Check if reviews data is available
         self.assertIsNotNone(REVIEWS_DATA)
 
+    def test_homepage_response_content_type(self):
+        """Test that the homepage returns HTML content"""
+        response = self.client.get('/')
+        self.assertIn('text/html', response.content_type)
+
+    def test_all_products_have_required_fields(self):
+        """Test that all products have required fields (id, name, price)"""
+        required_fields = ['id', 'name', 'price']
+        for product in OFFER_PRODUCTS:
+            for field in required_fields:
+                self.assertIn(field, product, f"Product missing required field: {field}")
+
+    def test_product_ids_are_unique(self):
+        """Test that all product IDs are unique"""
+        product_ids = [p['id'] for p in OFFER_PRODUCTS]
+        self.assertEqual(len(product_ids), len(set(product_ids)),
+                        "Product IDs should be unique")
+
+    def test_product_ids_are_positive_integers(self):
+        """Test that all product IDs are positive integers"""
+        for product in OFFER_PRODUCTS:
+            self.assertIsInstance(product['id'], int)
+            self.assertGreater(product['id'], 0)
+
+    def test_product_names_are_non_empty(self):
+        """Test that all product names are non-empty strings"""
+        for product in OFFER_PRODUCTS:
+            self.assertIsInstance(product['name'], str)
+            self.assertGreater(len(product['name']), 0)
