@@ -236,3 +236,20 @@ class TestMainHomepage(unittest.TestCase):
         response = self.client.get('/seller/99999')
         self.assertEqual(response.status_code, 404)
 
+    def test_seller_id_in_products_exists(self):
+        """Test that sellers assigned to products actually exist"""
+        for product in OFFER_PRODUCTS:
+            seller = _get_seller_for_product(product)
+            seller_ids = [s['id'] for s in SELLERS_DATA]
+            self.assertIn(seller['id'], seller_ids,
+                         f"Product {product['id']} assigned to non-existent seller")
+
+    def test_no_duplicate_reviews(self):
+        """Test that there are no duplicate reviews in the data"""
+        review_texts = [r['text'] for r in REVIEWS_DATA]
+        self.assertEqual(len(review_texts), len(set(review_texts)),
+                        "Reviews should not be duplicated")
+
+
+if __name__ == '__main__':
+    unittest.main()
