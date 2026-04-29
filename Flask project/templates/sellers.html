@@ -172,6 +172,12 @@
         .btn-view:hover {
             opacity: 0.9;
         }
+
+        .seller-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -183,6 +189,7 @@
         
         <div class="sellers-grid">
             {% for seller in sellers %}
+            <a href="{{ url_for('seller_detail', seller_id=seller.id) }}" class="seller-card-link">
             <div class="seller-card">
                 <div class="seller-header">
                     <div class="pfp">{{ seller.pfp }}</div>
@@ -214,9 +221,10 @@
                     <span class="status-badge {% if seller.active %}status-active{% else %}status-inactive{% endif %}">
                         ● {% if seller.active %}Active{% else %}Inactive{% endif %}
                     </span>
-                    <button class="btn-view">View Profile</button>
+                    <button class="btn-view" type="button">View Profile</button>
                 </div>
             </div>
+            </a>
             {% endfor %}
         </div>
     </div>
