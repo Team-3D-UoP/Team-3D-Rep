@@ -28,21 +28,47 @@ except Exception as e:
     print(f"Firebase initialization error: {e}")
 
 
+def _get_seller_for_product(product):
+    """Return the seller assigned to a given product.
+
+    Uses a deterministic mapping based on the product id so that a seller's
+    profile page consistently lists the same products that were attributed to
+    them on the homepage / product detail pages.
+    """
+    if not SELLERS_DATA:
+        return None
+    return SELLERS_DATA[(product['id'] - 1) % len(SELLERS_DATA)]
+
+
+def _get_products_for_seller(seller_id):
+    """Return all products attributed to the given seller (deterministic)."""
+    return [p for p in OFFER_PRODUCTS if _get_seller_for_product(p)['id'] == seller_id]
+
+
+def _get_reviews_for_seller(seller_id):
+    """Return a deterministic slice of reviews for a given seller.
+
+    Until we wire up a real reviews-by-seller table, we deal each seller a
+    rotating subset of REVIEWS_DATA so every seller's profile shows feedback.
+    """
+    if not REVIEWS_DATA:
+        return []
+    n = len(REVIEWS_DATA)
+    # Take a window of up to 4 reviews starting at an offset based on the seller id.
+    offset = (seller_id - 1) % n
+    return [REVIEWS_DATA[(offset + i) % n] for i in range(min(4, n))]
+
+
 @app.route("/", methods=['GET'])
 def home():
-    # Assign sellers to each product
+    # Assign sellers to each product (deterministic so seller profile matches).
     products_with_sellers = []
-    seller_index = 0
-    shuffled_sellers = random.sample(SELLERS_DATA, len(SELLERS_DATA))
-    
     for product in OFFER_PRODUCTS:
         product_with_seller = product.copy()
-        # Cycle through sellers if we have more products than sellers
-        product_with_seller['seller'] = shuffled_sellers[seller_index % len(shuffled_sellers)]
+        product_with_seller['seller'] = _get_seller_for_product(product)
         products_with_sellers.append(product_with_seller)
-        seller_index += 1
-    
-    return render_template("main_homepage.html", 
+
+    return render_template("main_homepage.html",
                          offer_products=products_with_sellers,
                          reviews=REVIEWS_DATA)
 
@@ -50,16 +76,30 @@ def home():
 def product_detail(product_id):
     # Find the product by ID
     product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
-    
+
     if not product:
         return "Product not found", 404
-    
-    # Get a random seller for this product
-    seller = random.choice(SELLERS_DATA)
+
+    # Use deterministic seller mapping so it matches the homepage and seller page.
     product_with_seller = product.copy()
-    product_with_seller['seller'] = seller
-    
+    product_with_seller['seller'] = _get_seller_for_product(product)
+
     return render_template("product_detail.html", product=product_with_seller)
+
+
+@app.route("/seller/<int:seller_id>", methods=['GET'])
+def seller_detail(seller_id):
+    seller = next((s for s in SELLERS_DATA if s['id'] == seller_id), None)
+    if not seller:
+        return "Seller not found", 404
+
+    seller_products = _get_products_for_seller(seller_id)
+    seller_reviews = _get_reviews_for_seller(seller_id)
+
+    return render_template("seller_detail.html",
+                           seller=seller,
+                           products=seller_products,
+                           reviews=seller_reviews)
 
 @app.route("/product/<int:product_id>/review", methods=['POST'])
 def submit_review(product_id):
