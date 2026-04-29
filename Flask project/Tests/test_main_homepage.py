@@ -52,8 +52,8 @@ class TestMainHomepage(unittest.TestCase):
         self.assertIn('text/html', response.content_type)
 
     def test_all_products_have_required_fields(self):
-        """Test that all products have required fields (id, name, price)"""
-        required_fields = ['id', 'name', 'price']
+        """Test that all products have required fields (id, name, current_price)"""
+        required_fields = ['id', 'name', 'current_price']
         for product in OFFER_PRODUCTS:
             for field in required_fields:
                 self.assertIn(field, product, f"Product missing required field: {field}")
@@ -79,12 +79,12 @@ class TestMainHomepage(unittest.TestCase):
     def test_product_prices_are_valid(self):
         """Test that all product prices are positive numbers"""
         for product in OFFER_PRODUCTS:
-            self.assertIn('price', product)
+            self.assertIn('current_price', product)
             try:
-                price = float(product['price'])
-                self.assertGreaterEqual(price, 0, f"Product {product['id']} has negative price")
+                price = float(product['current_price'])
+                self.assertGreaterEqual(price, 0, f"Product {product['id']} has negative current_price")
             except (ValueError, TypeError):
-                self.fail(f"Product {product['id']} has invalid price format")
+                self.fail(f"Product {product['id']} has invalid current_price format")
                 
     def test_all_sellers_have_required_fields(self):
         """Test that all sellers have required fields (id, name)"""
