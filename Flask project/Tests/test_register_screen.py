@@ -307,3 +307,40 @@ class TestRegisterScreen(unittest.TestCase):
         response = self.client.delete('/register')
         self.assertEqual(response.status_code, 405)
 
+    @patch('app.auth.create_user')
+    def test_register_with_no_content_type(self, mock_create_user):
+        """Test registration with form data and no explicit content type"""
+        mock_create_user.return_value = MagicMock(uid='testuser123')
+
+        response = self.client.post('/register', data=self.valid_data)
+        self.assertEqual(response.status_code, 201)
+
+    @patch('app.auth.create_user')
+    def test_register_response_json_format(self, mock_create_user):
+        """Test that successful registration returns properly formatted JSON"""
+        mock_create_user.return_value = MagicMock(uid='testuser123')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        response_data = json.loads(response.data)
+        self.assertTrue(response_data['success'])
+        self.assertEqual(response_data['message'], 'Registration successful')
+
+    @patch('app.auth.create_user')
+    def test_register_error_response_json_format(self, mock_create_user):
+        """Test that registration errors return properly formatted JSON"""
+        mock_create_user.side_effect = Exception('Test error')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        response_data = json.loads(response.data)
+        self.assertIn('error', response_data)
+
