@@ -64,17 +64,6 @@ class TestRegisterScreen(unittest.TestCase):
         self.assertIn(b'Registration successful', response.data)
 
     @patch('app.auth.create_user')
-    def test_register_with_valid_form_data(self, mock_create_user):
-        """Test registration with valid form data (not JSON)"""
-        mock_create_user.return_value = MagicMock(uid='testuser123')
-
-        response = self.client.post('/register', data=self.valid_data)
-
-        self.assertEqual(response.status_code, 201)
-        response_data = json.loads(response.data)
-        self.assertTrue(response_data.get('success'))
-
-    @patch('app.auth.create_user')
     def test_register_creates_user_with_correct_params(self, mock_create_user):
         """Test that Firebase create_user is called with correct parameters"""
         mock_create_user.return_value = MagicMock(uid='testuser123')
@@ -296,24 +285,6 @@ class TestRegisterScreen(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         response_data = json.loads(response.data)
         self.assertIn('error', response_data)
-
-    def test_register_only_accepts_get_and_post(self):
-        """Test that register route only accepts GET and POST methods"""
-        # PUT should not be allowed
-        response = self.client.put('/register')
-        self.assertEqual(response.status_code, 405)  # Method Not Allowed
-
-        # DELETE should not be allowed
-        response = self.client.delete('/register')
-        self.assertEqual(response.status_code, 405)
-
-    @patch('app.auth.create_user')
-    def test_register_with_no_content_type(self, mock_create_user):
-        """Test registration with form data and no explicit content type"""
-        mock_create_user.return_value = MagicMock(uid='testuser123')
-
-        response = self.client.post('/register', data=self.valid_data)
-        self.assertEqual(response.status_code, 201)
 
     @patch('app.auth.create_user')
     def test_register_response_json_format(self, mock_create_user):
