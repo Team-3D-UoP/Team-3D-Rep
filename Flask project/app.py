@@ -211,6 +211,55 @@ def get_user_reviews():
     if 'user_id' not in session:
         return jsonify({"error": "User not logged in"}), 401
 
+    try:
+        # Get all product reviews by user
+        product_reviews = ProductReview.query.filter_by(
+            user_id=session['user_id']
+        ).order_by(ProductReview.created_at.desc()).all()
+
+        # Get all seller reviews by user
+        seller_reviews = SellerReview.query.filter_by(
+            user_id=session['user_id']
+        ).order_by(SellerReview.created_at.desc()).all()
+
+        # Format product reviews with product details
+        product_reviews_data = []
+        for review in product_reviews:
+            product = next((p for p in OFFER_PRODUCTS if p['id'] == review.product_id), None)
+            if product:
+                review_data = review.to_dict()
+                review_data['type'] = 'product'
+                review_data['item_name'] = product['name']
+                review_data['item_id'] = review.product_id
+                product_reviews_data.append(review_data)
+
+        # Format seller reviews with seller details
+        seller_reviews_data = []
+        for review in seller_reviews:
+            seller = next((s for s in SELLERS_DATA if s['id'] == review.seller_id), None)
+            if seller:
+                review_data = review.to_dict()
+                review_data['type'] = 'seller'
+                review_data['item_name'] = seller['name']
+                review_data['item_id'] = review.seller_id
+                seller_reviews_data.append(review_data)
+
+        # Combine and sort by date
+        all_reviews = product_reviews_data + seller_reviews_data
+        all_reviews.sort(key=lambda x: x['created_at'], reverse=True)
+
+        return jsonify({
+            "success": True,
+            "reviews": all_reviews,
+            "product_reviews_count": len(product_reviews_data),
+            "seller_reviews_count": len(seller_reviews_data),
+            "total_count": len(all_reviews)
+        }), 200
+
+    except Exception as e:
+        print(f"Error in get_user_reviews: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/product/<int:product_id>/review", methods=['POST'])
 def submit_review(product_id):
     """Submit a review for a product"""
