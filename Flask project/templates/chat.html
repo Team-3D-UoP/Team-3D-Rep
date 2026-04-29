@@ -296,5 +296,82 @@
     chatMessages.appendChild(msgDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
+  // Save message to localStorage and backend
+  async function saveChatMessage(text, sender) {
+    const timestamp = new Date().toISOString();
+    const message = { text, sender, timestamp };
 
+    // Save to localStorage
+    let history = localStorage.getItem(STORAGE_KEY);
+    history = history ? JSON.parse(history) : [];
+    history.push(message);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+    // Try to sync with backend (optional)
+    try {
+      let chatId = localStorage.getItem(CHAT_ID_KEY);
+      if (!chatId) {
+        const res = await fetch(`${apiBaseUrl}/api/chat/get_or_create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ part_id: null, request_id: 0 })
+        });
+        const data = await res.json();
+        chatId = data.chat_id;
+        localStorage.setItem(CHAT_ID_KEY, chatId);
+      }
+
+      if (sender === 'user') {
+        await fetch(`${apiBaseUrl}/api/chat/${chatId}/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, part_id: null, request_id: 0 })
+        });
+      }
+    } catch (err) {
+      console.error('Sync error (local storage still works):', err);
+    }
+  }
+
+  // Send message handler
+  async function sendMessage() {
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
+
+    // Display user message
+    displayMessage(messageText, 'user', new Date().toISOString());
+    await saveChatMessage(messageText, 'user');
+    chatInput.value = '';
+
+    // Simulate support response after 2 seconds
+    setTimeout(() => {
+      const supportResponse = 'Thank you for your message! A support representative will get back to you shortly.';
+      displayMessage(supportResponse, 'support', new Date().toISOString());
+      saveChatMessage(supportResponse, 'support');
+    }, 2000);
+  }
+
+  // Clear chat history
+  function clearChatHistory() {
+    if (confirm('Are you sure you want to clear all chat history? This cannot be undone.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(CHAT_ID_KEY);
+      chatMessages.innerHTML = '<div class="empty-state">No messages yet. Start a conversation!</div>';
+    }
+  }
+
+  // Event listeners
+  chatSendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+  clearHistoryBtn.addEventListener('click', clearChatHistory);
+
+  // Load history on page load
+  loadChatHistory();
+</script>
+
+{% endblock %}
 
