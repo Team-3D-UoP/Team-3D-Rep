@@ -191,3 +191,26 @@ class TestMainHomepage(unittest.TestCase):
                 self.assertIn('name', product)
                 # Verify the product is actually in OFFER_PRODUCTS
                 self.assertIn(product['id'], [p['id'] for p in OFFER_PRODUCTS])
+
+    def test_get_reviews_for_seller_returns_list(self):
+        """Test that _get_reviews_for_seller returns a list"""
+        if SELLERS_DATA:
+            seller = SELLERS_DATA[0]
+            reviews = _get_reviews_for_seller(seller['id'])
+            self.assertIsInstance(reviews, list)
+
+    def test_get_reviews_for_seller_returns_valid_reviews(self):
+        """Test that reviews returned for seller are valid"""
+        if SELLERS_DATA and REVIEWS_DATA:
+            seller = SELLERS_DATA[0]
+            reviews = _get_reviews_for_seller(seller['id'])
+            for review in reviews:
+                self.assertIn('rating', review)
+                self.assertIn('text', review)
+
+    def test_get_reviews_for_seller_max_four_reviews(self):
+        """Test that seller gets maximum of 4 reviews"""
+        if SELLERS_DATA:
+            for seller in SELLERS_DATA:
+                reviews = _get_reviews_for_seller(seller['id'])
+                self.assertLessEqual(len(reviews), 4)
