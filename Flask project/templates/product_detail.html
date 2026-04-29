@@ -504,6 +504,81 @@
     }
   }
 
+  .user-reviews-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .user-reviews-title {
+    font-size: 1.2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .user-review-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .user-review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .user-review-author {
+    font-weight: bold;
+    color: #003d7a;
+    font-size: 0.95rem;
+  }
+
+  .user-review-date {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.25rem;
+  }
+
+  .user-review-rating {
+    color: #ffc107;
+    font-size: 0.95rem;
+    letter-spacing: 0.2rem;
+  }
+
+  .user-review-text {
+    color: #555;
+    line-height: 1.6;
+    margin: 1rem 0;
+  }
+
+  .delete-review-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .delete-review-btn:hover {
+    background-color: #c82333;
+  }
+
+  .no-reviews-message {
+    color: #666;
+    text-align: center;
+    padding: 2rem 0;
+    font-style: italic;
+  }
+
   @media (max-width: 768px) {
     .product-grid {
       grid-template-columns: 1fr;
@@ -1015,6 +1090,14 @@
     {% endif %}
   </div>
 
+  <!-- User Reviews Section -->
+  <div class="user-reviews-section">
+    <h3 class="user-reviews-title">User Reviews</h3>
+    <div id="userReviewsContainer">
+      <p class="no-reviews-message">Loading reviews...</p>
+    </div>
+  </div>
+
   <!-- Review Submission Form -->
   {% if session.get('user_id') %}
   <div class="review-form-section">
@@ -1128,11 +1211,12 @@
         document.getElementById('reviewText').value = '';
         document.getElementById('ratingValue').value = 0;
         stars.forEach(s => s.classList.remove('active'));
-        
+
         // Hide success message after 3 seconds
         setTimeout(() => {
           document.getElementById('successMessage').style.display = 'none';
-        }, 3000);
+          loadUserReviews(); // Reload user reviews
+        }, 500);
       } else {
         alert('Error submitting review. Please try again.');
       }
@@ -1141,6 +1225,97 @@
       alert('Error submitting review. Please try again.');
     }
   });
+
+  // Load user reviews from database
+  async function loadUserReviews() {
+    try {
+      const response = await fetch('{{ url_for("get_product_reviews", product_id=product.id) }}');
+      const data = await response.json();
+
+      const container = document.getElementById('userReviewsContainer');
+
+      if (!data.reviews || data.reviews.length === 0) {
+        container.innerHTML = '<p class="no-reviews-message">No user reviews yet. Be the first to review!</p>';
+        return;
+      }
+
+      let reviewsHTML = '';
+      data.reviews.forEach(review => {
+        const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        const isOwnReview = '{{ session.get("user_id") }}' === review.user_id;
+        const deleteBtn = isOwnReview ?
+          `<button class="delete-review-btn" onclick="deleteReview(${review.id})">Delete</button>` : '';
+
+        reviewsHTML += `
+          <div class="user-review-card">
+            <div class="user-review-header">
+              <div>
+                <div class="user-review-author">${escapeHtml(review.user_name)}</div>
+                <div class="user-review-date">${reviewDate}</div>
+              </div>
+              <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                <div class="user-review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                ${deleteBtn}
+              </div>
+            </div>
+            <p class="user-review-text">${escapeHtml(review.review_text)}</p>
+          </div>
+        `;
+      });
+
+      container.innerHTML = reviewsHTML;
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      document.getElementById('userReviewsContainer').innerHTML =
+        '<p class="no-reviews-message">Error loading reviews. Please try again.</p>';
+    }
+  }
+
+  // Delete review function
+  async function deleteReview(reviewId) {
+    if (!confirm('Are you sure you want to delete this review?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        '{{ url_for("delete_review", product_id=product.id, review_id="PLACEHOLDER") }}'.replace('PLACEHOLDER', reviewId),
+        {
+          method: 'DELETE'
+        }
+      );
+
+      if (response.ok) {
+        alert('Review deleted successfully!');
+        loadUserReviews(); // Reload reviews
+      } else {
+        alert('Error deleting review. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error deleting review. Please try again.');
+    }
+  }
+
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Load reviews when page loads
+  loadUserReviews();
 </script>
 
 {% endblock %}
