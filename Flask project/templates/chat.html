@@ -246,3 +246,29 @@
   </div>
 </div>
 
+<script>
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+  const apiBaseUrl = window.location.origin;
+
+  // Storage key for browser localStorage
+  const STORAGE_KEY = 'chat_history';
+  const CHAT_ID_KEY = 'chat_id';
+
+  // Load chat history from localStorage on page load
+  function loadChatHistory() {
+    const history = localStorage.getItem(STORAGE_KEY);
+    
+    if (!history || JSON.parse(history).length === 0) {
+      chatMessages.innerHTML = '<div class="empty-state">No messages yet. Start a conversation!</div>';
+      return;
+    }
+
+    const messages = JSON.parse(history);
+    chatMessages.innerHTML = '';
+    messages.forEach(msg => {
+      displayMessage(msg.text, msg.sender, msg.timestamp);
+    });
+
