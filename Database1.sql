@@ -29,6 +29,16 @@ rating INT DEFAULT NULL,
 details TEXT
 );
 
+CREATE TABLE IF NOT EXISTS RegisteredParts (
+PartID INTEGER PRIMARY KEY AUTOINCREMENT,
+CarID INT FOREIGN KEY REFERENCES RegisteredCars(CarID),
+name TEXT NOT NULL,
+price REAL NOT NULL,
+description TEXT,
+image TEXT
+);
+
+
 -- Users
 INSERT INTO Users (email, username) VALUES
 ('olivergrant@gmail.com','olivergrant'),
