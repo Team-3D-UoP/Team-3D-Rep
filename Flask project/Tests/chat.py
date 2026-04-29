@@ -9,6 +9,7 @@ from datetime import datetime
 import sys
 import os
 
+# Add Flask project to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'Flask project'))
 
 from app import app
@@ -27,38 +28,9 @@ class ChatTestCase(unittest.TestCase):
         """Clean up after tests"""
         pass
 
-    def test_chat_supports_multiple_messages(self):
-        """Test that chat can store multiple messages"""
-        messages = [
-            {'text': 'Hello', 'sender': 'user', 'timestamp': datetime.now().isoformat()},
-            {'text': 'Hi there!', 'sender': 'support', 'timestamp': datetime.now().isoformat()},
-            {'text': 'How can I help?', 'sender': 'user', 'timestamp': datetime.now().isoformat()},
-        ]
-        # Simulate storing in localStorage
-        chat_history = json.dumps(messages)
-        loaded_messages = json.loads(chat_history)
-        self.assertEqual(len(loaded_messages), 3)
+    # ==================== ROUTE TESTS ====================
 
-    def test_message_serialization(self):
-        """Test that messages can be serialized and deserialized"""
-        original_message = {
-            'text': 'Test message',
-            'sender': 'user',
-            'timestamp': datetime.now().isoformat()
-        }
-        # Serialize
-        serialized = json.dumps(original_message)
-        # Deserialize
-        deserialized = json.loads(serialized)
-        self.assertEqual(original_message, deserialized)
-
-    def test_empty_chat_history(self):
-        """Test handling of empty chat history"""
-        empty_history = json.dumps([])
-        loaded = json.loads(empty_history)
-        self.assertEqual(len(loaded), 0)
-
-   def test_home_page_loads(self):
+    def test_home_page_loads(self):
         """Test that home page loads successfully"""
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
@@ -91,6 +63,8 @@ class ChatTestCase(unittest.TestCase):
         """Test that modal chat uses separate localStorage keys than full page"""
         response = self.client.get('/')
         self.assertIn(b"'modal_chat_history'", response.data)
+
+    # ==================== CHAT FUNCTIONALITY TESTS ====================
 
     def test_message_object_structure(self):
         """Test that chat messages have correct structure"""
@@ -144,7 +118,8 @@ class ChatTestCase(unittest.TestCase):
         self.assertIn(b'function saveChatMessage', response.data)
         self.assertIn(b'function sendMessage', response.data)
 
-       """Test that chat button exists on homepage"""
+    # ==================== UI ELEMENT TESTS ====================    def test_chat_button_exists_on_homepage(self):
+        """Test that chat button exists on homepage"""
         response = self.client.get('/')
         self.assertIn(b'id="chatBtn"', response.data)
         self.assertIn(b'chat-button', response.data)
@@ -170,7 +145,42 @@ class ChatTestCase(unittest.TestCase):
         """Test that chat messages container exists"""
         response = self.client.get('/')
         self.assertIn(b'class="chat-messages"', response.data)
-        
+
+    # ==================== MESSAGE PERSISTENCE TESTS ====================
+
+    def test_chat_supports_multiple_messages(self):
+        """Test that chat can store multiple messages"""
+        messages = [
+            {'text': 'Hello', 'sender': 'user', 'timestamp': datetime.now().isoformat()},
+            {'text': 'Hi there!', 'sender': 'support', 'timestamp': datetime.now().isoformat()},
+            {'text': 'How can I help?', 'sender': 'user', 'timestamp': datetime.now().isoformat()},
+        ]
+        # Simulate storing in localStorage
+        chat_history = json.dumps(messages)
+        loaded_messages = json.loads(chat_history)
+        self.assertEqual(len(loaded_messages), 3)
+
+    def test_message_serialization(self):
+        """Test that messages can be serialized and deserialized"""
+        original_message = {
+            'text': 'Test message',
+            'sender': 'user',
+            'timestamp': datetime.now().isoformat()
+        }
+        # Serialize
+        serialized = json.dumps(original_message)
+        # Deserialize
+        deserialized = json.loads(serialized)
+        self.assertEqual(original_message, deserialized)
+
+    def test_empty_chat_history(self):
+        """Test handling of empty chat history"""
+        empty_history = json.dumps([])
+        loaded = json.loads(empty_history)
+        self.assertEqual(len(loaded), 0)
+
+    # ==================== EVENT LISTENER TESTS ====================
+
     def test_chat_page_has_event_listeners(self):
         """Test that chat page sets up event listeners"""
         response = self.client.get('/chat')
@@ -204,6 +214,7 @@ class ChatTestCase(unittest.TestCase):
         self.assertIn(b'.chat-message-company', response.data)
         self.assertIn(b'chat-message', response.data)
 
+    # ==================== DATA VALIDATION TESTS ====================
 
     def test_message_text_not_empty(self):
         """Test that empty messages are rejected"""
@@ -265,6 +276,7 @@ class ChatTestCase(unittest.TestCase):
         should_send = bool(message)
         self.assertTrue(should_send)
 
+    # ==================== ERROR HANDLING TESTS ====================
 
     def test_chat_handles_special_characters(self):
         """Test that chat handles messages with special characters"""
@@ -291,6 +303,7 @@ class ChatTestCase(unittest.TestCase):
         total = initial_count + messages_added
         self.assertEqual(total, 4)
 
+    # ==================== RESPONSIVE DESIGN TESTS ====================
 
     def test_chat_modal_responsive_styles(self):
         """Test that chat modal has responsive CSS media queries"""
@@ -336,6 +349,7 @@ class ChatMessageStorageTest(unittest.TestCase):
         loaded = json.loads(json_str)
         self.assertEqual(len(loaded), 2)
 
+
 class ChatUITest(unittest.TestCase):
     """Test cases for chat UI elements"""
 
@@ -369,4 +383,3 @@ class ChatUITest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
