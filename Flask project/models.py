@@ -63,3 +63,28 @@ class SellerReview(db.Model):
 
     def __repr__(self):
         return f'<SellerReview {self.id} - Seller {self.seller_id}>'
+
+
+class CartItem(db.Model):
+    """Model for storing shopping cart items"""
+    __tablename__ = 'cart_items'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(255), nullable=False, index=True)
+    product_id = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, default=1, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert cart item to dictionary"""
+        return {
+            'id': self.id,
+            'product_id': self.product_id,
+            'quantity': self.quantity,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+
+    def __repr__(self):
+        return f'<CartItem {self.id} - Product {self.product_id}>'
