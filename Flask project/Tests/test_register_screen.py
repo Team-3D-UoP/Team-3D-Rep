@@ -174,3 +174,56 @@ class TestRegisterScreen(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'All fields are required', response.data)
 
+    def test_register_empty_email(self):
+        """Test registration fails when email is empty"""
+        data = self.valid_data.copy()
+        data['email'] = ''
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'All fields are required', response.data)
+
+    def test_register_empty_password(self):
+        """Test registration fails when password is empty"""
+        data = self.valid_data.copy()
+        data['password'] = ''
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_register_empty_fullname(self):
+        """Test registration fails when fullname is empty"""
+        data = self.valid_data.copy()
+        data['fullname'] = ''
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_register_empty_username(self):
+        """Test registration fails when username is empty"""
+        data = self.valid_data.copy()
+        data['username'] = ''
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+
