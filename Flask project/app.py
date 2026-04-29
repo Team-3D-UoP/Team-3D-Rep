@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, render_template, session, redirect, u
 from flask_cors import CORS
 from data.products import OFFER_PRODUCTS
 from data.sellers import SELLERS_DATA
+from data.reviews import REVIEWS_DATA
 from io import BytesIO
 from PIL import Image, ImageDraw
 import base64
@@ -26,56 +27,6 @@ try:
 except Exception as e:
     print(f"Firebase initialization error: {e}")
 
-reviews_data = [
-    {
-        'name': 'John Mitchell',
-        'time': '2 days ago',
-        'rating': 5,
-        'text': 'Great quality parts and fast delivery. Very satisfied with my purchase and would recommend to others.'
-    },
-    {
-        'name': 'Sarah Johnson',
-        'time': '5 days ago',
-        'rating': 5,
-        'text': 'Excellent customer service. The team helped me find exactly what I needed. Highly recommended!'
-    },
-    {
-        'name': 'Mark Thompson',
-        'time': '1 week ago',
-        'rating': 4,
-        'text': 'Good products and reasonable prices. Shipping took a bit longer than expected but overall satisfied.'
-    },
-    {
-        'name': 'Emma Wilson',
-        'time': '1 week ago',
-        'rating': 5,
-        'text': 'Best prices I\'ve found online for car parts. Fast shipping and items arrived in perfect condition.'
-    },
-    {
-        'name': 'David Chen',
-        'time': '2 weeks ago',
-        'rating': 5,
-        'text': 'Fantastic selection and competitive pricing. Will definitely order again. Highly recommended!'
-    },
-    {
-        'name': 'Lisa Anderson',
-        'time': '2 weeks ago',
-        'rating': 5,
-        'text': 'Excellent product quality and reliable service. Customer support was very helpful when I had questions.'
-    },
-    {
-        'name': 'Robert Taylor',
-        'time': '3 weeks ago',
-        'rating': 4,
-        'text': 'Good experience overall. Products arrived quickly and are exactly as described. Minor packaging issue.'
-    },
-    {
-        'name': 'Jennifer Brown',
-        'time': '3 weeks ago',
-        'rating': 5,
-        'text': 'Amazing prices and quick delivery. Best car parts supplier I\'ve used. Five stars all the way!'
-    }
-]
 
 @app.route("/", methods=['GET'])
 def home():
@@ -93,7 +44,7 @@ def home():
     
     return render_template("main_homepage.html", 
                          offer_products=products_with_sellers,
-                         reviews=reviews_data)
+                         reviews=REVIEWS_DATA)
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
@@ -254,7 +205,7 @@ def logout():
 
 @app.route('/sellers')
 def sellers():
-    return render_template('sellers.html', sellers=sellers_data)
+    return render_template('sellers.html', sellers=SELLERS_DATA)
 
 if __name__ == "__main__":
     app.run(debug=True)
