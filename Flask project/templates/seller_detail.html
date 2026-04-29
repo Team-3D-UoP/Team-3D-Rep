@@ -364,5 +364,47 @@
     </div>
   </div>
 
- 
+  <!-- Review Submission Form -->
+  {% if session.get('user_id') %}
+  <div class="review-form-section">
+    <h2 class="review-form-title">Share Your Experience with {{ seller.name }}</h2>
+    <form id="sellerReviewForm">
+      <div id="successMessage" class="success-message" style="display: none;">
+        Thank you for your review! It has been submitted successfully.
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your Rating</label>
+        <div class="rating-input" id="sellerRatingInput">
+          <span class="rating-star" data-rating="1">★</span>
+          <span class="rating-star" data-rating="2">★</span>
+          <span class="rating-star" data-rating="3">★</span>
+          <span class="rating-star" data-rating="4">★</span>
+          <span class="rating-star" data-rating="5">★</span>
+        </div>
+        <input type="hidden" id="sellerRatingValue" name="rating" value="0">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="sellerReviewText">Your Review</label>
+        <textarea class="form-control textarea-control" id="sellerReviewText" name="review_text" placeholder="Share your experience with this seller..." required></textarea>
+      </div>
+
+      <button type="submit" class="form-submit-btn">Submit Review</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="review-form-section">
+    <div class="login-prompt">
+      <p class="login-prompt-text">
+        Would you like to leave a review for this seller?
+        <a href="{{ url_for('login') }}" class="login-prompt-link">Log in</a> or
+        <a href="{{ url_for('register') }}" class="login-prompt-link">Sign up</a> to share your experience.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+
 {% endblock %}
