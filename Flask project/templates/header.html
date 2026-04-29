@@ -83,12 +83,42 @@
         border-radius: 6px;
         cursor: pointer;
         transition: background-color 0.3s ease;
+        white-space: nowrap;
     }
     #commonHeader button:hover {
         background-color: #002d5a;
     }
     #commonHeader #burgerButton {
         flex: 0 0 auto;
+        display: none;
+    }
+    @media (max-width: 900px) {
+        #commonHeader .headerRow {
+            gap: 0.5rem;
+        }
+        #commonHeader input {
+            min-width: 150px;
+            flex: 0 1 auto;
+        }
+        #commonHeader h1 {
+            font-size: 1.25rem;
+        }
+    }
+    @media (max-width: 700px) {
+        #commonHeader .headerRow {
+            flex-wrap: wrap;
+        }
+        #commonHeader h1 {
+            flex: 1 1 100%;
+            order: -1;
+        }
+        #commonHeader #burgerButton {
+            display: block;
+        }
+        #commonHeader input,
+        #commonHeader button:not(#burgerButton) {
+            display: none;
+        }
     }
     #burgerMenu {
         background-color: #f9f9f9;
