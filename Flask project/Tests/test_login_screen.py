@@ -369,3 +369,20 @@ class TestLoginScreen(unittest.TestCase):
         # Should fail because request.get_json() won't parse form data
         self.assertEqual(response.status_code, 400)
 
+    @patch('app.auth.verify_id_token')
+    def test_authenticate_returns_correct_redirect_path(self, mock_verify_token):
+        """Test that authentication returns correct redirect path"""
+        mock_verify_token.return_value = {
+            'uid': 'user123',
+            'email': 'user@example.com',
+            'name': 'Test User'
+        }
+
+        response = self.client.post(
+            '/api/authenticate',
+            data=json.dumps({'token': 'valid_token'}),
+            content_type='application/json'
+        )
+
+        response_data = json.loads(response.data)
+        self.assertEqual(response_data['redirect'], '/account')
