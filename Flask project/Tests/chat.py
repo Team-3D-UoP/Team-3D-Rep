@@ -112,3 +112,30 @@ class ChatTestCase(unittest.TestCase):
         self.assertIn(b'function displayMessage', response.data)
         self.assertIn(b'function saveChatMessage', response.data)
         self.assertIn(b'function sendMessage', response.data)
+
+       """Test that chat button exists on homepage"""
+        response = self.client.get('/')
+        self.assertIn(b'id="chatBtn"', response.data)
+        self.assertIn(b'chat-button', response.data)
+
+    def test_chat_modal_exists_on_homepage(self):
+        """Test that chat modal exists on homepage"""
+        response = self.client.get('/')
+        self.assertIn(b'id="chatModal"', response.data)
+        self.assertIn(b'3DS Support', response.data)
+
+    def test_chat_input_exists(self):
+        """Test that chat input field exists"""
+        response = self.client.get('/')
+        self.assertIn(b'class="chat-input"', response.data)
+
+    def test_chat_send_button_exists(self):
+        """Test that chat send button exists"""
+        response = self.client.get('/')
+        self.assertIn(b'class="chat-send-btn"', response.data)
+        self.assertIn(b'Send', response.data)
+
+    def test_chat_messages_container_exists(self):
+        """Test that chat messages container exists"""
+        response = self.client.get('/')
+        self.assertIn(b'class="chat-messages"', response.data)
