@@ -91,3 +91,86 @@ class TestRegisterScreen(unittest.TestCase):
             display_name=self.valid_data['fullname'],
             uid=self.valid_data['username']
         )
+
+    @patch('app.auth.create_user')
+    def test_register_returns_json_response(self, mock_create_user):
+        """Test that register returns valid JSON response"""
+        mock_create_user.return_value = MagicMock(uid='testuser123')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        self.assertIn('application/json', response.content_type)
+        response_data = json.loads(response.data)
+        self.assertIsInstance(response_data, dict)
+
+    def test_register_missing_email(self):
+        """Test registration fails when email is missing"""
+        data = self.valid_data.copy()
+        del data['email']
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'All fields are required', response.data)
+
+    def test_register_missing_password(self):
+        """Test registration fails when password is missing"""
+        data = self.valid_data.copy()
+        del data['password']
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'All fields are required', response.data)
+
+    def test_register_missing_fullname(self):
+        """Test registration fails when fullname is missing"""
+        data = self.valid_data.copy()
+        del data['fullname']
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'All fields are required', response.data)
+
+    def test_register_missing_username(self):
+        """Test registration fails when username is missing"""
+        data = self.valid_data.copy()
+        del data['username']
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'All fields are required', response.data)
+
+    def test_register_missing_all_fields(self):
+        """Test registration fails when all fields are missing"""
+        response = self.client.post(
+            '/register',
+            data=json.dumps({}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'All fields are required', response.data)
+
