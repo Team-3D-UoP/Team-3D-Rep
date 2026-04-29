@@ -336,3 +336,37 @@ class ChatMessageStorageTest(unittest.TestCase):
         loaded = json.loads(json_str)
         self.assertEqual(len(loaded), 2)
 
+class ChatUITest(unittest.TestCase):
+    """Test cases for chat UI elements"""
+
+    def setUp(self):
+        """Set up test client"""
+        self.app = app
+        self.app.config['TESTING'] = True
+        self.client = self.app.test_client()
+
+    def test_chat_modal_header_text(self):
+        """Test chat modal header text"""
+        response = self.client.get('/')
+        self.assertIn(b'3DS Support', response.data)
+
+    def test_chat_modal_initial_greeting(self):
+        """Test initial greeting message in chat"""
+        response = self.client.get('/')
+        self.assertIn(b'Live chat is always here 24/7', response.data)
+
+    def test_chat_input_placeholder(self):
+        """Test chat input has placeholder"""
+        response = self.client.get('/')
+        self.assertIn(b'placeholder=', response.data)
+
+    def test_chat_logo_displays(self):
+        """Test chat logo displays in modal"""
+        response = self.client.get('/')
+        self.assertIn(b'class="chat-logo"', response.data)
+        self.assertIn(b'3DS', response.data)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
