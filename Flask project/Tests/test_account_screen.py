@@ -3,7 +3,8 @@ import sys
 import os
 from unittest.mock import patch, MagicMock
 
-# Add the Flask project directory to the Python path
+# Flask directory added to Python path
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import app
