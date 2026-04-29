@@ -376,3 +376,48 @@
     </div>
   </div>
 
+  <div class="product-description">
+    <h2 class="description-title">Product Details</h2>
+    
+    {% if product.name == "Pressure Washer" %}
+      <p class="description-text">
+        Professional-grade pressure washer perfect for deep cleaning vehicles, patios, and outdoor surfaces. 
+        Delivers powerful cleaning performance with adjustable pressure settings for delicate and tough surfaces.
+      </p>
+      <ul class="features-list">
+        <li>3000 PSI maximum pressure</li>
+        <li>Adjustable pressure settings</li>
+        <li>15-meter high-pressure hose</li>
+        <li>Multiple nozzle attachments included</li>
+        <li>Compact and portable design</li>
+        <li>1 year manufacturer warranty</li>
+      </ul>
+    
+    {% elif product.name == "Car Cleaning Kit" %}
+      <p class="description-text">
+        Complete car cleaning kit containing everything you need for professional-grade car care. 
+        Includes premium quality brushes, microfiber cloths, and specialized cleaning solutions.
+      </p>
+      <ul class="features-list">
+        <li>Professional-grade cleaning brushes</li>
+        <li>5 microfiber towels</li>
+        <li>Wheel cleaner concentrate</li>
+        <li>Car wash concentrate</li>
+        <li>Bug and tar remover</li>
+        <li>Durable carrying bag included</li>
+      </ul>
+    
+    {% elif product.name == "Oil Filter" %}
+      <p class="description-text">
+        High-performance oil filter designed to protect your engine by removing contaminants and ensuring 
+        optimal oil circulation. Compatible with most vehicle makes and models.
+      </p>
+      <ul class="features-list">
+        <li>Advanced filtration technology</li>
+        <li>Removes 99.7% of particles</li>
+        <li>Long service life</li>
+        <li>Easy installation</li>
+        <li>Compatible with major vehicle brands</li>
+        <li>Eco-friendly disposal</li>
+      </ul>
+ 
