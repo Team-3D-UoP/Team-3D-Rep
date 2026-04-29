@@ -4,24 +4,30 @@
 
         <h1>AutoPartFinder</h1>
 
+        <a href="{{ url_for('home') }}" class="headerButton">Home</a>
+
         <input id="headerSearch"></input>
         <button>Search</button>
 
-        <!--Will be login later-->
-        <button id="profileButton">Profile</button>
+        <a href="{{ url_for('account') }}" class="headerButton">Account</a>
 
-        <!--Route to basket later-->
-        <button id="basketButton">Basket</button>
+        <a href="{{ url_for('my_orders') }}" class="headerButton">Basket</a>
 
         <button id="burgerButton" type="button" onclick="hideBurger()">▶</button>
     </div>
     <section id="burgerMenu">
         <section>
             <p>Jump to another page</p>
-        </section>
+        </section id="headerSection">
+            <section id="headerAccounts">
+                <p>Must <a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('register') }}">Register</a></p>
+                <p><a href="{{ url_for('account') }}">Account</a></p>
+                <p><a href="{{ url_for('my_orders') }}">Basket</a></p>
+            </section>
+            
             <p><a href="{{ url_for('car_registration_screen') }}">Car Registration</a></p>
             <p><a href="{{ url_for('part_registration_screen') }}">Part Registration</a></p>
-            <!--Add more later-->
+        </section>
     </section>
 </section>
 
@@ -44,19 +50,14 @@
         padding: 1rem 2rem;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         border-bottom: 2px solid #003d7a;
-        width: 100%;
-        box-sizing: border-box;
-        position: relative;
-        left: 0;
-        right: 0;
     }
     #commonHeader .headerRow {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        flex-wrap: nowrap;
-        width: 100%;
-        margin: 0;
+        gap: 1rem;
+        flex-wrap: wrap;
+        max-width: 1200px;
+        margin: 0 auto;
     }
     #commonHeader img {
         height: 2.25rem;
@@ -68,17 +69,16 @@
         font-size: 1.5rem;
         color: #003d7a;
         font-weight: bold;
-        flex: 0 0 auto;
-        white-space: nowrap;
+        flex: 1;
+        min-width: 150px;
     }
     #commonHeader input {
         padding: 0.6rem 0.9rem;
         font-size: 0.9rem;
         border: 1px solid #ddd;
         border-radius: 6px;
-        flex: 1 1 300px;
+        flex: 1;
         min-width: 200px;
-        max-width: 600px;
     }
     #commonHeader button {
         padding: 0.6rem 1rem;
@@ -89,40 +89,12 @@
         border-radius: 6px;
         cursor: pointer;
         transition: background-color 0.3s ease;
-        white-space: nowrap;
-        flex: 0 0 auto;
     }
     #commonHeader button:hover {
         background-color: #002d5a;
     }
     #commonHeader #burgerButton {
-        display: none;
-    }
-    @media (max-width: 1024px) {
-        #commonHeader input {
-            flex: 1 1 200px;
-            max-width: 400px;
-        }
-    }
-    @media (max-width: 768px) {
-        #commonHeader .headerRow {
-            flex-wrap: wrap;
-        }
-        #commonHeader h1 {
-            flex: 1 1 auto;
-        }
-        #commonHeader input {
-            flex: 1 1 100%;
-            order: 3;
-            max-width: 100%;
-        }
-        #commonHeader button:not(#burgerButton) {
-            display: none;
-        }
-        #commonHeader #burgerButton {
-            display: block;
-            flex: 0 0 auto;
-        }
+        flex: 0 0 auto;
     }
     #burgerMenu {
         background-color: #f9f9f9;
@@ -147,5 +119,33 @@
     #burgerMenu a:hover {
         color: #002d5a;
         text-decoration: underline;
+    }
+    #headerSection {
+        background-color: #555;
+        padding: 1em;
+    }
+    #headerAccounts {
+        background-color: #FFF;
+        padding: 1rem;
+        border-radius: 6px;
+        margin: 0.75rem 0;
+    }
+    #headerAccounts p {
+        color: #555
+    }
+    #headerAccounts a {
+        color: #002d5a;
+    }
+    .headerButton {
+        background-color: #003d7a;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
     }
 </style>
