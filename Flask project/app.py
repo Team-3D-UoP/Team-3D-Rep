@@ -178,7 +178,8 @@ reviews_data = [
 @app.route("/", methods=['GET'])
 def home():
     random_seller = random.choice(sellers_data)
-    return render_template("main_homepage.html", offer_products=OFFER_PRODUCTS, featured_seller=random_seller, reviews=reviews_data)
+    random_secondary_seller = random.choice([s for s in sellers_data if s != random_seller])
+    return render_template("main_homepage.html", offer_products=OFFER_PRODUCTS, featured_seller=random_seller, secondary_seller=random_secondary_seller, reviews=reviews_data)
 
 @app.route("/api/calcTax", methods=['GET', 'POST'])
 def calcTax():
