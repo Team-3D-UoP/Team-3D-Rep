@@ -82,7 +82,7 @@ def home():
     # Assign sellers to each product
     products_with_sellers = []
     seller_index = 0
-    shuffled_sellers = random.sample(sellers_data, len(sellers_data))
+    shuffled_sellers = random.sample(SELLERS_DATA, len(SELLERS_DATA))
     
     for product in OFFER_PRODUCTS:
         product_with_seller = product.copy()
