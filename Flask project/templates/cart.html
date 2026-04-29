@@ -283,3 +283,46 @@
     animation: spin 1s linear infinite;
     margin: 0 auto 1rem;
   }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 768px) {
+    .cart-content {
+      grid-template-columns: 1fr;
+    }
+
+    .cart-summary {
+      position: static;
+    }
+
+    .cart-item {
+      grid-template-columns: 80px 1fr;
+      gap: 1rem;
+    }
+
+    .cart-item-controls {
+      grid-column: 1 / -1;
+      margin-top: 0.5rem;
+    }
+  }
+</style>
+
+<div class="cart-container">
+  <div class="cart-breadcrumb">
+    <a href="{{ url_for('home') }}">Home</a> > <span>Shopping Cart</span>
+  </div>
+
+  <h1 class="cart-title">Shopping Cart</h1>
+
+  <div class="cart-content">
+    <div class="cart-items-section">
+      <div id="cartItemsContainer">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Loading your cart...</p>
+        </div>
+      </div>
+    </div>
