@@ -31,6 +31,7 @@ class TestRegisterScreen(unittest.TestCase):
         """Clean up after each test"""
         pass
 
+
     def test_register_page_loads_successfully(self):
         """Test that the register page returns a 200 status code"""
         response = self.client.get('/register')
@@ -47,3 +48,46 @@ class TestRegisterScreen(unittest.TestCase):
         response = self.client.get('/register')
         self.assertIn('text/html', response.content_type)
 
+    @patch('app.auth.create_user')
+    def test_register_with_valid_json_data(self, mock_create_user):
+        """Test registration with valid JSON data"""
+        mock_create_user.return_value = MagicMock(uid='testuser123')
+
+        response = self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn(b'success', response.data)
+        self.assertIn(b'Registration successful', response.data)
+
+    @patch('app.auth.create_user')
+    def test_register_with_valid_form_data(self, mock_create_user):
+        """Test registration with valid form data (not JSON)"""
+        mock_create_user.return_value = MagicMock(uid='testuser123')
+
+        response = self.client.post('/register', data=self.valid_data)
+
+        self.assertEqual(response.status_code, 201)
+        response_data = json.loads(response.data)
+        self.assertTrue(response_data.get('success'))
+
+    @patch('app.auth.create_user')
+    def test_register_creates_user_with_correct_params(self, mock_create_user):
+        """Test that Firebase create_user is called with correct parameters"""
+        mock_create_user.return_value = MagicMock(uid='testuser123')
+
+        self.client.post(
+            '/register',
+            data=json.dumps(self.valid_data),
+            content_type='application/json'
+        )
+
+        mock_create_user.assert_called_once_with(
+            email=self.valid_data['email'],
+            password=self.valid_data['password'],
+            display_name=self.valid_data['fullname'],
+            uid=self.valid_data['username']
+        )
