@@ -457,6 +457,7 @@
 
       if (response.ok) {
         loadCart();
+        document.dispatchEvent(new Event('cartUpdated'));
       } else {
         const data = await response.json();
         alert(data.error || 'Error updating cart item');
@@ -480,6 +481,7 @@
 
       if (response.ok) {
         loadCart();
+        document.dispatchEvent(new Event('cartUpdated'));
       } else {
         const data = await response.json();
         alert(data.error || 'Error removing item');
