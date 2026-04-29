@@ -177,10 +177,14 @@ def submit_review(product_id):
             }), 201
 
     except (ValueError, TypeError) as e:
+        print(f"ValueError/TypeError in submit_review: {str(e)}")
         return jsonify({"error": "Invalid data format"}), 400
     except Exception as e:
+        print(f"Exception in submit_review: {str(e)}")
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Error: {str(e)}"}), 500
 
 
 @app.route("/product/<int:product_id>/reviews", methods=['GET'])
