@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Team 3D{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background-color: #f0f0f0;
+  }
+
+  .chat-coaaaaner {
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 90vh;
+    max-height: 700px;
+  }
+
+  .chat-header {
+    background-color: #003d7a;
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #002d5a;
+  }
+
+  .chat-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+
+  .chat-status {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+
+  .chat-body {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background-color: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .chat-message {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 85%;
+    word-wrap: break-word;
+  }
+
+  .chat-message-user {
+    background-color: #003d7a;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+  }
+
+
+  
+  .chat-message-support {
+    background-color: #e8e8e8;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+  }
+
+  .chat-message-system {
+    background-color: #f0f0f0;
+    color: #666;
+    align-self: center;
+    font-size: 0.85rem;
+    font-style: italic;
+    padding: 0.5rem;
+  }
+
+  .chat-message-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 0.3rem;
+  }
+
+  .chat-footer {
+    border-top: 1px solid #ddd;
+    padding: 1rem;
+    background-color: white;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .chat-input-group {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .chat-input:focus {
+    outline: none;
+    border-color: #003d7a;
+
+      box-shadow: 0 0 4px rgba(0, 61, 122, 0.2);
+  }
+
+  .chat-send-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .chat-send-btn:hover {
+    background-color: #45a049;
+  }
+
+  .chat-send-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .chat-clear-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .chat-clear-btn:hover {
+    background-color: #c82333;
+  }
+
+  .chat-info {
+    font-size: 0.85rem;
+    color: #666;
+    text-align: center;
+    padding: 1rem;
+    background-color: #f0f0f0;
+    border-top: 1px solid #ddd;
+  }
+
+  .back-link {
+    color: #003d7a;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: inline-block;
+    margin-left: 2rem;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .chat-container {
+      margin: 1rem;
+      max-height: 85vh;
+    }
+
+    .chat-message {
+      max-width: 95%;
+    }
+
+    .chat-header {
+      padding: 1rem;
+    }
+
+    .chat-body {
+      padding: 1rem;
+
+    }
+
+    .chat-footer {
+      padding: 0.75rem;
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #999;
+    padding: 2rem;
+    font-style: italic;
+  }
+</style>
+
+<a href="/" class="back-link">← Back to Home</a>
+
+<div class="chat-container">
+  <div class="chat-header">
+    <div>
+      <div class="chat-title">3DS Support Chat</div>
+      <div class="chat-status">Always here to help 24/7</div>
+    </div>
+    <button class="chat-clear-btn" id="clearHistoryBtn" title="Clear chat history">Clear History</button>
+  </div>
+
+  <div class="chat-body" id="chatMessages">
+    <div class="empty-state">No messages yet. Start a conversation!</div>
+  </div>
+
+  <div class="chat-footer">
+    <div class="chat-input-group">
+      <input 
+        type="text" 
+        class="chat-input" 
+        id="chatInput" 
+        placeholder="Type your message here..."
+        autocomplete="off"
+      >
+      <button class="chat-send-btn" id="chatSendBtn">Send</button>
+    </div>
+  </div>
+
+  <div class="chat-info">
+    💾 Your chat history is saved locally and will persist across page refreshes.
+  </div>
+</div>
+
+<script>
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+  const apiBaseUrl = window.location.origin;
+
+  // Storage key for browser localStorage
+  const STORAGE_KEY = 'chat_history';
+  const CHAT_ID_KEY = 'chat_id';
+
+  // Load chat history from localStorage on page load
+  function loadChatHistory() {
+    const history = localStorage.getItem(STORAGE_KEY);
+    
+    if (!history || JSON.parse(history).length === 0) {
+      chatMessages.innerHTML = '<div class="empty-state">No messages yet. Start a conversation!</div>';
+      return;
+    }
+
+    const messages = JSON.parse(history);
+    chatMessages.innerHTML = '';
+    messages.forEach(msg => {
+      displayMessage(msg.text, msg.sender, msg.timestamp);
+    });
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Display a message in the chat UI
+  function displayMessage(text, sender, timestamp) {
+    const msgDiv = document.createElement('div');
+    const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    if (sender === 'system') {
+      msgDiv.className = 'chat-message chat-message-system';
+      msgDiv.innerHTML = `<div>${text}</div>`;
+    } else {
+      msgDiv.className = `chat-message chat-message-${sender === 'user' ? 'user' : 'support'}`;
+      msgDiv.innerHTML = `
+        <div>${text}</div>
+        <div class="chat-message-time">${time}</div>
+      `;
+    }
+
+    if (chatMessages.querySelector('.empty-state')) {
+      chatMessages.innerHTML = '';
+    }
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  // Save message to localStorage and backend
+  async function saveChatMessage(text, sender) {
+    const timestamp = new Date().toISOString();
+    const message = { text, sender, timestamp };
+
+    // Save to localStorage
+    let history = localStorage.getItem(STORAGE_KEY);
+    history = history ? JSON.parse(history) : [];
+    history.push(message);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+    // Try to sync with backend (optional)
+    try {
+      let chatId = localStorage.getItem(CHAT_ID_KEY);
+      if (!chatId) {
+        const res = await fetch(`${apiBaseUrl}/api/chat/get_or_create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ part_id: null, request_id: 0 })
+        });
+        const data = await res.json();
+        chatId = data.chat_id;
+        localStorage.setItem(CHAT_ID_KEY, chatId);
+      }
+
+      if (sender === 'user') {
+        await fetch(`${apiBaseUrl}/api/chat/${chatId}/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, part_id: null, request_id: 0 })
+        });
+      }
+    } catch (err) {
+      console.error('Sync error (local storage still works):', err);
+    }
+  }
+
+  // Send message handler
+  async function sendMessage() {
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
+
+    // Display user message
+    displayMessage(messageText, 'user', new Date().toISOString());
+    await saveChatMessage(messageText, 'user');
+    chatInput.value = '';
+
+    // Simulate support response after 2 seconds
+    setTimeout(() => {
+      const supportResponse = 'Thank you for your message! A support representative will get back to you shortly.';
+      displayMessage(supportResponse, 'support', new Date().toISOString());
+      saveChatMessage(supportResponse, 'support');
+    }, 2000);
+  }
+
+  // Clear chat history
+  function clearChatHistory() {
+    if (confirm('Are you sure you want to clear all chat history? This cannot be undone.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(CHAT_ID_KEY);
+      chatMessages.innerHTML = '<div class="empty-state">No messages yet. Start a conversation!</div>';
+    }
+  }
+
+  // Event listeners
+  chatSendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+  clearHistoryBtn.addEventListener('click', clearChatHistory);
+
+  // Load history on page load
+  loadChatHistory();
+</script>
+
+{% endblock %}
+
+
+

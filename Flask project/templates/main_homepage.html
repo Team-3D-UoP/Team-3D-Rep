@@ -843,89 +843,6 @@
       max-width: 100%;
     }
   }
-
-  /* Seller info on each offer card */
-  .seller-info-divider {
-    border-top: 1px solid #eee;
-    margin: 0.6rem 0;
-  }
-
-  .card-seller-info {
-    text-align: left;
-    font-size: 0.8rem;
-  }
-
-  .card-seller-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .card-seller-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #003d7a;
-    color: white;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 0.85rem;
-  }
-
-  .card-seller-details {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .card-seller-link {
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .card-seller-link:hover .card-seller-name {
-    text-decoration: underline;
-    color: #002d5a;
-  }
-
-  .card-seller-name {
-    font-weight: bold;
-    color: #003d7a;
-    font-size: 0.85rem;
-    cursor: pointer;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .card-seller-rating {
-    color: #ffc107;
-    font-size: 0.75rem;
-  }
-
-  .card-seller-stats {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-  }
-
-  .card-stat-item {
-    display: flex;
-    gap: 0.25rem;
-  }
-
-  .card-stat-label {
-    color: #666;
-  }
-
-  .card-stat-value {
-    color: #003d7a;
-    font-weight: 600;
-  }
 </style>
 
 <div class="page-header">
@@ -1025,9 +942,7 @@
             <div class="card-seller-header">
               <div class="card-seller-avatar">{{ product.seller.pfp }}</div>
               <div class="card-seller-details">
-                <a href="{{ url_for('seller_detail', seller_id=product.seller.id) }}" class="card-seller-link">
-                  <div class="card-seller-name">{{ product.seller.name }}</div>
-                </a>
+                <div class="card-seller-name">{{ product.seller.name }}</div>
                 <div class="card-seller-rating">{{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }} ({{ product.seller.reviews }})</div>
               </div>
             </div>
@@ -1198,9 +1113,7 @@
   });
   
   showReviews();
-  startAutoRotate();
-
-  // Chat modal functionality
+  startAutoRotate();  // Chat modal functionality with localStorage persistence
   const chatBtn = document.getElementById('chatBtn');
   const chatModal = document.getElementById('chatModal');
   const chatModalClose = document.getElementById('chatModalClose');
@@ -1208,8 +1121,88 @@
   const chatSendBtn = document.querySelector('.chat-send-btn');
   const chatMessages = document.querySelector('.chat-messages');
   const chatCounter = document.querySelector('.chat-counter');
+  const CHAT_STORAGE_KEY = 'modal_chat_history';
+
+  // Display a message in the chat UI
+  function displayMessage(text, sender, timestamp) {
+    const msgDiv = document.createElement('div');
+    const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    msgDiv.className = `chat-message ${sender === 'support' ? 'chat-message-company' : 'chat-message-user'}`;
+    msgDiv.innerHTML = `
+      <div>${text}</div>
+      <div class="chat-message-time">${time}</div>
+    `;
+    chatMessages.appendChild(msgDiv);
+  }
+
+  // Load chat history from localStorage on modal open
+  function loadChatHistoryFromStorage() {
+    const history = localStorage.getItem(CHAT_STORAGE_KEY);
+    
+    // Clear existing messages except the initial greeting
+    const initialMsg = chatMessages.querySelector('.chat-message-company');
+    chatMessages.innerHTML = '';
+    if (initialMsg) chatMessages.appendChild(initialMsg);
+
+    // Load messages from localStorage
+    if (history) {
+      const messages = JSON.parse(history);
+      messages.forEach(msg => {
+        displayMessage(msg.text, msg.sender, msg.timestamp);
+      });
+    }
+
+    // Update counter
+    const messageCount = chatMessages.children.length;
+    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Save message to localStorage
+  function saveChatMessage(text, sender) {
+    const timestamp = new Date().toISOString();
+    const message = { text, sender, timestamp };
+
+    // Save to localStorage
+    let history = localStorage.getItem(CHAT_STORAGE_KEY);
+    history = history ? JSON.parse(history) : [];
+    history.push(message);
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(history));
+  }
+
+  // Send message handler
+  function sendMessage() {
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
+
+    // Display and save user message
+    displayMessage(messageText, 'user', new Date().toISOString());
+    saveChatMessage(messageText, 'user');
+    chatInput.value = '';
+
+    // Update message counter
+    const messageCount = chatMessages.children.length;
+    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Simulate support response after 2 seconds
+    setTimeout(() => {
+      const supportResponse = 'Thank you for your message! A support representative will get back to you shortly.';
+      displayMessage(supportResponse, 'support', new Date().toISOString());
+      saveChatMessage(supportResponse, 'support');
+      
+      const messageCount = chatMessages.children.length;
+      chatCounter.textContent = `${messageCount} of ${messageCount}`;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 2000);
+  }
 
   chatBtn.addEventListener('click', () => {
+    loadChatHistoryFromStorage();
     chatModal.classList.add('active');
   });
 
@@ -1222,49 +1215,6 @@
       chatModal.classList.remove('active');
     }
   });
-
-  function sendMessage() {
-    const messageText = chatInput.value.trim();
-    
-    if (messageText === '') return;
-    
-    // Add user message to chat
-    const userMessage = document.createElement('div');
-    userMessage.className = 'chat-message chat-message-user';
-    userMessage.innerHTML = `
-      <div>${messageText}</div>
-      <div class="chat-message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-    `;
-    chatMessages.appendChild(userMessage);
-    
-    // Clear input
-    chatInput.value = '';
-    
-    // Update message counter
-    const messageCount = chatMessages.children.length;
-    chatCounter.textContent = `${messageCount} of ${messageCount}`;
-    
-    // Auto scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    
-    // Simulate company response after 2 seconds
-    setTimeout(() => {
-      const companyMessage = document.createElement('div');
-      companyMessage.className = 'chat-message chat-message-company';
-      companyMessage.innerHTML = `
-        <div>
-          <strong>3DS Support</strong>
-          <span class="chat-loading"></span>
-          <span class="chat-loading"></span>
-          <span class="chat-loading"></span>
-        </div>
-        <div style="margin-top: 0.5rem;">Thank you for your message. A representative will respond shortly.</div>
-        <div class="chat-message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-      `;
-      chatMessages.appendChild(companyMessage);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 2000);
-  }
 
   chatSendBtn.addEventListener('click', sendMessage);
   
