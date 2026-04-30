@@ -151,8 +151,13 @@
           data.messages.forEach(msg => {
             // Show message if:
             // 1. It's from the current user, OR
-            // 2. It's a reply from admin
-            if (msg.user_email === userInfo.email || msg.sender_type === 'admin') {
+            // 2. It's a reply from admin, OR
+            // 3. User not logged in (show all messages)
+            const isCurrentUser = msg.user_email === userInfo.email;
+            const isAdminReply = msg.sender_type === 'admin';
+            const isGuestUser = userInfo.email === 'guest@example.com';
+
+            if (isCurrentUser || isAdminReply || isGuestUser) {
               displayMessage(msg.message, msg.sender_type === 'admin' ? 'support' : 'user', msg.created_at);
             }
           });
@@ -224,8 +229,11 @@
     loadChatHistoryFromStorage();
     chatModal.classList.add('active');
 
-    // Auto-refresh messages every 3 seconds while modal is open
-    chatRefreshInterval = setInterval(loadChatHistoryFromStorage, 3000);
+    // Auto-refresh messages every 2 seconds while modal is open
+    if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+    chatRefreshInterval = setInterval(() => {
+      loadChatHistoryFromStorage();
+    }, 2000);
   });
 
   chatModalClose.addEventListener('click', () => {
