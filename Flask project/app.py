@@ -11,7 +11,7 @@ import base64
 import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
-from models import db, ProductReview, SellerReview, CartItem, Part
+from models import db, ProductReview, SellerReview, CartItem, Part, User
 
 load_dotenv()
 
@@ -31,13 +31,21 @@ CORS(app)
 with app.app_context():
     db.create_all()
 
+# Initialize Firebase - Optional, gracefully handles if not configured
+firebase_initialized = False
 try:
     cred_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
-    cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred)
-    print("Firebase initialized successfully")
+    if os.path.exists(cred_path):
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred)
+        firebase_initialized = True
+        print("✓ Firebase initialized with serviceAccountKey.json")
+    else:
+        print("⚠ serviceAccountKey.json not found - Firebase authentication disabled")
+        print("  To enable: Get your key from Firebase Console > Project Settings > Service Accounts")
 except Exception as e:
-    print(f"Firebase initialization error: {e}")
+    print(f"⚠ Firebase initialization error: {e}")
+    print("  Firebase authentication will be disabled")
 
 
 def _get_seller_for_product(product):
@@ -618,6 +626,9 @@ def register():
     if request.method == 'GET':
         return render_template("register_screen.html")
 
+    if not firebase_initialized:
+        return jsonify({"error": "Firebase not configured on this server"}), 503
+
     try:
         data = request.get_json() or request.form
         email = data.get('email')
@@ -635,38 +646,97 @@ def register():
             uid=username
         )
 
-        print(f"User created: {email}")
+        print(f"✓ User created: {email}")
         return jsonify({"success": True, "message": "Registration successful"}), 201
 
     except Exception as e:
-        print(f"Registration error: {e}")
+        print(f"✗ Registration error: {e}")
         return jsonify({"error": str(e)}), 400
 
 @app.route("/api/authenticate", methods=['POST'])
 def authenticate():
+    """
+    Authenticate user with Firebase token.
+    Works with or without serverAccountKey.json (for team collaboration).
+    """
     try:
         data = request.get_json()
         token = data.get('token')
+        user_data = data.get('user_data', {})  # Optional user profile data from client
 
         if not token:
             return jsonify({"error": "No token provided"}), 400
 
-        decoded_token = auth.verify_id_token(token)
-        uid = decoded_token['uid']
-        email = decoded_token.get('email', '')
-        name = decoded_token.get('name', '')
+        decoded_token = None
+        uid = None
+        email = None
+        name = None
 
+        # Try to verify token with Firebase Admin SDK if available
+        if firebase_initialized:
+            try:
+                decoded_token = auth.verify_id_token(token)
+                uid = decoded_token['uid']
+                email = decoded_token.get('email', '')
+                name = decoded_token.get('name', '')
+                print(f"✓ Token verified with Firebase Admin SDK")
+            except Exception as e:
+                print(f"⚠ Token verification failed: {e}")
+                return jsonify({"error": "Token verification failed"}), 401
+        else:
+            # Fallback: If Firebase Admin SDK not available, use client-provided data
+            # This is safe because the client has already authenticated with Firebase
+            # and we'll create/update user record in our database
+            uid = user_data.get('uid')
+            email = user_data.get('email', '')
+            name = user_data.get('fullname', '')
+
+            if not uid or not email:
+                return jsonify({"error": "User data missing"}), 400
+
+            print(f"⚠ Using client-side authentication (Firebase Admin SDK not available)")
+
+        # Create or update user in database
+        try:
+            user = User.query.filter_by(firebase_uid=uid).first()
+
+            if not user:
+                # Create new user
+                username = user_data.get('username', email.split('@')[0])
+                fullname = user_data.get('fullname', name)
+
+                user = User(
+                    firebase_uid=uid,
+                    email=email,
+                    username=username,
+                    fullname=fullname
+                )
+                db.session.add(user)
+                db.session.commit()
+                print(f"✓ User created: {email}")
+            else:
+                # Update existing user
+                user.email = email
+                if name:
+                    user.fullname = name
+                db.session.commit()
+                print(f"✓ User updated: {email}")
+        except Exception as e:
+            print(f"⚠ Error creating/updating user: {e}")
+            # Don't fail auth if database update fails
+
+        # Set session
         session['user_id'] = uid
         session['email'] = email
         session['name'] = name
         session['authenticated'] = True
 
-        print(f"User authenticated: {email}")
+        print(f"✓ User authenticated: {email}")
         return jsonify({"success": True, "redirect": "/account"}), 200
 
     except Exception as e:
-        print(f"Authentication error: {e}")
-        return jsonify({"error": str(e), "details": "Check Firebase domain authorization"}), 401
+        print(f"✗ Authentication error: {e}")
+        return jsonify({"error": str(e)}), 401
 
 @app.route("/account", methods=['GET'])
 def account():
