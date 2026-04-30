@@ -151,28 +151,44 @@
     const messageText = chatInput.value.trim();
     if (!messageText) return;
 
-    // Display and save user message
+    // Display user message immediately
     displayMessage(messageText, 'user', new Date().toISOString());
-    saveChatMessage(messageText, 'user');
     chatInput.value = '';
 
     // Update message counter
-    const messageCount = chatMessages.children.length;
+    let messageCount = chatMessages.children.length;
     chatCounter.textContent = `${messageCount} of ${messageCount}`;
 
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    // Simulate support response after 2 seconds
-    setTimeout(() => {
-      const supportResponse = 'Thank you for your message! A support representative will get back to you shortly.';
-      displayMessage(supportResponse, 'support', new Date().toISOString());
-      saveChatMessage(supportResponse, 'support');
+    // Send to backend
+    fetch('/api/chat/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: messageText,
+        email: 'customer@example.com',
+        name: 'Guest User'
+      })
+    }).then(response => {
+      if (response.ok) {
+        console.log('✓ Message sent to support team');
+        // Show response after 2 seconds
+        setTimeout(() => {
+          const supportResponse = 'Thank you for your message! Our support team will reply shortly.';
+          displayMessage(supportResponse, 'support', new Date().toISOString());
 
-      const messageCount = chatMessages.children.length;
-      chatCounter.textContent = `${messageCount} of ${messageCount}`;
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 2000);
+          messageCount = chatMessages.children.length;
+          chatCounter.textContent = `${messageCount} of ${messageCount}`;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 2000);
+      }
+    }).catch(error => {
+      console.error('Error sending message:', error);
+    });
   }
 
   chatBtn.addEventListener('click', () => {

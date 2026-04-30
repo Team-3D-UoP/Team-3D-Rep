@@ -399,5 +399,38 @@
             adminForm.classList.toggle('active');
             loginForm.style.display = adminForm.classList.contains('active') ? 'none' : 'block';
         };
+
+        // Handle admin login form submission
+        document.getElementById('admin-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            const errorMsg = document.getElementById('admin-error-message');
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Admin login successful');
+                    window.location.href = data.redirect || '/admin';
+                } else {
+                    const data = await response.json();
+                    errorMsg.textContent = data.error || 'Admin login failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Admin login error:', error);
+                errorMsg.textContent = 'Login error: ' + error.message;
+                errorMsg.style.display = 'block';
+            }
+        });
     </script>
 {% endblock %}
