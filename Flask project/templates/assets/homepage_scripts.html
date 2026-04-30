@@ -95,7 +95,6 @@
   const chatSendBtn = document.querySelector('.chat-send-btn');
   const chatMessages = document.querySelector('.chat-messages');
   const chatCounter = document.querySelector('.chat-counter');
-  const CHAT_STORAGE_KEY = 'modal_chat_history';
 
   // Display a message in the chat UI
   function displayMessage(text, sender, timestamp) {
@@ -109,21 +108,28 @@
     chatMessages.appendChild(msgDiv);
   }
 
-  // Load chat history from localStorage on modal open
-  function loadChatHistoryFromStorage() {
-    const history = localStorage.getItem(CHAT_STORAGE_KEY);
+  // Load chat history from Firebase on modal open
+  async function loadChatHistoryFromStorage() {
+    try {
+      // Load from Firebase
+      const response = await fetch('/api/chat/get-customer-messages');
+      if (response.ok) {
+        const data = await response.json();
 
-    // Clear existing messages except the initial greeting
-    const initialMsg = chatMessages.querySelector('.chat-message-company');
-    chatMessages.innerHTML = '';
-    if (initialMsg) chatMessages.appendChild(initialMsg);
+        // Clear existing messages except the initial greeting
+        const initialMsg = chatMessages.querySelector('.chat-message-company');
+        chatMessages.innerHTML = '';
+        if (initialMsg) chatMessages.appendChild(initialMsg);
 
-    // Load messages from localStorage
-    if (history) {
-      const messages = JSON.parse(history);
-      messages.forEach(msg => {
-        displayMessage(msg.text, msg.sender, msg.timestamp);
-      });
+        // Load messages from Firebase
+        if (data.messages && data.messages.length > 0) {
+          data.messages.forEach(msg => {
+            displayMessage(msg.message, msg.sender_type === 'admin' ? 'support' : 'user', msg.created_at);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
     }
 
     // Update counter
@@ -134,17 +140,6 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // Save message to localStorage
-  function saveChatMessage(text, sender) {
-    const timestamp = new Date().toISOString();
-    const message = { text, sender, timestamp };
-
-    // Save to localStorage
-    let history = localStorage.getItem(CHAT_STORAGE_KEY);
-    history = history ? JSON.parse(history) : [];
-    history.push(message);
-    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(history));
-  }
 
   // Send message handler
   function sendMessage() {
