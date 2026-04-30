@@ -930,7 +930,7 @@ def dashboard_carts():
         print(f"Error fetching carts: {e}")
         return jsonify({"error": str(e)}), 500
 
-# Chat API Endpoints
+# Chat API Endpoints (Using Firebase for real-time sync across computers)
 @app.route("/api/chat/send", methods=['POST'])
 def send_chat_message():
     """Send a chat message from customer"""
@@ -943,49 +943,81 @@ def send_chat_message():
         if not message or len(message) < 1:
             return jsonify({"error": "Message cannot be empty"}), 400
 
-        # Save to database
-        chat_msg = ChatMessage(
-            user_id=session.get('user_id'),
-            user_email=user_email,
-            user_name=user_name,
-            message=message,
-            sender_type='customer'
-        )
-        db.session.add(chat_msg)
-        db.session.commit()
+        # Save to Firebase (accessible from any computer!)
+        chat_data = {
+            'user_email': user_email,
+            'user_name': user_name,
+            'message': message,
+            'sender_type': 'customer',
+            'created_at': datetime.utcnow().isoformat()
+        }
 
-        print(f"✓ Chat message saved from {user_name}")
-        return jsonify({
-            "success": True,
-            "message_id": chat_msg.id,
-            "created_at": chat_msg.created_at.isoformat()
-        }), 201
+        timestamp = datetime.utcnow().timestamp()
+        url = f"{FIREBASE_DATABASE_URL}/chat/{timestamp}.json"
+        response = requests.put(url, json=chat_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Chat message saved to Firebase from {user_name}")
+            return jsonify({
+                "success": True,
+                "created_at": chat_data['created_at']
+            }), 201
+        else:
+            print(f"⚠ Error saving to Firebase: {response.status_code}")
+            return jsonify({"error": "Failed to save message"}), 500
 
     except Exception as e:
         print(f"Error saving chat message: {e}")
-        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/chat/messages", methods=['GET'])
 def get_chat_messages():
-    """Get all chat messages (for admin)"""
+    """Get all chat messages from Firebase (for admin)"""
     if not session.get('admin_authenticated'):
         return jsonify({"error": "Unauthorized"}), 401
 
     try:
-        messages = ChatMessage.query.order_by(ChatMessage.created_at.desc()).all()
-        return jsonify({
-            "success": True,
-            "count": len(messages),
-            "messages": [msg.to_dict() for msg in messages]
-        }), 200
+        # Fetch all messages from Firebase
+        url = f"{FIREBASE_DATABASE_URL}/chat.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            messages_data = response.json()
+            if not messages_data:
+                return jsonify({
+                    "success": True,
+                    "count": 0,
+                    "messages": []
+                }), 200
+
+            # Convert Firebase object to array and sort by timestamp
+            messages = []
+            for timestamp, msg_data in messages_data.items():
+                msg_data['id'] = timestamp
+                messages.append(msg_data)
+
+            # Sort by created_at descending (newest first)
+            messages.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+
+            return jsonify({
+                "success": True,
+                "count": len(messages),
+                "messages": messages
+            }), 200
+        else:
+            return jsonify({
+                "success": True,
+                "count": 0,
+                "messages": []
+            }), 200
+
     except Exception as e:
-        print(f"Error fetching chat messages: {e}")
+        print(f"Error fetching chat messages from Firebase: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/chat/reply", methods=['POST'])
 def reply_to_chat():
-    """Admin reply to a chat message"""
+    """Admin reply to a chat message (save to Firebase)"""
     if not session.get('admin_authenticated'):
         return jsonify({"error": "Unauthorized"}), 401
 
@@ -996,25 +1028,31 @@ def reply_to_chat():
         if not message or len(message) < 1:
             return jsonify({"error": "Message cannot be empty"}), 400
 
-        # Save admin reply
-        chat_msg = ChatMessage(
-            user_name='Admin',
-            message=message,
-            sender_type='admin'
-        )
-        db.session.add(chat_msg)
-        db.session.commit()
+        # Save admin reply to Firebase
+        chat_data = {
+            'user_name': 'Admin Support',
+            'user_email': session.get('admin_email'),
+            'message': message,
+            'sender_type': 'admin',
+            'created_at': datetime.utcnow().isoformat()
+        }
 
-        print(f"✓ Admin reply saved")
-        return jsonify({
-            "success": True,
-            "message_id": chat_msg.id,
-            "created_at": chat_msg.created_at.isoformat()
-        }), 201
+        timestamp = datetime.utcnow().timestamp()
+        url = f"{FIREBASE_DATABASE_URL}/chat/{timestamp}.json"
+        response = requests.put(url, json=chat_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Admin reply saved to Firebase")
+            return jsonify({
+                "success": True,
+                "created_at": chat_data['created_at']
+            }), 201
+        else:
+            print(f"⚠ Error saving reply to Firebase: {response.status_code}")
+            return jsonify({"error": "Failed to save reply"}), 500
 
     except Exception as e:
         print(f"Error saving admin reply: {e}")
-        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/chat/unread-count", methods=['GET'])
