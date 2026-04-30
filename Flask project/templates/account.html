@@ -173,6 +173,20 @@
         .card-button:hover {
             background-color: #0041a3;
         }
+
+        .sign-out-card {
+            border: 2px solid #dc3545;
+            background-color: #fff5f5;
+        }
+
+        .sign-out-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .sign-out-btn:hover {
+            background-color: #c82333;
+        }
         
         .form-card {
             background: white;
@@ -300,9 +314,9 @@
                     <span class="icon">⭐</span>
                     <span>My Reviews</span>
                 </a>
-                <a href="/wishlist" class="nav-item">
-                    <span class="icon">❤️</span>
-                    <span>My Wish List</span>
+                <a href="/logout" class="nav-item">
+                    <span class="icon">🚪</span>
+                    <span>Sign Out</span>
                 </a>
             </div>
         </div>
@@ -337,12 +351,12 @@
                     <button class="card-button" onclick="scrollToReviews()">View My Reviews</button>
                 </div>
 
-                <!-- My Wish List Card -->
-                <div class="card">
-                    <div class="card-icon">💛</div>
-                    <h3 class="card-title">MY WISH LIST</h3>
-                    <p class="card-description">View your saved items in Wish List.</p>
-                    <button class="card-button" onclick="location.href='/wishlist'">View My Wish List</button>
+                <!-- Sign Out Card -->
+                <div class="card sign-out-card">
+                    <div class="card-icon">🚪</div>
+                    <h3 class="card-title">SIGN OUT</h3>
+                    <p class="card-description">Sign out of your account and end your session.</p>
+                    <button class="card-button sign-out-btn" onclick="location.href='/logout'">Sign Out</button>
                 </div>
             </div>
             
