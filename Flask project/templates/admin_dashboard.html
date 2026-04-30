@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Team 3D{% endblock %}
+
+{% block extra_css %}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 2rem;
+            color: #c33;
+            font-weight: bold;
+        }
+
+        .admin-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .admin-logout-btn {
+            background-color: #c33;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .admin-logout-btn:hover {
+            background-color: #a22;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .admin-card h3 {
+            color: #003d7a;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .admin-card .stat {
+            font-size: 2.5rem;
+            color: #c33;
+            font-weight: bold;
+        }
+
+        .admin-card .stat-label {
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .admin-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .admin-section h2 {
+            color: #003d7a;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.75rem;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            font-weight: 600;
+        }
+
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .admin-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-user {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-product {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-seller {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .welcome-message {
+            background-color: #e8f4f8;
+            border-left: 4px solid #003d7a;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-message p {
+            color: #003d7a;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div>
+                <h1>🔐 Admin Dashboard</h1>
+                <p>Logged in as: {{ admin_email }}</p>
+            </div>
+            <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
+        </div>
+
+        <!-- Welcome Message -->
+        <div class="welcome-message">
+            <p>Welcome to the Team 3D Admin Portal. Monitor your application stats and manage data below.</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="admin-grid">
+            <div class="admin-card">
+                <h3>Total Users</h3>
+                <div class="stat" id="totalUsers">-</div>
+                <div class="stat-label">Registered accounts</div>
+            </div>
+
+            <div class="admin-card">
+                <h3>Total Products</h3>
+                <div class="stat" id="totalProducts">-</div>
+                <div class="stat-label">Listed items</div>
+            </div>
+
+            <div class="admin-card">
+                <h3>Total Reviews</h3>
+                <div class="stat" id="totalReviews">-</div>
+                <div class="stat-label">Customer feedback</div>
+            </div>
+
+            <div class="admin-card">
+                <h3>Active Carts</h3>
+                <div class="stat" id="activeCarts">-</div>
+                <div class="stat-label">Items in carts</div>
+            </div>
+        </div>
+
+        <!-- Recent Reviews Section -->
+        <div class="admin-section">
+            <h2>📊 Recent Reviews</h2>
+            <div id="reviews-container" style="padding: 1rem; text-align: center; color: #999;">
+                Loading reviews...
+            </div>
+        </div>
+
+        <!-- Recent Users Section -->
+        <div class="admin-section">
+            <h2>👥 Recent Users</h2>
+            <div id="users-container" style="padding: 1rem; text-align: center; color: #999;">
+                Loading users...
+            </div>
+        </div>
+
+        <!-- Live Chat Section -->
+        <div class="admin-section">
+            <h2>💬 Live Chat Messages</h2>
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <input type="text" id="reply-input" placeholder="Type your reply..." style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
+                <button onclick="sendAdminReply()" style="background-color: #003d7a; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Send Reply</button>
+            </div>
+            <div id="chat-container" style="padding: 1rem; text-align: center; color: #999; max-height: 500px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; background-color: #f9f9f9;">
+                Loading messages...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin logout function
+        function adminLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                fetch('/api/admin/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(() => {
+                    window.location.href = '/login';
+                });
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load users
+                const usersResponse = await fetch('/api/dashboard/users');
+                if (usersResponse.ok) {
+                    const usersData = await usersResponse.json();
+                    document.getElementById('totalUsers').textContent = usersData.count || 0;
+                }
+
+                // Load reviews
+                const reviewsResponse = await fetch('/api/dashboard/reviews');
+                if (reviewsResponse.ok) {
+                    const reviewsData = await reviewsResponse.json();
+                    document.getElementById('totalReviews').textContent = reviewsData.count || 0;
+                    displayReviews(reviewsData.reviews || []);
+                }
+
+                // Load cart data
+                const cartsResponse = await fetch('/api/dashboard/carts');
+                if (cartsResponse.ok) {
+                    const cartsData = await cartsResponse.json();
+                    document.getElementById('activeCarts').textContent = cartsData.count || 0;
+                }
+
+                // Set product count (from static data)
+                document.getElementById('totalProducts').textContent = '150+';
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Display reviews in table
+        function displayReviews(reviews) {
+            const container = document.getElementById('reviews-container');
+            if (reviews.length === 0) {
+                container.innerHTML = '<p style="color: #999;">No reviews yet</p>';
+                return;
+            }
+
+            let html = '<table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Rating</th><th>Date</th></tr></thead><tbody>';
+            reviews.slice(0, 10).forEach(review => {
+                const type = review.type === 'product' ? 'Product' : 'Seller';
+                const date = new Date(review.created_at).toLocaleDateString();
+                const badge = review.type === 'product' ? 'badge-product' : 'badge-seller';
+                html += `<tr>
+                    <td>${review.user_name}</td>
+                    <td><span class="badge ${badge}">${type}</span></td>
+                    <td>${'⭐'.repeat(review.rating)}</td>
+                    <td>${date}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Load chat messages
+        async function loadChatMessages() {
+            try {
+                const response = await fetch('/api/chat/messages');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayChatMessages(data.messages || []);
+                }
+            } catch (error) {
+                console.error('Error loading chat messages:', error);
+            }
+        }
+
+        // Display chat messages
+        function displayChatMessages(messages) {
+            const container = document.getElementById('chat-container');
+            if (messages.length === 0) {
+                container.innerHTML = '<p style="color: #999; margin: 2rem;">No messages yet</p>';
+                return;
+            }
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 1rem;">';
+            messages.reverse().forEach(msg => {
+                const isAdmin = msg.sender_type === 'admin';
+                const date = new Date(msg.created_at).toLocaleString();
+                const bgColor = isAdmin ? '#e3f2fd' : '#f3e5f5';
+                const borderColor = isAdmin ? '#1976d2' : '#7b1fa2';
+
+                html += `<div style="background-color: ${bgColor}; border-left: 4px solid ${borderColor}; padding: 1rem; border-radius: 4px; position: relative;">
+                    <button onclick="deleteMessage('${msg.id}')" style="position: absolute; top: 0.5rem; right: 0.5rem; background-color: #dc3545; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 3px; cursor: pointer; font-size: 0.75rem;">Delete</button>
+                    <div style="font-weight: 600; color: ${isAdmin ? '#1976d2' : '#7b1fa2'}; margin-bottom: 0.25rem;">
+                        ${isAdmin ? '🔐 Admin' : msg.user_name} ${isAdmin ? '' : `(${msg.user_email || 'anonymous'})`}
+                    </div>
+                    <div style="color: #333; margin-bottom: 0.5rem;">${escapeHtml(msg.message)}</div>
+                    <div style="font-size: 0.85rem; color: #999;">${date}</div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Delete a chat message
+        async function deleteMessage(messageId) {
+            if (!confirm('Are you sure you want to delete this message?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/chat/delete/${messageId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    console.log('✓ Message deleted');
+                    loadChatMessages();
+                } else {
+                    alert('Error deleting message');
+                }
+            } catch (error) {
+                console.error('Error deleting message:', error);
+                alert('Error deleting message');
+            }
+        }
+
+        // Send admin reply
+        async function sendAdminReply() {
+            const replyInput = document.getElementById('reply-input');
+            const message = replyInput.value.trim();
+
+            if (!message) {
+                alert('Please type a reply');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/chat/reply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ message })
+                });
+
+                if (response.ok) {
+                    replyInput.value = '';
+                    console.log('✓ Reply sent');
+                    // Reload chat messages
+                    loadChatMessages();
+                } else {
+                    alert('Error sending reply');
+                }
+            } catch (error) {
+                console.error('Error sending reply:', error);
+                alert('Error sending reply');
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+            loadChatMessages();
+            // Reload chat messages every 3 seconds for live updates
+            setInterval(loadChatMessages, 3000);
+        });
+    </script>
+{% endblock %}

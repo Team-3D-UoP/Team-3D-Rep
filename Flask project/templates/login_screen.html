@@ -168,7 +168,45 @@
           color: #002d5a;
           text-decoration: underline;
         }
-        
+
+        .admin-login-toggle-btn {
+          background-color: #6c757d;
+          color: white;
+          margin-top: 0.5rem;
+        }
+
+        .admin-login-toggle-btn:hover {
+          background-color: #5a6268;
+        }
+
+        .admin-login-form {
+          display: none;
+          margin-top: 2rem;
+          padding-top: 2rem;
+          border-top: 2px solid #ddd;
+        }
+
+        .admin-login-form.active {
+          display: block;
+        }
+
+        .admin-login-form h2 {
+          font-size: 1.3rem;
+          color: #c33;
+          margin-bottom: 1.5rem;
+          text-align: center;
+        }
+
+        .back-to-user-login {
+          background-color: #6c757d;
+          color: white;
+          margin-top: 1rem;
+        }
+
+        .back-to-user-login:hover {
+          background-color: #5a6268;
+        }
+
         @media (max-width: 480px) {
           .login-container {
             padding: 2rem;
@@ -192,6 +230,7 @@
             <p>Login to your account</p>
         </div>
         
+        <!-- Regular User Login -->
         <form id="login-form" method="POST">
             <label for="username">
                 Username
@@ -212,10 +251,38 @@
             </button>
 
             <div id="error-message" class="error" style="display: none;"></div>
+
+            <button type="button" class="admin-login-toggle-btn" onclick="toggleAdminLogin()">
+                Admin Login
+            </button>
         </form>
         
         <div class="signup-link">
             Don't have an account? <a href="/register">Sign up here</a>
+        </div>
+
+        <!-- Admin Login Form -->
+        <div class="admin-login-form" id="admin-login-form">
+            <h2>🔐 Admin Portal</h2>
+            <form id="admin-form" method="POST">
+                <label for="admin-email">
+                    Admin Email
+                    <input type="email" id="admin-email" name="admin-email" placeholder="Enter admin email" required />
+                </label>
+
+                <label for="admin-password">
+                    Admin Password
+                    <input type="password" id="admin-password" name="admin-password" placeholder="Enter admin password" required />
+                </label>
+
+                <button type="submit">Admin Login</button>
+
+                <div id="admin-error-message" class="error" style="display: none;"></div>
+
+                <button type="button" class="back-to-user-login" onclick="toggleAdminLogin()">
+                    Back to User Login
+                </button>
+            </form>
         </div>
     </div>
 
@@ -248,7 +315,7 @@
                 // Sign in with email and password
                 const userCredential = await signInWithEmailAndPassword(auth, username, password);
                 console.log("User logged in:", userCredential.user);
-                
+
                 // Get ID token and authenticate with backend
                 const token = await userCredential.user.getIdToken();
                 const response = await fetch("/api/authenticate", {
@@ -256,10 +323,20 @@
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ token: token })
+                    body: JSON.stringify({
+                        token: token,
+                        user_data: {
+                            uid: userCredential.user.uid,
+                            email: userCredential.user.email,
+                            fullname: userCredential.user.displayName || username
+                        }
+                    })
                 });
                 
                 if (response.ok) {
+                    // Store user info for chat
+                    localStorage.setItem('userEmail', userCredential.user.email);
+                    localStorage.setItem('userName', userCredential.user.displayName || username);
                     window.location.href = "/account";
                 } else {
                     const data = await response.json();
@@ -284,10 +361,20 @@
                             headers: {
                                 "Content-Type": "application/json",
                             },
-                            body: JSON.stringify({ token: token })
+                            body: JSON.stringify({
+                                token: token,
+                                user_data: {
+                                    uid: result.user.uid,
+                                    email: result.user.email,
+                                    fullname: result.user.displayName || result.user.email.split('@')[0]
+                                }
+                            })
                         }).then(res => {
                             if (res.ok) {
                                 console.log("Authentication successful, redirecting...");
+                                // Store user info for chat
+                                localStorage.setItem('userEmail', result.user.email);
+                                localStorage.setItem('userName', result.user.displayName || result.user.email.split('@')[0]);
                                 window.location.href = "/account";
                             } else {
                                 return res.json().then(data => {
@@ -309,5 +396,47 @@
                     console.error("Google login error:", error);
                 });
         };
+
+        // Toggle between user login and admin login
+        window.toggleAdminLogin = function() {
+            const adminForm = document.getElementById('admin-login-form');
+            const loginForm = document.getElementById('login-form');
+
+            adminForm.classList.toggle('active');
+            loginForm.style.display = adminForm.classList.contains('active') ? 'none' : 'block';
+        };
+
+        // Handle admin login form submission
+        document.getElementById('admin-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            const errorMsg = document.getElementById('admin-error-message');
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Admin login successful');
+                    window.location.href = data.redirect || '/admin';
+                } else {
+                    const data = await response.json();
+                    errorMsg.textContent = data.error || 'Admin login failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Admin login error:', error);
+                errorMsg.textContent = 'Login error: ' + error.message;
+                errorMsg.style.display = 'block';
+            }
+        });
     </script>
 {% endblock %}
