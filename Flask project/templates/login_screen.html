@@ -334,6 +334,9 @@
                 });
                 
                 if (response.ok) {
+                    // Store user info for chat
+                    localStorage.setItem('userEmail', userCredential.user.email);
+                    localStorage.setItem('userName', userCredential.user.displayName || username);
                     window.location.href = "/account";
                 } else {
                     const data = await response.json();
@@ -369,6 +372,9 @@
                         }).then(res => {
                             if (res.ok) {
                                 console.log("Authentication successful, redirecting...");
+                                // Store user info for chat
+                                localStorage.setItem('userEmail', result.user.email);
+                                localStorage.setItem('userName', result.user.displayName || result.user.email.split('@')[0]);
                                 window.location.href = "/account";
                             } else {
                                 return res.json().then(data => {
