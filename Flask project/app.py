@@ -13,7 +13,7 @@ from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 from datetime import datetime
 import requests
-from models import db, ProductReview, SellerReview, CartItem, Part, User
+from models import db, ProductReview, SellerReview, CartItem, Part, User, ChatMessage
 
 load_dotenv()
 
@@ -797,9 +797,240 @@ def placeholder_image(part_name):
 
     return f"data:image/png;base64,{img_base64}"
 
+# Admin Credentials
+ADMIN_EMAIL = "adminpage@gmail.com"
+ADMIN_PASSWORD = "Admin123"
+
 @app.route("/login", methods=['GET'])
 def login():
     return render_template("login_screen.html")
+
+@app.route("/api/admin/login", methods=['POST'])
+def admin_login():
+    """Admin authentication endpoint"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+
+        if not email or not password:
+            return jsonify({"error": "Email and password are required"}), 400
+
+        # Verify admin credentials
+        if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+            session['admin_authenticated'] = True
+            session['admin_email'] = email
+            session['admin_logged_in_at'] = datetime.utcnow().isoformat()
+
+            print(f"✓ Admin logged in: {email}")
+            return jsonify({
+                "success": True,
+                "message": "Admin login successful",
+                "redirect": "/admin"
+            }), 200
+        else:
+            print(f"✗ Admin login failed for: {email}")
+            return jsonify({"error": "Invalid admin credentials"}), 401
+
+    except Exception as e:
+        print(f"Admin login error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/admin", methods=['GET'])
+def admin_dashboard():
+    """Admin dashboard page"""
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('login'))
+
+    return render_template("admin_dashboard.html",
+                         admin_email=session.get('admin_email'))
+
+@app.route("/api/admin/logout", methods=['POST'])
+def admin_logout():
+    """Admin logout"""
+    session.clear()
+    return jsonify({"success": True, "message": "Logged out"}), 200
+
+@app.route("/api/dashboard/users", methods=['GET'])
+def dashboard_users():
+    """Get user statistics for admin dashboard"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        users = User.query.all()
+        return jsonify({
+            "count": len(users),
+            "users": [u.to_dict() for u in users]
+        }), 200
+    except Exception as e:
+        print(f"Error fetching users: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/dashboard/reviews", methods=['GET'])
+def dashboard_reviews():
+    """Get review statistics for admin dashboard"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        product_reviews = ProductReview.query.all()
+        seller_reviews = SellerReview.query.all()
+
+        all_reviews = []
+
+        # Add product reviews
+        for review in product_reviews:
+            all_reviews.append({
+                'id': review.id,
+                'type': 'product',
+                'user_name': review.user_name,
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'created_at': review.created_at.isoformat()
+            })
+
+        # Add seller reviews
+        for review in seller_reviews:
+            all_reviews.append({
+                'id': review.id,
+                'type': 'seller',
+                'user_name': review.user_name,
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'created_at': review.created_at.isoformat()
+            })
+
+        # Sort by date, most recent first
+        all_reviews.sort(key=lambda x: x['created_at'], reverse=True)
+
+        return jsonify({
+            "count": len(all_reviews),
+            "reviews": all_reviews
+        }), 200
+    except Exception as e:
+        print(f"Error fetching reviews: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/dashboard/carts", methods=['GET'])
+def dashboard_carts():
+    """Get cart statistics for admin dashboard"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        carts = CartItem.query.all()
+        total_items = sum(cart.quantity for cart in carts)
+
+        return jsonify({
+            "count": total_items,
+            "cart_count": len(carts)
+        }), 200
+    except Exception as e:
+        print(f"Error fetching carts: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# Chat API Endpoints
+@app.route("/api/chat/send", methods=['POST'])
+def send_chat_message():
+    """Send a chat message from customer"""
+    try:
+        data = request.get_json()
+        message = data.get('message', '').strip()
+        user_email = data.get('email', 'Anonymous')
+        user_name = data.get('name', 'Anonymous')
+
+        if not message or len(message) < 1:
+            return jsonify({"error": "Message cannot be empty"}), 400
+
+        # Save to database
+        chat_msg = ChatMessage(
+            user_id=session.get('user_id'),
+            user_email=user_email,
+            user_name=user_name,
+            message=message,
+            sender_type='customer'
+        )
+        db.session.add(chat_msg)
+        db.session.commit()
+
+        print(f"✓ Chat message saved from {user_name}")
+        return jsonify({
+            "success": True,
+            "message_id": chat_msg.id,
+            "created_at": chat_msg.created_at.isoformat()
+        }), 201
+
+    except Exception as e:
+        print(f"Error saving chat message: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat/messages", methods=['GET'])
+def get_chat_messages():
+    """Get all chat messages (for admin)"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        messages = ChatMessage.query.order_by(ChatMessage.created_at.desc()).all()
+        return jsonify({
+            "success": True,
+            "count": len(messages),
+            "messages": [msg.to_dict() for msg in messages]
+        }), 200
+    except Exception as e:
+        print(f"Error fetching chat messages: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat/reply", methods=['POST'])
+def reply_to_chat():
+    """Admin reply to a chat message"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        data = request.get_json()
+        message = data.get('message', '').strip()
+
+        if not message or len(message) < 1:
+            return jsonify({"error": "Message cannot be empty"}), 400
+
+        # Save admin reply
+        chat_msg = ChatMessage(
+            user_name='Admin',
+            message=message,
+            sender_type='admin'
+        )
+        db.session.add(chat_msg)
+        db.session.commit()
+
+        print(f"✓ Admin reply saved")
+        return jsonify({
+            "success": True,
+            "message_id": chat_msg.id,
+            "created_at": chat_msg.created_at.isoformat()
+        }), 201
+
+    except Exception as e:
+        print(f"Error saving admin reply: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat/unread-count", methods=['GET'])
+def unread_chat_count():
+    """Get count of unread chat messages (for admin)"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        unread = ChatMessage.query.filter_by(is_read=False, sender_type='customer').count()
+        return jsonify({
+            "success": True,
+            "unread_count": unread
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
