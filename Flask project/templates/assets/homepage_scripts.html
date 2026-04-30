@@ -1,0 +1,200 @@
+<script>
+  // Search filter functionality
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearBtn');
+  const offerCards = document.querySelectorAll('.offer-card');
+
+  function filterOffers() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+
+    offerCards.forEach(card => {
+      const productName = card.querySelector('.offer-name').textContent.toLowerCase();
+
+      if (searchTerm === '' || productName.includes(searchTerm)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  searchInput.addEventListener('input', filterOffers);
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    filterOffers();
+    searchInput.focus();
+  });
+
+  // Review carousel functionality
+  let currentReviewIndex = 0;
+  const reviewCards = document.querySelectorAll('.review-card');
+  const totalReviews = reviewCards.length;
+  let autoRotateInterval;
+
+  function getReviewsPerPage() {
+    if (window.innerWidth >= 1200) return 4;
+    if (window.innerWidth >= 768) return 2;
+    return 1;
+  }
+
+  function showReviews() {
+    const reviewsPerPage = getReviewsPerPage();
+    reviewCards.forEach((card, index) => {
+      card.style.display = 'none';
+    });
+
+    for (let i = 0; i < reviewsPerPage && currentReviewIndex + i < totalReviews; i++) {
+      reviewCards[currentReviewIndex + i].style.display = 'block';
+    }
+  }
+
+  function nextReview() {
+    const reviewsPerPage = getReviewsPerPage();
+    currentReviewIndex = (currentReviewIndex + reviewsPerPage) % totalReviews;
+    showReviews();
+  }
+
+  function prevReview() {
+    const reviewsPerPage = getReviewsPerPage();
+    currentReviewIndex = (currentReviewIndex - reviewsPerPage + totalReviews) % totalReviews;
+    showReviews();
+  }
+
+  function startAutoRotate() {
+    autoRotateInterval = setInterval(nextReview, 4000);
+  }
+
+  function resetAutoRotate() {
+    clearInterval(autoRotateInterval);
+    startAutoRotate();
+  }
+
+  document.querySelector('.review-arrow-prev').addEventListener('click', () => {
+    prevReview();
+    resetAutoRotate();
+  });
+
+  document.querySelector('.review-arrow-next').addEventListener('click', () => {
+    nextReview();
+    resetAutoRotate();
+  });
+
+  window.addEventListener('resize', () => {
+    showReviews();
+  });
+
+  showReviews();
+  startAutoRotate();
+
+  // Chat modal functionality with localStorage persistence
+  const chatBtn = document.getElementById('chatBtn');
+  const chatModal = document.getElementById('chatModal');
+  const chatModalClose = document.getElementById('chatModalClose');
+  const chatInput = document.querySelector('.chat-input');
+  const chatSendBtn = document.querySelector('.chat-send-btn');
+  const chatMessages = document.querySelector('.chat-messages');
+  const chatCounter = document.querySelector('.chat-counter');
+  const CHAT_STORAGE_KEY = 'modal_chat_history';
+
+  // Display a message in the chat UI
+  function displayMessage(text, sender, timestamp) {
+    const msgDiv = document.createElement('div');
+    const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    msgDiv.className = `chat-message ${sender === 'support' ? 'chat-message-company' : 'chat-message-user'}`;
+    msgDiv.innerHTML = `
+      <div>${text}</div>
+      <div class="chat-message-time">${time}</div>
+    `;
+    chatMessages.appendChild(msgDiv);
+  }
+
+  // Load chat history from localStorage on modal open
+  function loadChatHistoryFromStorage() {
+    const history = localStorage.getItem(CHAT_STORAGE_KEY);
+
+    // Clear existing messages except the initial greeting
+    const initialMsg = chatMessages.querySelector('.chat-message-company');
+    chatMessages.innerHTML = '';
+    if (initialMsg) chatMessages.appendChild(initialMsg);
+
+    // Load messages from localStorage
+    if (history) {
+      const messages = JSON.parse(history);
+      messages.forEach(msg => {
+        displayMessage(msg.text, msg.sender, msg.timestamp);
+      });
+    }
+
+    // Update counter
+    const messageCount = chatMessages.children.length;
+    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Save message to localStorage
+  function saveChatMessage(text, sender) {
+    const timestamp = new Date().toISOString();
+    const message = { text, sender, timestamp };
+
+    // Save to localStorage
+    let history = localStorage.getItem(CHAT_STORAGE_KEY);
+    history = history ? JSON.parse(history) : [];
+    history.push(message);
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(history));
+  }
+
+  // Send message handler
+  function sendMessage() {
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
+
+    // Display and save user message
+    displayMessage(messageText, 'user', new Date().toISOString());
+    saveChatMessage(messageText, 'user');
+    chatInput.value = '';
+
+    // Update message counter
+    const messageCount = chatMessages.children.length;
+    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Simulate support response after 2 seconds
+    setTimeout(() => {
+      const supportResponse = 'Thank you for your message! A support representative will get back to you shortly.';
+      displayMessage(supportResponse, 'support', new Date().toISOString());
+      saveChatMessage(supportResponse, 'support');
+
+      const messageCount = chatMessages.children.length;
+      chatCounter.textContent = `${messageCount} of ${messageCount}`;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 2000);
+  }
+
+  chatBtn.addEventListener('click', () => {
+    loadChatHistoryFromStorage();
+    chatModal.classList.add('active');
+  });
+
+  chatModalClose.addEventListener('click', () => {
+    chatModal.classList.remove('active');
+  });
+
+  chatModal.addEventListener('click', (e) => {
+    if (e.target === chatModal) {
+      chatModal.classList.remove('active');
+    }
+  });
+
+  chatSendBtn.addEventListener('click', sendMessage);
+
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+</script>
