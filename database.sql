@@ -198,3 +198,28 @@ INSERT INTO UserChats (ChatID, PartID, UserID, category, message) VALUES
 (99, 9, 3, 'Tyres', 'Do they come with warranty?'),
 (100, 9, 4, 'Tyres', 'Are they fuel efficient?');
 
+INSERT INTO Responses (ResponseID, ChatID, UserID, response) VALUES
+
+-- YES RESPONSES
+(61, 71, 2, 'Yes'),
+(62, 72, 3, 'Yes, warranty included'),
+(63, 75, 4, 'Yes'),
+(64, 82, 5, 'Yes, LED'),
+(65, 85, 6, 'Yes'),
+(66, 94, 7, 'Yes'),
+(67, 97, 2, 'Yes, brand new'),
+
+-- NO RESPONSES
+(68, 74, 3, 'No'),
+(69, 77, 4, 'No, not for all cars'),
+(70, 83, 5, 'No'),
+(71, 89, 6, 'No, depends on model'),
+(72, 93, 7, 'No, installation not included'),
+(73, 98, 2, 'No, only for specific seasons'),
+
+-- CUSTOMER SUPPORT RESPONSES
+(75, 79, 4, 'For more information, please contact our sales team at sales@autopartfinder.com'),
+(76, 87, 5, 'For detailed enquiries, reach out to customer support at sales@autopartfinder.com'),
+(77, 92, 6, 'Please contact our support team at sales@autopartfinder.com for assistance'),
+(78, 95, 7, 'For warranty details, email us at sales@autopartfinder.com'),
+(79, 100, 2, 'For further help, contact customer service at sales@autopartfinder.com');
