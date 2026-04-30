@@ -45,7 +45,7 @@ name TEXT NOT NULL,
 price REAL NOT NULL,
 description TEXT,
 image TEXT,
-FOREIGN KEY (UserID) REFERENCES RegisteredCars(UserID)
+FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
 
