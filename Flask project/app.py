@@ -1250,6 +1250,10 @@ def authenticate():
 
 @app.route("/account", methods=['GET'])
 def account():
+    # Redirect admin to admin dashboard
+    if session.get('admin_authenticated'):
+        return redirect(url_for('admin_dashboard'))
+
     if not session.get('authenticated'):
         return redirect(url_for('login'))
 
