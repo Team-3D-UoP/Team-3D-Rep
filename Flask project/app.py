@@ -1071,6 +1071,28 @@ def reply_to_chat():
         print(f"Error saving admin reply: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/chat/delete/<message_id>", methods=['DELETE'])
+def delete_chat_message(message_id):
+    """Delete a chat message from Firebase (admin only)"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        # Delete message from Firebase using REST API
+        url = f"{FIREBASE_DATABASE_URL}/chat/{message_id}.json"
+        response = requests.delete(url, timeout=5)
+
+        if response.status_code in [200, 204]:
+            print(f"✓ Chat message deleted: {message_id}")
+            return jsonify({"success": True, "message": "Message deleted"}), 200
+        else:
+            print(f"⚠ Error deleting message from Firebase: {response.status_code}")
+            return jsonify({"error": "Failed to delete message"}), 500
+
+    except Exception as e:
+        print(f"Error deleting chat message: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/chat/get-customer-messages", methods=['GET'])
 def get_customer_messages():
     """Get all chat messages for customer (from Firebase)"""
@@ -1250,10 +1272,6 @@ def authenticate():
 
 @app.route("/account", methods=['GET'])
 def account():
-    # Redirect admin to admin dashboard
-    if session.get('admin_authenticated'):
-        return redirect(url_for('admin_dashboard'))
-
     if not session.get('authenticated'):
         return redirect(url_for('login'))
 
