@@ -27,7 +27,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize database
 db.init_app(app)
 
-CORS(app)
+CORS(app, supports_credentials=True)
 
 # Create database tables
 with app.app_context():
@@ -1034,7 +1034,11 @@ def get_chat_messages():
 @app.route("/api/chat/reply", methods=['POST'])
 def reply_to_chat():
     """Admin reply to a chat message (save to Firebase)"""
+    print(f"📨 Chat reply request - Session: {dict(session)}")
+    print(f"admin_authenticated: {session.get('admin_authenticated')}")
+
     if not session.get('admin_authenticated'):
+        print("❌ Unauthorized: admin_authenticated not in session")
         return jsonify({"error": "Unauthorized"}), 401
 
     try:
