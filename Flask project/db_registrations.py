@@ -4,7 +4,7 @@ from pathlib import Path
 from flask import session
 from datetime import datetime
 
-db_path = db_path = os.path.join(os.path.dirname(__file__), '../database.db')
+db_path = os.path.join(os.path.dirname(__file__), '../database.db')
 
 def insert_registered_part(brand, year, part_name, price, description, image=None, user_id=None):
     # Get the currently logged-in user ID from session if not provided
