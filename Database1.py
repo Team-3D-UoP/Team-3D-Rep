@@ -1,3 +1,11 @@
+import sqlite3
+
+# Connect to SQLite database (creates file if it doesn't exist)
+conn = sqlite3.connect('database.db')
+cursor = conn.cursor()
+
+# SQL script as a string
+sql_script = """
 CREATE TABLE IF NOT EXISTS Users (
     UserID INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
@@ -7,7 +15,7 @@ CREATE TABLE IF NOT EXISTS Users (
 CREATE TABLE IF NOT EXISTS CarOwners (
     UserID INT NOT NULL,
     CarID INT NOT NULL,
-    PRIMARY KEY (UserID, CarID)
+    PRIMARY KEY (UserID, CarID),
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (CarID) REFERENCES RegisteredCars(CarID)
     );
@@ -24,18 +32,20 @@ CREATE TABLE IF NOT EXISTS RegisteredCars (
 
 CREATE TABLE IF NOT EXISTS Reviews (
 ReviewID INTEGER PRIMARY KEY AUTOINCREMENT,
-UserID INT FOREIGN KEY REFERENCES Users(UserID),
+UserID INT,
 rating INT DEFAULT NULL,
-details TEXT
+details TEXT,
+FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
 CREATE TABLE IF NOT EXISTS RegisteredParts (
 PartID INTEGER PRIMARY KEY AUTOINCREMENT,
-CarID INT FOREIGN KEY REFERENCES RegisteredCars(CarID),
+CarID INT,
 name TEXT NOT NULL,
 price REAL NOT NULL,
 description TEXT,
-image TEXT
+image TEXT,
+FOREIGN KEY (CarID) REFERENCES RegisteredCars(CarID)
 );
 
 
@@ -202,3 +212,19 @@ INSERT INTO Reviews (UserID, rating, details) VALUES
 (8, 3, 'Average car with no standout features.'),
 (9, 4, 'Comfortable and spacious interior.'),
 (10, 5, 'Fantastic car with great handling and features.');
+"""
+
+# Split the script into individual statements
+statements = sql_script.split(';')
+
+# Execute each statement
+for statement in statements:
+    statement = statement.strip()
+    if statement:
+        cursor.execute(statement)
+
+# Commit the changes and close the connection
+conn.commit()
+conn.close()
+
+print("Database created successfully.")
