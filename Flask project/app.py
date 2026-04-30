@@ -935,12 +935,19 @@ def dashboard_carts():
 def send_chat_message():
     """Send a chat message from customer"""
     try:
+        print("📨 Chat send request received")
+
         data = request.get_json()
+        print(f"Request data: {data}")
+
         message = data.get('message', '').strip()
         user_email = data.get('email', 'Anonymous')
         user_name = data.get('name', 'Anonymous')
 
+        print(f"Message: {message}, Email: {user_email}, Name: {user_name}")
+
         if not message or len(message) < 1:
+            print("❌ Message is empty")
             return jsonify({"error": "Message cannot be empty"}), 400
 
         # Save to Firebase (accessible from any computer!)
@@ -952,9 +959,16 @@ def send_chat_message():
             'created_at': datetime.utcnow().isoformat()
         }
 
-        timestamp = datetime.utcnow().timestamp()
+        timestamp = int(datetime.utcnow().timestamp() * 1000)  # Use milliseconds for better uniqueness
         url = f"{FIREBASE_DATABASE_URL}/chat/{timestamp}.json"
+
+        print(f"📤 Saving to Firebase: {url}")
+        print(f"Data: {chat_data}")
+
         response = requests.put(url, json=chat_data, timeout=5)
+
+        print(f"Firebase response status: {response.status_code}")
+        print(f"Firebase response: {response.text}")
 
         if response.status_code in [200, 201]:
             print(f"✓ Chat message saved to Firebase from {user_name}")
@@ -963,11 +977,13 @@ def send_chat_message():
                 "created_at": chat_data['created_at']
             }), 201
         else:
-            print(f"⚠ Error saving to Firebase: {response.status_code}")
-            return jsonify({"error": "Failed to save message"}), 500
+            print(f"⚠ Error saving to Firebase: {response.status_code} - {response.text}")
+            return jsonify({"error": f"Failed to save message: {response.status_code}"}), 500
 
     except Exception as e:
-        print(f"Error saving chat message: {e}")
+        print(f"❌ Error saving chat message: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/chat/messages", methods=['GET'])
