@@ -9,8 +9,9 @@ from io import BytesIO
 from PIL import Image, ImageDraw
 import base64
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, db as firebase_db
 from dotenv import load_dotenv
+from datetime import datetime
 from models import db, ProductReview, SellerReview, CartItem, Part, User
 
 load_dotenv()
@@ -33,19 +34,126 @@ with app.app_context():
 
 # Initialize Firebase - Optional, gracefully handles if not configured
 firebase_initialized = False
+firebase_db_initialized = False
 try:
     cred_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
     if os.path.exists(cred_path):
         cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred)
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://team-3d-default-rtdb.europe-west1.firebasedatabase.app'
+        })
         firebase_initialized = True
+        firebase_db_initialized = True
         print("✓ Firebase initialized with serviceAccountKey.json")
+        print("✓ Firebase Realtime Database connected")
     else:
         print("⚠ serviceAccountKey.json not found - Firebase authentication disabled")
         print("  To enable: Get your key from Firebase Console > Project Settings > Service Accounts")
 except Exception as e:
     print(f"⚠ Firebase initialization error: {e}")
     print("  Firebase authentication will be disabled")
+
+
+# Firebase Realtime Database Helper Functions
+def save_user_to_firebase(uid, email, username, fullname):
+    """Save user profile to Firebase Realtime Database"""
+    if not firebase_db_initialized:
+        return False
+    try:
+        user_data = {
+            'email': email,
+            'username': username,
+            'fullname': fullname,
+            'created_at': datetime.utcnow().isoformat(),
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        firebase_db.reference(f'users/{uid}').set(user_data)
+        print(f"✓ User saved to Firebase: {email}")
+        return True
+    except Exception as e:
+        print(f"⚠ Error saving user to Firebase: {e}")
+        return False
+
+
+def get_user_from_firebase(uid):
+    """Get user profile from Firebase"""
+    if not firebase_db_initialized:
+        return None
+    try:
+        user_data = firebase_db.reference(f'users/{uid}').get().val()
+        return user_data
+    except Exception as e:
+        print(f"⚠ Error getting user from Firebase: {e}")
+        return None
+
+
+def save_review_to_firebase(review_type, item_id, uid, email, name, rating, text):
+    """Save review to Firebase"""
+    if not firebase_db_initialized:
+        return False
+    try:
+        review_data = {
+            'item_id': item_id,
+            'user_id': uid,
+            'user_email': email,
+            'user_name': name,
+            'rating': rating,
+            'review_text': text,
+            'created_at': datetime.utcnow().isoformat(),
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        firebase_db.reference(f'reviews/{review_type}/{item_id}/{uid}').set(review_data)
+        print(f"✓ Review saved to Firebase")
+        return True
+    except Exception as e:
+        print(f"⚠ Error saving review to Firebase: {e}")
+        return False
+
+
+def get_reviews_from_firebase(review_type, item_id):
+    """Get all reviews for an item from Firebase"""
+    if not firebase_db_initialized:
+        return []
+    try:
+        reviews_data = firebase_db.reference(f'reviews/{review_type}/{item_id}').get().val()
+        if not reviews_data:
+            return []
+        return list(reviews_data.values())
+    except Exception as e:
+        print(f"⚠ Error getting reviews from Firebase: {e}")
+        return []
+
+
+def save_cart_item_to_firebase(uid, product_id, quantity):
+    """Save cart item to Firebase"""
+    if not firebase_db_initialized:
+        return False
+    try:
+        cart_data = {
+            'product_id': product_id,
+            'quantity': quantity,
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        firebase_db.reference(f'carts/{uid}/{product_id}').set(cart_data)
+        print(f"✓ Cart item saved to Firebase")
+        return True
+    except Exception as e:
+        print(f"⚠ Error saving cart to Firebase: {e}")
+        return False
+
+
+def get_cart_from_firebase(uid):
+    """Get cart items from Firebase"""
+    if not firebase_db_initialized:
+        return {}
+    try:
+        cart_data = firebase_db.reference(f'carts/{uid}').get().val()
+        if not cart_data:
+            return {}
+        return cart_data
+    except Exception as e:
+        print(f"⚠ Error getting cart from Firebase: {e}")
+        return {}
 
 
 def _get_seller_for_product(product):
@@ -161,6 +269,12 @@ def submit_seller_review(seller_id):
             existing_review.rating = rating
             existing_review.review_text = review_text
             db.session.commit()
+
+            # Also save to Firebase
+            save_review_to_firebase('seller', seller_id, session['user_id'],
+                                   session.get('email', ''), session.get('name', 'Anonymous'),
+                                   rating, review_text)
+
             return jsonify({
                 "success": True,
                 "message": "Review updated successfully",
@@ -178,6 +292,11 @@ def submit_seller_review(seller_id):
             )
             db.session.add(new_review)
             db.session.commit()
+
+            # Also save to Firebase
+            save_review_to_firebase('seller', seller_id, session['user_id'],
+                                   session.get('email', ''), session.get('name', 'Anonymous'),
+                                   rating, review_text)
 
             return jsonify({
                 "success": True,
@@ -423,6 +542,10 @@ def add_to_cart():
             # Update quantity
             existing_item.quantity += quantity
             db.session.commit()
+
+            # Also save to Firebase
+            save_cart_item_to_firebase(session['user_id'], product_id, existing_item.quantity)
+
             return jsonify({
                 "success": True,
                 "message": "Item quantity updated",
@@ -437,6 +560,9 @@ def add_to_cart():
             )
             db.session.add(new_item)
             db.session.commit()
+
+            # Also save to Firebase
+            save_cart_item_to_firebase(session['user_id'], product_id, quantity)
 
             return jsonify({
                 "success": True,
@@ -696,15 +822,15 @@ def authenticate():
 
             print(f"⚠ Using client-side authentication (Firebase Admin SDK not available)")
 
-        # Create or update user in database
+        # Create or update user in database and Firebase
         try:
+            username = user_data.get('username', email.split('@')[0])
+            fullname = user_data.get('fullname', name)
+
             user = User.query.filter_by(firebase_uid=uid).first()
 
             if not user:
-                # Create new user
-                username = user_data.get('username', email.split('@')[0])
-                fullname = user_data.get('fullname', name)
-
+                # Create new user in SQLite
                 user = User(
                     firebase_uid=uid,
                     email=email,
@@ -713,14 +839,18 @@ def authenticate():
                 )
                 db.session.add(user)
                 db.session.commit()
-                print(f"✓ User created: {email}")
+                print(f"✓ User created in SQLite: {email}")
             else:
-                # Update existing user
+                # Update existing user in SQLite
                 user.email = email
                 if name:
                     user.fullname = name
                 db.session.commit()
-                print(f"✓ User updated: {email}")
+                print(f"✓ User updated in SQLite: {email}")
+
+            # Also save to Firebase Realtime Database
+            save_user_to_firebase(uid, email, username, fullname)
+
         except Exception as e:
             print(f"⚠ Error creating/updating user: {e}")
             # Don't fail auth if database update fails
