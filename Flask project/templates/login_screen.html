@@ -248,7 +248,7 @@
                 // Sign in with email and password
                 const userCredential = await signInWithEmailAndPassword(auth, username, password);
                 console.log("User logged in:", userCredential.user);
-                
+
                 // Get ID token and authenticate with backend
                 const token = await userCredential.user.getIdToken();
                 const response = await fetch("/api/authenticate", {
@@ -256,7 +256,14 @@
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ token: token })
+                    body: JSON.stringify({
+                        token: token,
+                        user_data: {
+                            uid: userCredential.user.uid,
+                            email: userCredential.user.email,
+                            fullname: userCredential.user.displayName || username
+                        }
+                    })
                 });
                 
                 if (response.ok) {
@@ -284,7 +291,14 @@
                             headers: {
                                 "Content-Type": "application/json",
                             },
-                            body: JSON.stringify({ token: token })
+                            body: JSON.stringify({
+                                token: token,
+                                user_data: {
+                                    uid: result.user.uid,
+                                    email: result.user.email,
+                                    fullname: result.user.displayName || result.user.email.split('@')[0]
+                                }
+                            })
                         }).then(res => {
                             if (res.ok) {
                                 console.log("Authentication successful, redirecting...");
