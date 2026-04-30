@@ -106,6 +106,16 @@
 
         if (!errors) {
             axios.post("/api/save_part_registration", data);
+
+            errorHandler.textContent = "Part added!"
+
+            document.getElementById("brand").value = "";
+            document.getElementById("year").value = "";
+            document.getElementById("part_name").value = "";
+            document.getElementById("price").value = "";
+            document.getElementById("description").value = "";
+            document.getElementById("image").value = "";
+            display_image();
         } else {
             errorHandler.textContent = errors;
         }
