@@ -88,3 +88,31 @@ class CartItem(db.Model):
 
     def __repr__(self):
         return f'<CartItem {self.id} - Product {self.product_id}>'
+
+
+class Part(db.Model):
+    """Model for storing registered car parts"""
+    __tablename__ = 'parts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    image = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert part to dictionary"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'price': self.price,
+            'description': self.description,
+            'image': self.image,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+
+    def __repr__(self):
+        return f'<Part {self.id} - {self.name}>'

@@ -11,7 +11,7 @@ import base64
 import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
-from models import db, ProductReview, SellerReview, CartItem
+from models import db, ProductReview, SellerReview, CartItem, Part
 
 load_dotenv()
 
@@ -745,16 +745,30 @@ def save_car_registration():
 def save_part_registration():
     data = request.get_json(silent=True) or {}
 
-    # TODO: save to DB here
-    try:
-        print("name:", data["name"])
-        print("price:", data["price"])
-        print("description:", data["description"])
-        print("image:", data["image"])
-    except:
-       pass
+    # Validate required fields
+    required_fields = ['name', 'price', 'description', 'image']
+    if not all(field in data and data[field] for field in required_fields):
+        return jsonify({"error": "All fields are required"}), 400
 
-    return jsonify({"message": "Part registration recieved"}), 200
+    try:
+        # Create new part
+        new_part = Part(
+            name=data['name'],
+            price=float(data['price']),
+            description=data['description'],
+            image=data['image']
+        )
+
+        # Save to database
+        db.session.add(new_part)
+        db.session.commit()
+
+        return jsonify({"message": "Part registration successful", "part_id": new_part.id}), 201
+    except ValueError:
+        return jsonify({"error": "Invalid price format"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to save part"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
