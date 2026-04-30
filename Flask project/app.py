@@ -729,12 +729,13 @@ def save_car_registration():
 
     # TODO: save to DB here
     try:
-        print("licence_plate:", data["licence_plate"])
+        #carId = Incremental
         print("make:", data["make"])
         print("model:", data["model"])
-        print("engine:", data["engine"])
         print("year:", data["year"])
-        print("tyres:", data["tyres"])
+        print("license:", data["license"])
+        print("engine:", data["engine"])
+        print("wheels:", data["wheels"])
     except:
        pass
 
