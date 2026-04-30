@@ -1,0 +1,58 @@
+<!-- Latest Offers & Top Sellers Section -->
+<div class="content-card">
+  <div class="offers-section">
+    <h2 class="section-heading">Latest Offers & Top Sellers</h2>
+
+    <div class="search-filter-container">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search products by name or keyword...">
+      </div>
+      <button class="clear-btn" id="clearBtn">Clear</button>
+    </div>
+
+    <div class="offers-grid">
+      {% for product in offer_products %}
+      <div class="offer-card">
+        <span class="offer-badge">-{{ product.discount_percent }}%</span>
+        <span class="offer-heart">♡</span>
+        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="offer-image">
+        <div class="offer-item">
+          <div class="offer-name">{{ product.name }}</div>
+          <div class="offer-pricing">
+            <span class="offer-old-price">£{{ "%.2f"|format(product.old_price) }}</span>
+            <span class="offer-discount">-{{ product.discount_percent }}%</span>
+            <span class="offer-current-price">£{{ "%.2f"|format(product.current_price) }}</span>
+          </div>
+          <a href="{{ url_for('product_detail', product_id=product.id) }}" class="offer-shop-link">Shop now →</a>
+
+          {% if product.seller %}
+          <div class="seller-info-divider"></div>
+          <div class="card-seller-info">
+            <a href="{{ url_for('seller_detail', seller_id=product.seller.id) }}" style="text-decoration: none; color: inherit;">
+              <div class="card-seller-header">
+                <div class="card-seller-avatar">{{ product.seller.pfp }}</div>
+                <div class="card-seller-details">
+                  <div class="card-seller-name">{{ product.seller.name }}</div>
+                  <div class="card-seller-rating">{{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }} ({{ product.seller.reviews }})</div>
+                </div>
+              </div>
+              <div class="card-seller-stats">
+                <div class="card-stat-item">
+                  <span class="card-stat-label">Feedback:</span>
+                  <span class="card-stat-value">{{ product.seller.positive_feedback }}%</span>
+                </div>
+                <div class="card-stat-item">
+                  <span class="card-stat-label">Sold:</span>
+                  <span class="card-stat-value">{{ product.seller.products_sold }}</span>
+                </div>
+              </div>
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
