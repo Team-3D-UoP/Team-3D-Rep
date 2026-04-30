@@ -12,6 +12,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 from models import db, ProductReview, SellerReview, CartItem
+import db_registrations
 
 load_dotenv()
 
