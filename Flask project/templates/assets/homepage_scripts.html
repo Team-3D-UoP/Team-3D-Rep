@@ -186,18 +186,26 @@
     });
   }
 
+  // Auto-refresh chat messages
+  let chatRefreshInterval;
+
   chatBtn.addEventListener('click', () => {
     loadChatHistoryFromStorage();
     chatModal.classList.add('active');
+
+    // Auto-refresh messages every 3 seconds while modal is open
+    chatRefreshInterval = setInterval(loadChatHistoryFromStorage, 3000);
   });
 
   chatModalClose.addEventListener('click', () => {
     chatModal.classList.remove('active');
+    clearInterval(chatRefreshInterval);
   });
 
   chatModal.addEventListener('click', (e) => {
     if (e.target === chatModal) {
       chatModal.classList.remove('active');
+      clearInterval(chatRefreshInterval);
     }
   });
 
