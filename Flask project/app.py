@@ -1272,19 +1272,13 @@ def authenticate():
 
 @app.route("/account", methods=['GET'])
 def account():
-    # If admin is logged in, redirect to admin dashboard
-    if session.get('admin_authenticated'):
-        return redirect(url_for('admin_dashboard'))
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
 
-    # If regular user is logged in, show account page
-    if session.get('authenticated'):
-        return render_template("account.html",
-                             username=session.get('name'),
-                             email=session.get('email'),
-                             full_name=session.get('name'))
-
-    # Otherwise redirect to login
-    return redirect(url_for('login'))
+    return render_template("account.html",
+                         username=session.get('name'),
+                         email=session.get('email'),
+                         full_name=session.get('name'))
 
 @app.route("/my-orders", methods=['GET'])
 def my_orders():
