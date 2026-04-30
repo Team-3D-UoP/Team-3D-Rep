@@ -118,6 +118,36 @@ class User(db.Model):
         return f'<User {self.id} - {self.email}>'
 
 
+class ChatMessage(db.Model):
+    """Model for storing live chat messages"""
+    __tablename__ = 'chat_messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(255), nullable=True, index=True)  # Firebase UID or anonymous
+    user_email = db.Column(db.String(255), nullable=True)
+    user_name = db.Column(db.String(255), nullable=False, default='Anonymous')
+    message = db.Column(db.Text, nullable=False)
+    sender_type = db.Column(db.String(50), nullable=False, default='customer')  # 'customer' or 'admin'
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    def to_dict(self):
+        """Convert message to dictionary"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'user_email': self.user_email,
+            'user_name': self.user_name,
+            'message': self.message,
+            'sender_type': self.sender_type,
+            'is_read': self.is_read,
+            'created_at': self.created_at.isoformat()
+        }
+
+    def __repr__(self):
+        return f'<ChatMessage {self.id} - {self.user_name}>'
+
+
 class Part(db.Model):
     """Model for storing registered car parts"""
     __tablename__ = 'parts'
