@@ -614,10 +614,181 @@
     .search-input {
       padding: 0.6rem;
       font-size: 0.9rem;
+    }    .clear-btn {
+      width: 100%;
+    }
+  }
+
+  /* Search Dropdown Menu Styles */
+  .search-filters-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .search-filters-btn:hover {
+    background-color: #002d5a;
+  }
+
+  .search-filters-btn.active {
+    background-color: #002d5a;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .filters-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 6px 6px 6px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 280px;
+    max-height: 400px;
+    overflow-y: auto;
+    animation: slideDown 0.2s ease-out;
+  }
+
+  .filters-dropdown.active {
+    display: block;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .filter-section {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .filter-section:last-child {
+    border-bottom: none;
+  }
+
+  .filter-title {
+    font-weight: 600;
+    color: #003d7a;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .filter-option:hover {
+    background-color: #f0f0f0;
+  }
+
+  .filter-option input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: #003d7a;
+  }
+
+  .filter-option input[type="radio"] {
+    cursor: pointer;
+    accent-color: #003d7a;
+  }
+
+  .filter-option label {
+    flex: 1;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+    user-select: none;
+  }
+
+  .sort-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sort-btn {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .sort-btn:hover {
+    background-color: #e3f2fd;
+    border-color: #003d7a;
+    color: #003d7a;
+  }
+
+  .sort-btn.active {
+    background-color: #003d7a;
+    color: white;
+    border-color: #003d7a;
+  }
+
+  .sort-btn::before {
+    content: '⊗ ';
+    opacity: 0;
+    margin-right: 0.5rem;
+  }
+
+  .sort-btn.active::before {
+    content: '✓ ';
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .filters-dropdown {
+      min-width: 250px;
     }
 
-    .clear-btn {
-      width: 100%;
+    .filter-section {
+      padding: 0.75rem;
+    }
+
+    .filter-title {
+      font-size: 0.85rem;
     }
   }
 
@@ -912,13 +1083,108 @@
   
   <div class="offers-section">
     <h2 class="section-heading">Latest Offers & Top Sellers</h2>
-    
-    <div class="search-filter-container">
+      <div class="search-filter-container">
       <div class="search-input-wrapper">
         <span class="search-icon">🔍</span>
         <input type="text" id="searchInput" class="search-input" placeholder="Search products by name or keyword...">
       </div>
       <button class="clear-btn" id="clearBtn">Clear</button>
+      <div style="position: relative;">
+        <button class="search-filters-btn" id="filtersBtn">
+          🎚️ Filters & Sort
+        </button>
+        <div class="filters-dropdown" id="filtersDropdown">
+          <!-- Price Filter -->
+          <div class="filter-section">
+            <div class="filter-title">💷 Price Range</div>
+            <div class="filter-options">
+              <div class="filter-option">
+                <input type="checkbox" id="price-0-50" value="0-50">
+                <label for="price-0-50">£0 - £50</label>
+              </div>
+              <div class="filter-option">
+                <input type="checkbox" id="price-50-100" value="50-100">
+                <label for="price-50-100">£50 - £100</label>
+              </div>
+              <div class="filter-option">
+                <input type="checkbox" id="price-100-200" value="100-200">
+                <label for="price-100-200">£100 - £200</label>
+              </div>
+              <div class="filter-option">
+                <input type="checkbox" id="price-200-plus" value="200+">
+                <label for="price-200-plus">£200+</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discount Filter -->
+          <div class="filter-section">
+            <div class="filter-title">🏷️ Discount</div>
+            <div class="filter-options">
+              <div class="filter-option">
+                <input type="checkbox" id="discount-10" value="10+">
+                <label for="discount-10">10% or more</label>
+              </div>
+              <div class="filter-option">
+                <input type="checkbox" id="discount-25" value="25+">
+                <label for="discount-25">25% or more</label>
+              </div>
+              <div class="filter-option">
+                <input type="checkbox" id="discount-50" value="50+">
+                <label for="discount-50">50% or more</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ratings Filter -->
+          <div class="filter-section">
+            <div class="filter-title">⭐ Ratings</div>
+            <div class="filter-options">
+              <div class="filter-option">
+                <input type="checkbox" id="rating-5" value="5">
+                <label for="rating-5">5 Stars</label>
+              </div>
+              <div class="filter-option">
+                <input type="checkbox" id="rating-4" value="4+">
+                <label for="rating-4">4+ Stars</label>
+              </div>
+              <div class="filter-option">
+                <input type="checkbox" id="rating-3" value="3+">
+                <label for="rating-3">3+ Stars</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Availability Filter -->
+          <div class="filter-section">
+            <div class="filter-title">📦 Availability</div>
+            <div class="filter-options">
+              <div class="filter-option">
+                <input type="checkbox" id="availability-stock" value="in-stock">
+                <label for="availability-stock">In Stock</label>
+              </div>
+              <div class="filter-option">
+                <input type="checkbox" id="availability-arriving" value="arriving-soon">
+                <label for="availability-arriving">Arriving Soon</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sort Options -->
+          <div class="filter-section">
+            <div class="filter-title">🔀 Sort By</div>
+            <div class="sort-buttons">
+              <button class="sort-btn" data-sort="relevant">Most Relevant</button>
+              <button class="sort-btn" data-sort="price-low">Price: Low to High</button>
+              <button class="sort-btn" data-sort="price-high">Price: High to Low</button>
+              <button class="sort-btn" data-sort="newest">Newest First</button>
+              <button class="sort-btn" data-sort="popular">Most Popular</button>
+              <button class="sort-btn" data-sort="rating">Highest Rated</button>
+              <button class="sort-btn" data-sort="discount">Biggest Discount</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="offers-grid">
@@ -1047,11 +1313,57 @@
   }
 
   searchInput.addEventListener('input', filterOffers);
-  
-  clearBtn.addEventListener('click', () => {
+    clearBtn.addEventListener('click', () => {
     searchInput.value = '';
     filterOffers();
     searchInput.focus();
+  });
+
+  // Filters & Sort Dropdown Functionality
+  const filtersBtn = document.getElementById('filtersBtn');
+  const filtersDropdown = document.getElementById('filtersDropdown');
+  const sortBtns = document.querySelectorAll('.sort-btn');
+  const filterCheckboxes = document.querySelectorAll('.filter-option input[type="checkbox"]');
+
+  // Toggle dropdown on button click
+  filtersBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    filtersBtn.classList.toggle('active');
+    filtersDropdown.classList.toggle('active');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!filtersBtn.contains(e.target) && !filtersDropdown.contains(e.target)) {
+      filtersBtn.classList.remove('active');
+      filtersDropdown.classList.remove('active');
+    }
+  });
+
+  // Prevent closing when clicking inside the dropdown
+  filtersDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // Sort button functionality (placeholder - non-functional for now)
+  sortBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Remove active state from all sort buttons
+      sortBtns.forEach(b => b.classList.remove('active'));
+      // Add active state to clicked button
+      btn.classList.add('active');
+      console.log('Selected sort:', btn.dataset.sort);
+      // TODO: Implement actual sorting
+    });
+  });
+
+  // Filter checkbox functionality (placeholder - non-functional for now)
+  filterCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+      console.log('Filter changed:', checkbox.id, checkbox.checked);
+      // TODO: Implement actual filtering
+    });
   });
 
   // Review carousel functionality
