@@ -40,6 +40,39 @@ def search_cars_by_keyword(term: str, db_path: str = DB_PATH) -> List[Dict[str, 
         return [dict(row) for row in cursor.fetchall()]
 
 
+def search_cars_year_range(
+    min_year: int,
+    max_year: int,
+    model_filter: Optional[str] = None,
+    make_filter: Optional[str] = None,
+    db_path: str = DB_PATH,
+) -> List[Dict[str, Any]]:
+    query = """
+    SELECT
+        rcs.CarID,
+        rcs.make,
+        rcs.model,
+        rcs.year,
+        rcs.license,
+        rcs.engine,
+        rcs.wheels
+    FROM RegisteredCars AS rcs
+    WHERE
+        CAST(rcs.year AS INTEGER) BETWEEN :minYear AND :maxYear
+        AND rcs.model LIKE :modelFilter
+        AND rcs.make LIKE :makeFilter;
+    """
+    params = {
+        "minYear": min_year,
+        "maxYear": max_year,
+        "modelFilter": f"%{model_filter}%" if model_filter else "%",
+        "makeFilter": f"%{make_filter}%" if make_filter else "%",
+    }
+    with connect_db(db_path) as conn:
+        cursor = conn.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+
+
 def search_registered_parts(
     min_price: float,
     max_price: float,
@@ -90,10 +123,9 @@ def search_registered_parts_by_attributes(
 
 
 if __name__ == "__main__":
-    print("Example search results:\n")
-    print("Cars matching 'Toyota':")
-    print(search_cars_by_keyword("Toyota"))
-    print("\nParts priced between 20 and 100:")
-    print(search_registered_parts(20.0, 100.0, name_filter="Filter"))
-    print("\nParts matching brand 'Toyota', year '2026', and part_name 'Filter':")
-    print(search_registered_parts_by_attributes(brand="Toyota", year="2026", part_name="Filter"))
+    print("\n--- Search for Parts by Attributes ---")
+    brand = input("Enter part brand (or press Enter to skip): ") or None
+    year = input("Enter part year (or press Enter to skip): ") or None
+    part_name = input("Enter part name (or press Enter to skip): ") or None
+    print(f"\nParts matching brand '{brand}', year '{year}', and part name '{part_name}':")
+    print(search_registered_parts_by_attributes(brand=brand, year=year, part_name=part_name))
