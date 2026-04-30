@@ -168,7 +168,45 @@
           color: #002d5a;
           text-decoration: underline;
         }
-        
+
+        .admin-login-toggle-btn {
+          background-color: #6c757d;
+          color: white;
+          margin-top: 0.5rem;
+        }
+
+        .admin-login-toggle-btn:hover {
+          background-color: #5a6268;
+        }
+
+        .admin-login-form {
+          display: none;
+          margin-top: 2rem;
+          padding-top: 2rem;
+          border-top: 2px solid #ddd;
+        }
+
+        .admin-login-form.active {
+          display: block;
+        }
+
+        .admin-login-form h2 {
+          font-size: 1.3rem;
+          color: #c33;
+          margin-bottom: 1.5rem;
+          text-align: center;
+        }
+
+        .back-to-user-login {
+          background-color: #6c757d;
+          color: white;
+          margin-top: 1rem;
+        }
+
+        .back-to-user-login:hover {
+          background-color: #5a6268;
+        }
+
         @media (max-width: 480px) {
           .login-container {
             padding: 2rem;
@@ -192,6 +230,7 @@
             <p>Login to your account</p>
         </div>
         
+        <!-- Regular User Login -->
         <form id="login-form" method="POST">
             <label for="username">
                 Username
@@ -212,10 +251,38 @@
             </button>
 
             <div id="error-message" class="error" style="display: none;"></div>
+
+            <button type="button" class="admin-login-toggle-btn" onclick="toggleAdminLogin()">
+                Admin Login
+            </button>
         </form>
         
         <div class="signup-link">
             Don't have an account? <a href="/register">Sign up here</a>
+        </div>
+
+        <!-- Admin Login Form -->
+        <div class="admin-login-form" id="admin-login-form">
+            <h2>🔐 Admin Portal</h2>
+            <form id="admin-form" method="POST">
+                <label for="admin-email">
+                    Admin Email
+                    <input type="email" id="admin-email" name="admin-email" placeholder="Enter admin email" required />
+                </label>
+
+                <label for="admin-password">
+                    Admin Password
+                    <input type="password" id="admin-password" name="admin-password" placeholder="Enter admin password" required />
+                </label>
+
+                <button type="submit">Admin Login</button>
+
+                <div id="admin-error-message" class="error" style="display: none;"></div>
+
+                <button type="button" class="back-to-user-login" onclick="toggleAdminLogin()">
+                    Back to User Login
+                </button>
+            </form>
         </div>
     </div>
 
@@ -322,6 +389,15 @@
                     errorMsg.style.display = "block";
                     console.error("Google login error:", error);
                 });
+        };
+
+        // Toggle between user login and admin login
+        window.toggleAdminLogin = function() {
+            const adminForm = document.getElementById('admin-login-form');
+            const loginForm = document.getElementById('login-form');
+
+            adminForm.classList.toggle('active');
+            loginForm.style.display = adminForm.classList.contains('active') ? 'none' : 'block';
         };
     </script>
 {% endblock %}
