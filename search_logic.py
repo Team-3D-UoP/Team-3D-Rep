@@ -64,9 +64,36 @@ def search_registered_parts(
         return [dict(row) for row in cursor.fetchall()]
 
 
+def search_registered_parts_by_attributes(
+    brand: Optional[str] = None,
+    year: Optional[str] = None,
+    part_name: Optional[str] = None,
+    db_path: str = DB_PATH,
+) -> List[Dict[str, Any]]:
+    query = """
+    SELECT
+        rps.*
+    FROM RegisteredParts AS rps
+    WHERE
+        rps.brand LIKE :brand
+        AND rps.year LIKE :year
+        AND rps.part_name LIKE :part_name;
+    """
+    params = {
+        "brand": f"%{brand}%" if brand else "%",
+        "year": f"%{year}%" if year else "%",
+        "part_name": f"%{part_name}%" if part_name else "%",
+    }
+    with connect_db(db_path) as conn:
+        cursor = conn.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+
+
 if __name__ == "__main__":
     print("Example search results:\n")
     print("Cars matching 'Toyota':")
     print(search_cars_by_keyword("Toyota"))
     print("\nParts priced between 20 and 100:")
     print(search_registered_parts(20.0, 100.0, name_filter="Filter"))
+    print("\nParts matching brand 'Toyota', year '2026', and part_name 'Filter':")
+    print(search_registered_parts_by_attributes(brand="Toyota", year="2026", part_name="Filter"))
