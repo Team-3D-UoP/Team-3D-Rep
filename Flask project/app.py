@@ -9,9 +9,10 @@ from io import BytesIO
 from PIL import Image, ImageDraw
 import base64
 import firebase_admin
-from firebase_admin import credentials, auth, db as firebase_db
+from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 from datetime import datetime
+import requests
 from models import db, ProductReview, SellerReview, CartItem, Part, User
 
 load_dotenv()
@@ -32,33 +33,29 @@ CORS(app)
 with app.app_context():
     db.create_all()
 
-# Initialize Firebase - Optional, gracefully handles if not configured
+# Firebase Configuration
+FIREBASE_DATABASE_URL = 'https://team-3d-default-rtdb.europe-west1.firebasedatabase.app'
+
+# Initialize Firebase Auth - Optional, gracefully handles if not configured
 firebase_initialized = False
-firebase_db_initialized = False
 try:
     cred_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
     if os.path.exists(cred_path):
         cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://team-3d-default-rtdb.europe-west1.firebasedatabase.app'
-        })
+        firebase_admin.initialize_app(cred)
         firebase_initialized = True
-        firebase_db_initialized = True
-        print("✓ Firebase initialized with serviceAccountKey.json")
-        print("✓ Firebase Realtime Database connected")
+        print("✓ Firebase Admin SDK initialized with serviceAccountKey.json")
     else:
-        print("⚠ serviceAccountKey.json not found - Firebase authentication disabled")
-        print("  To enable: Get your key from Firebase Console > Project Settings > Service Accounts")
+        print("⚠ serviceAccountKey.json not found - Using client-side Firebase auth")
 except Exception as e:
     print(f"⚠ Firebase initialization error: {e}")
-    print("  Firebase authentication will be disabled")
+
+print(f"✓ Firebase Realtime Database connected: {FIREBASE_DATABASE_URL}")
 
 
-# Firebase Realtime Database Helper Functions
+# Firebase Realtime Database Helper Functions (Using REST API - No Secret Key Needed!)
 def save_user_to_firebase(uid, email, username, fullname):
-    """Save user profile to Firebase Realtime Database"""
-    if not firebase_db_initialized:
-        return False
+    """Save user profile to Firebase Realtime Database using REST API"""
     try:
         user_data = {
             'email': email,
@@ -67,30 +64,36 @@ def save_user_to_firebase(uid, email, username, fullname):
             'created_at': datetime.utcnow().isoformat(),
             'updated_at': datetime.utcnow().isoformat()
         }
-        firebase_db.reference(f'users/{uid}').set(user_data)
-        print(f"✓ User saved to Firebase: {email}")
-        return True
+        url = f"{FIREBASE_DATABASE_URL}/users/{uid}.json"
+        response = requests.put(url, json=user_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ User saved to Firebase: {email}")
+            return True
+        else:
+            print(f"⚠ Error saving user to Firebase: {response.status_code} {response.text}")
+            return False
     except Exception as e:
         print(f"⚠ Error saving user to Firebase: {e}")
         return False
 
 
 def get_user_from_firebase(uid):
-    """Get user profile from Firebase"""
-    if not firebase_db_initialized:
-        return None
+    """Get user profile from Firebase using REST API"""
     try:
-        user_data = firebase_db.reference(f'users/{uid}').get().val()
-        return user_data
+        url = f"{FIREBASE_DATABASE_URL}/users/{uid}.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            return response.json()
+        return None
     except Exception as e:
         print(f"⚠ Error getting user from Firebase: {e}")
         return None
 
 
 def save_review_to_firebase(review_type, item_id, uid, email, name, rating, text):
-    """Save review to Firebase"""
-    if not firebase_db_initialized:
-        return False
+    """Save review to Firebase using REST API"""
     try:
         review_data = {
             'item_id': item_id,
@@ -102,55 +105,71 @@ def save_review_to_firebase(review_type, item_id, uid, email, name, rating, text
             'created_at': datetime.utcnow().isoformat(),
             'updated_at': datetime.utcnow().isoformat()
         }
-        firebase_db.reference(f'reviews/{review_type}/{item_id}/{uid}').set(review_data)
-        print(f"✓ Review saved to Firebase")
-        return True
+        url = f"{FIREBASE_DATABASE_URL}/reviews/{review_type}/{item_id}/{uid}.json"
+        response = requests.put(url, json=review_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Review saved to Firebase")
+            return True
+        else:
+            print(f"⚠ Error saving review to Firebase: {response.status_code}")
+            return False
     except Exception as e:
         print(f"⚠ Error saving review to Firebase: {e}")
         return False
 
 
 def get_reviews_from_firebase(review_type, item_id):
-    """Get all reviews for an item from Firebase"""
-    if not firebase_db_initialized:
-        return []
+    """Get all reviews for an item from Firebase using REST API"""
     try:
-        reviews_data = firebase_db.reference(f'reviews/{review_type}/{item_id}').get().val()
-        if not reviews_data:
-            return []
-        return list(reviews_data.values())
+        url = f"{FIREBASE_DATABASE_URL}/reviews/{review_type}/{item_id}.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            reviews_data = response.json()
+            if not reviews_data:
+                return []
+            return list(reviews_data.values())
+        return []
     except Exception as e:
         print(f"⚠ Error getting reviews from Firebase: {e}")
         return []
 
 
 def save_cart_item_to_firebase(uid, product_id, quantity):
-    """Save cart item to Firebase"""
-    if not firebase_db_initialized:
-        return False
+    """Save cart item to Firebase using REST API"""
     try:
         cart_data = {
             'product_id': product_id,
             'quantity': quantity,
             'updated_at': datetime.utcnow().isoformat()
         }
-        firebase_db.reference(f'carts/{uid}/{product_id}').set(cart_data)
-        print(f"✓ Cart item saved to Firebase")
-        return True
+        url = f"{FIREBASE_DATABASE_URL}/carts/{uid}/{product_id}.json"
+        response = requests.put(url, json=cart_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Cart item saved to Firebase")
+            return True
+        else:
+            print(f"⚠ Error saving cart to Firebase: {response.status_code}")
+            return False
     except Exception as e:
         print(f"⚠ Error saving cart to Firebase: {e}")
         return False
 
 
 def get_cart_from_firebase(uid):
-    """Get cart items from Firebase"""
-    if not firebase_db_initialized:
-        return {}
+    """Get cart items from Firebase using REST API"""
     try:
-        cart_data = firebase_db.reference(f'carts/{uid}').get().val()
-        if not cart_data:
-            return {}
-        return cart_data
+        url = f"{FIREBASE_DATABASE_URL}/carts/{uid}.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            cart_data = response.json()
+            if not cart_data:
+                return {}
+            return cart_data
+        return {}
     except Exception as e:
         print(f"⚠ Error getting cart from Firebase: {e}")
         return {}
