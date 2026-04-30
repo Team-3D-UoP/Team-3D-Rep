@@ -1057,8 +1057,11 @@ def reply_to_chat():
             'created_at': datetime.utcnow().isoformat()
         }
 
-        timestamp = datetime.utcnow().timestamp()
+        timestamp = int(datetime.utcnow().timestamp() * 1000)  # Convert to milliseconds integer
         url = f"{FIREBASE_DATABASE_URL}/chat/{timestamp}.json"
+        print(f"📤 Saving reply to Firebase: {url}")
+        print(f"📦 Data: {chat_data}")
+
         response = requests.put(url, json=chat_data, timeout=5)
 
         if response.status_code in [200, 201]:
@@ -1069,6 +1072,7 @@ def reply_to_chat():
             }), 201
         else:
             print(f"⚠ Error saving reply to Firebase: {response.status_code}")
+            print(f"Firebase response: {response.text}")
             return jsonify({"error": "Failed to save reply"}), 500
 
     except Exception as e:
