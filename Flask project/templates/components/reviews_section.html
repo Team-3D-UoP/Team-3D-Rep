@@ -1,0 +1,34 @@
+<!-- Reviews Section -->
+<div class="content-card">
+  <div class="reviews-section">
+    <h2 class="reviews-heading">What Buyers and Sellers Think</h2>
+
+    <div class="review-summary">
+      <div class="review-summary-text">
+        Excellent <span class="review-stars">★★★★★</span> <span class="review-score">4.67</span> based on <span class="review-count">267,420 reviews</span>
+      </div>
+    </div>
+
+    <div class="reviews-container">
+      <button class="review-arrow review-arrow-prev">‹</button>
+
+      <div class="reviews-grid-wrapper">
+        <div class="reviews-grid">
+          {% for review in reviews %}
+          <div class="review-card">
+            <div class="review-header">
+              <span class="review-name">{{ review.name }}</span>
+              <span class="review-time">{{ review.time }}</span>
+            </div>
+            <span class="review-badge">✓ Verified Customer</span>
+            <div class="review-rating">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</div>
+            <div class="review-text">{{ review.text }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button class="review-arrow review-arrow-next">›</button>
+    </div>
+  </div>
+</div>
