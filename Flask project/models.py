@@ -90,6 +90,34 @@ class CartItem(db.Model):
         return f'<CartItem {self.id} - Product {self.product_id}>'
 
 
+class User(db.Model):
+    """Model for storing user profiles"""
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    firebase_uid = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    fullname = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert user to dictionary"""
+        return {
+            'id': self.id,
+            'firebase_uid': self.firebase_uid,
+            'email': self.email,
+            'username': self.username,
+            'fullname': self.fullname,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+
+    def __repr__(self):
+        return f'<User {self.id} - {self.email}>'
+
+
 class Part(db.Model):
     """Model for storing registered car parts"""
     __tablename__ = 'parts'
