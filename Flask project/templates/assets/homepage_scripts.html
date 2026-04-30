@@ -135,11 +135,13 @@
   async function loadChatHistoryFromStorage() {
     try {
       const userInfo = getCurrentUserInfo();
+      console.log('🔄 Loading chat messages...');
 
       // Load from Firebase
       const response = await fetch('/api/chat/get-customer-messages');
       if (response.ok) {
         const data = await response.json();
+        console.log(`📨 Received ${data.messages?.length || 0} messages from Firebase`);
 
         // Clear existing messages except the initial greeting
         const initialMsg = chatMessages.querySelector('.chat-message-company');
@@ -158,6 +160,7 @@
             const isGuestUser = userInfo.email === 'guest@example.com';
 
             if (isCurrentUser || isAdminReply || isGuestUser) {
+              console.log(`✓ Displaying: ${msg.sender_type} - ${msg.message.substring(0, 30)}`);
               displayMessage(msg.message, msg.sender_type === 'admin' ? 'support' : 'user', msg.created_at);
             }
           });
