@@ -29,8 +29,23 @@
                 <p>Description: <input id="description"></input></p>
             </label>
             <label>
-                <p>Image: <input id="image" type="file"></input></p>
+                <p>Image: 
+                    <select id="image" onchange="display_image()">
+                        <option value="">-- Select an image --</option>
+                        <option value="car-battery">car-battery</option>
+                        <option value="brake-disc">brake-disc</option>
+                        <option value="oil-filter">oil-filter</option>
+                        <option value="headlight">headlight</option>
+                        <option value="filter">filter</option>
+                        <option value="windshield-wiper">windshield-wiper</option>
+                        <option value="exhaust">exhaust</option>
+                        <option value="tyre">tyre</option>
+                    </select>
+                </p>
             </label>
+            <div id="image-preview" style="margin-top: 1rem;">
+                <img id="preview-img" src="" alt="Image preview" style="display: none; max-width: 200px; max-height: 200px;">
+            </div>
         </form>
         <button id="manual_confirm" onclick="save_part_registration()"> <!--Onpressed = validate then add to DB-->
             Confirm Registration
@@ -44,6 +59,19 @@
 </footer>
 
 <script>
+
+    // Display the selected image
+    function display_image() {
+        const selectedValue = document.getElementById("image").value;
+        const previewImg = document.getElementById("preview-img");
+        
+        if (selectedValue) {
+            previewImg.src = `/static/images/${selectedValue}.png`;
+            previewImg.style.display = "block";
+        } else {
+            previewImg.style.display = "none";
+        }
+    }
 
     // TODO: Add more error checks depending on the DB
     function verify_data(data) {
