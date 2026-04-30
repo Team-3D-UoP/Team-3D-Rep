@@ -1,122 +1,157 @@
-import sqlite3
-from typing import Any, Dict, List, Optional
+﻿from sqlalchemy import Integer, cast, or_, select
+from models import db
 
 
-def dict_factory(cursor: sqlite3.Cursor, row: sqlite3.Row) -> Dict[str, Any]:
-    return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
+class User(db.Model):
+    __tablename__ = 'Users'
+
+    UserID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email = db.Column(db.String, nullable=False, unique=True)
+    username = db.Column(db.String, nullable=False, unique=True)
+
+    owned_cars = db.relationship('CarOwner', back_populates='user')
 
 
-def get_connection(db_path: str, row_factory: Optional[sqlite3.Row] = None) -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = row_factory or dict_factory
-    return conn
+class RegisteredCar(db.Model):
+    __tablename__ = 'RegisteredCars'
+
+    CarID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    make = db.Column(db.String, nullable=False)
+    model = db.Column(db.String, nullable=False)
+    year = db.Column(db.String, nullable=False)
+    license = db.Column(db.String, nullable=False, unique=True)
+    engine = db.Column(db.String)
+    wheels = db.Column(db.String)
+
+    owner_link = db.relationship('CarOwner', back_populates='car', uselist=False)
 
 
-def search_cars_by_keyword(conn: sqlite3.Connection, term: str) -> List[Dict[str, Any]]:
-    """Search cars by keyword across make, model, year, license, engine, and wheels."""
-    sql = """
-    SELECT
-        rcs.CarID,
-        rcs.make,
-        rcs.model,
-        rcs.year,
-        rcs.license,
-        rcs.engine,
-        rcs.wheels,
-        u.UserID AS owner_userid,
-        u.username AS owner_username,
-        u.email AS owner_email
-    FROM RegisteredCars AS rcs
-    LEFT JOIN CarOwners AS ca ON rcs.CarID = ca.CarID
-    LEFT JOIN Users AS u ON ca.UserID = u.UserID
-    WHERE
-        rcs.make LIKE :term
-        OR rcs.model LIKE :term
-        OR rcs.year LIKE :term
-        OR rcs.license LIKE :term
-        OR rcs.engine LIKE :term
-        OR rcs.wheels LIKE :term;
-    """
-    cursor = conn.execute(sql, {"term": term})
-    return cursor.fetchall()
+class CarOwner(db.Model):
+    __tablename__ = 'CarOwners'
+
+    CarID = db.Column(db.Integer, db.ForeignKey('RegisteredCars.CarID'), primary_key=True)
+    UserID = db.Column(db.Integer, db.ForeignKey('Users.UserID'), nullable=False)
+
+    car = db.relationship('RegisteredCar', back_populates='owner_link')
+    user = db.relationship('User', back_populates='owned_cars')
 
 
-def search_by_owner(conn: sqlite3.Connection, owner_term: str) -> List[Dict[str, Any]]:
+class RegisteredPart(db.Model):
+    __tablename__ = 'RegisteredParts'
+
+    PartID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    UserID = db.Column(db.Integer, db.ForeignKey('Users.UserID'))
+    brand = db.Column(db.String)
+    year = db.Column(db.String)
+    part_name = db.Column(db.String)
+    price = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String)
+    image = db.Column(db.String)
+
+
+def _get_session(session=None):
+    return session or db.session
+
+
+def search_cars_by_keyword(term: str, session=None):
+    """Search cars using make, model, year, license, engine, and wheels."""
+    session = _get_session(session)
+    stmt = (
+        select(
+            RegisteredCar.CarID,
+            RegisteredCar.make,
+            RegisteredCar.model,
+            RegisteredCar.year,
+            RegisteredCar.license,
+            RegisteredCar.engine,
+            RegisteredCar.wheels,
+            User.UserID.label('owner_userid'),
+            User.username.label('owner_username'),
+            User.email.label('owner_email'),
+        )
+        .outerjoin(CarOwner, RegisteredCar.CarID == CarOwner.CarID)
+        .outerjoin(User, User.UserID == CarOwner.UserID)
+        .where(
+            or_(
+                RegisteredCar.make.like(term),
+                RegisteredCar.model.like(term),
+                RegisteredCar.year.like(term),
+                RegisteredCar.license.like(term),
+                RegisteredCar.engine.like(term),
+                RegisteredCar.wheels.like(term),
+            )
+        )
+    )
+
+    return session.execute(stmt).mappings().all()
+
+
+def search_by_owner(owner_term: str, session=None):
     """Search cars by owner username or email."""
-    sql = """
-    SELECT
-        rcs.CarID,
-        rcs.make,
-        rcs.model,
-        rcs.year,
-        rcs.license,
-        rcs.engine,
-        rcs.wheels,
-        u.UserID AS owner_userid,
-        u.username AS owner_username,
-        u.email AS owner_email
-    FROM RegisteredCars AS rcs
-    JOIN CarOwners AS ca ON rcs.CarID = ca.CarID
-    JOIN Users AS u ON ca.UserID = u.UserID
-    WHERE
-        u.username LIKE :ownerTerm
-        OR u.email LIKE :ownerTerm;
-    """
-    cursor = conn.execute(sql, {"ownerTerm": owner_term})
-    return cursor.fetchall()
+    session = _get_session(session)
+    stmt = (
+        select(
+            RegisteredCar.CarID,
+            RegisteredCar.make,
+            RegisteredCar.model,
+            RegisteredCar.year,
+            RegisteredCar.license,
+            RegisteredCar.engine,
+            RegisteredCar.wheels,
+            User.UserID.label('owner_userid'),
+            User.username.label('owner_username'),
+            User.email.label('owner_email'),
+        )
+        .join(CarOwner, RegisteredCar.CarID == CarOwner.CarID)
+        .join(User, User.UserID == CarOwner.UserID)
+        .where(
+            or_(
+                User.username.like(owner_term),
+                User.email.like(owner_term),
+            )
+        )
+    )
+
+    return session.execute(stmt).mappings().all()
 
 
 def search_by_year_range(
-    conn: sqlite3.Connection,
     min_year: int,
     max_year: int,
-    model_filter: str = "%",
-    make_filter: str = "%",
-) -> List[Dict[str, Any]]:
+    model_filter: str = '%',
+    make_filter: str = '%',
+    session=None,
+):
     """Search registered cars by year range and optional make/model filters."""
-    sql = """
-    SELECT
-        rcs.CarID,
-        rcs.make,
-        rcs.model,
-        rcs.year,
-        rcs.license,
-        rcs.engine,
-        rcs.wheels
-    FROM RegisteredCars AS rcs
-    WHERE
-        CAST(rcs.year AS INTEGER) BETWEEN :minYear AND :maxYear
-        AND rcs.model LIKE :modelFilter
-        AND rcs.make LIKE :makeFilter;
-    """
-    params = {
-        "minYear": min_year,
-        "maxYear": max_year,
-        "modelFilter": model_filter,
-        "makeFilter": make_filter,
-    }
-    cursor = conn.execute(sql, params)
-    return cursor.fetchall()
+    session = _get_session(session)
+    stmt = select(
+        RegisteredCar.CarID,
+        RegisteredCar.make,
+        RegisteredCar.model,
+        RegisteredCar.year,
+        RegisteredCar.license,
+        RegisteredCar.engine,
+        RegisteredCar.wheels,
+    ).where(
+        cast(RegisteredCar.year, Integer).between(min_year, max_year),
+        RegisteredCar.model.like(model_filter),
+        RegisteredCar.make.like(make_filter),
+    )
+
+    return session.execute(stmt).mappings().all()
 
 
 def search_parts_by_price(
-    conn: sqlite3.Connection,
     min_price: float,
     max_price: float,
-    name_filter: str = "%",
-) -> List[Dict[str, Any]]:
+    name_filter: str = '%',
+    session=None,
+):
     """Search registered parts by price range or name filter."""
-    sql = """
-    SELECT
-        rps.*
-    FROM RegisteredParts AS rps
-    WHERE
-        rps.price BETWEEN :minPrice AND :maxPrice
-        OR rps.name LIKE :nameFilter;
-    """
-    cursor = conn.execute(sql, {
-        "minPrice": min_price,
-        "maxPrice": max_price,
-        "nameFilter": name_filter,
-    })
-    return cursor.fetchall()
+    session = _get_session(session)
+    stmt = select(RegisteredPart).where(
+        RegisteredPart.price.between(min_price, max_price)
+        | RegisteredPart.part_name.like(name_filter)
+    )
+
+    return session.execute(stmt).mappings().all()
