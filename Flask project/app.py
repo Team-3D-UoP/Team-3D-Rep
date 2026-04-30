@@ -445,6 +445,12 @@ def submit_review(product_id):
             existing_review.rating = rating
             existing_review.review_text = review_text
             db.session.commit()
+
+            # Also save to Firebase
+            save_review_to_firebase('product', product_id, session['user_id'],
+                                   session.get('email', ''), session.get('name', 'Anonymous'),
+                                   rating, review_text)
+
             return jsonify({
                 "success": True,
                 "message": "Review updated successfully",
@@ -462,6 +468,11 @@ def submit_review(product_id):
             )
             db.session.add(new_review)
             db.session.commit()
+
+            # Also save to Firebase
+            save_review_to_firebase('product', product_id, session['user_id'],
+                                   session.get('email', ''), session.get('name', 'Anonymous'),
+                                   rating, review_text)
 
             return jsonify({
                 "success": True,
