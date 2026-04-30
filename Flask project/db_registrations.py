@@ -34,8 +34,8 @@ def insert_registered_part(brand, year, part_name, price, description, image=Non
         conn.commit()
 
         cursor.execute(
-            'SELECT * FROM RegisteredParts WHERE UserID = ? AND brand = ? AND part_name = ?',
-            (user_id, brand, part_name)
+            'SELECT * FROM RegisteredParts WHERE PartID = ?',
+            (part_id)
         )
         print(cursor.fetchall())
 
