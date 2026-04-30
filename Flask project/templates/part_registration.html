@@ -20,7 +20,13 @@
         <p>Enter relevant information about your product.</p>
         <form> <!--Subject to change depending on DB-->
             <label>
-                <p>Name: <input id="name"></input></p>
+                <p>Brand: <input id="brand"></input></p>
+            </label>
+            <label>
+                <p>Year: <input id="year"></input></p>
+            </label>
+            <label>
+                <p>Name: <input id="part_name"></input></p>
             </label>
             <label>
                 <p>Price: £<input id="price" type="number"></input></p>
@@ -87,8 +93,10 @@
         const errorHandler = document.getElementById("errors");
 
         const data = {
-            // TODO: May change depending on the DB
-            name: document.getElementById("name").value,
+            // TODO: Get the user ID too
+            brand: document.getElementById("brand").value,
+            year: document.getElementById("year").value,
+            part_name: document.getElementById("part_name").value,
             price: document.getElementById("price").value,
             description: document.getElementById("description").value,
             image: document.getElementById("image").value
