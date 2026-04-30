@@ -145,3 +145,56 @@ INSERT INTO RegisteredParts (PartID, UserID, brand, year, part_name, price, desc
 (278,7,'Mercedes',2025,'Brake Pads',94,'Mercedes brake pads'),
 (279,1,'Mercedes',2026,'Oil Filter',44,'Mercedes oil filter'),
 (280,2,'Mercedes',2024,'Headlight',140,'Mercedes headlight');
+
+
+
+INSERT INTO UserChats (ChatID, PartID, UserID, category, message) VALUES
+
+-- BATTERY
+(71, 1, 1, 'Battery', 'Is this battery new?'),
+(72, 1, 2, 'Battery', 'Does it include warranty?'),
+(73, 1, 3, 'Battery', 'Is it compatible with my car?'),
+(74, 1, 4, 'Battery', 'Is installation included?'),
+
+-- BRAKE PADS
+(75, 2, 1, 'Brake Pads', 'Are these original?'),
+(76, 2, 2, 'Brake Pads', 'Are they durable?'),
+(77, 2, 3, 'Brake Pads', 'Do they fit most cars?'),
+(78, 2, 4, 'Brake Pads', 'Are they suitable for daily use?'),
+
+-- OIL FILTER
+(79, 3, 1, 'Oil Filter', 'Is this compatible with my vehicle?'),
+(80, 3, 2, 'Oil Filter', 'Is it genuine?'),
+(81, 3, 3, 'Oil Filter', 'Is installation easy?'),
+
+-- HEADLIGHT
+(82, 4, 1, 'Headlight', 'Is this LED?'),
+(83, 4, 2, 'Headlight', 'Does it come as a pair?'),
+(84, 4, 3, 'Headlight', 'Is it waterproof?'),
+
+-- AIR FILTER
+(85, 5, 1, 'Air Filter', 'Is it washable?'),
+(86, 5, 2, 'Air Filter', 'Is it reusable?'),
+(87, 5, 3, 'Air Filter', 'Does it fit most vehicles?'),
+
+-- WIPER
+(88, 6, 1, 'Wiper', 'Is it suitable for all weather?'),
+(89, 6, 2, 'Wiper', 'Does it fit all models?'),
+(90, 6, 3, 'Wiper', 'Is it easy to install?'),
+
+-- EXHAUST
+(91, 7, 1, 'Exhaust', 'Is this original?'),
+(92, 7, 2, 'Exhaust', 'Does it improve performance?'),
+(93, 7, 3, 'Exhaust', 'Is installation included?'),
+
+-- ENGINE
+(94, 8, 1, 'Engine', 'Is this engine new?'),
+(95, 8, 2, 'Engine', 'Does it come with warranty?'),
+(96, 8, 3, 'Engine', 'Is it tested before sale?'),
+
+-- TYRES
+(97, 9, 1, 'Tyres', 'Are these tyres new?'),
+(98, 9, 2, 'Tyres', 'Are they suitable for all seasons?'),
+(99, 9, 3, 'Tyres', 'Do they come with warranty?'),
+(100, 9, 4, 'Tyres', 'Are they fuel efficient?');
+
