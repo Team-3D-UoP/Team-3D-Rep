@@ -188,7 +188,7 @@ def submit_seller_review(seller_id):
         return jsonify({"error": f"Error: {str(e)}"}), 500
 
 
-@app.route("/seller/<int:seller_id>/reviews", methods=['GET'])
+@app.route("/account/<int:seller_id>/reviews", methods=['GET'])
 def get_seller_reviews(seller_id):
     """Get all user reviews for a seller"""
     try:
