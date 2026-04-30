@@ -188,7 +188,7 @@ def submit_seller_review(seller_id):
         return jsonify({"error": f"Error: {str(e)}"}), 500
 
 
-@app.route("/seller/<int:seller_id>/reviews", methods=['GET'])
+@app.route("/account/<int:seller_id>/reviews", methods=['GET'])
 def get_seller_reviews(seller_id):
     """Get all user reviews for a seller"""
     try:
@@ -729,12 +729,13 @@ def save_car_registration():
 
     # TODO: save to DB here
     try:
-        print("licence_plate:", data["licence_plate"])
+        #carId = Incremental
         print("make:", data["make"])
         print("model:", data["model"])
-        print("engine:", data["engine"])
         print("year:", data["year"])
-        print("tyres:", data["tyres"])
+        print("license:", data["license"])
+        print("engine:", data["engine"])
+        print("wheels:", data["wheels"])
     except:
        pass
 
