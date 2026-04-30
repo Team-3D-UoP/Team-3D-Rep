@@ -123,9 +123,9 @@ def search_registered_parts_by_attributes(
 
 
 if __name__ == "__main__":
-    print("\n--- Search for Parts by Attributes ---")
+    print("\n--- Search for Parts ---")
     brand = input("Enter part brand (or press Enter to skip): ") or None
     year = input("Enter part year (or press Enter to skip): ") or None
     part_name = input("Enter part name (or press Enter to skip): ") or None
-    print(f"\nParts matching brand '{brand}', year '{year}', and part name '{part_name}':")
+    print(f"\nParts matching your query for '{year}' {brand}' '{part_name}':")
     print(search_registered_parts_by_attributes(brand=brand, year=year, part_name=part_name))
