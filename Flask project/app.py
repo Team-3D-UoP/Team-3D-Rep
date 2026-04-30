@@ -1055,6 +1055,47 @@ def reply_to_chat():
         print(f"Error saving admin reply: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/chat/get-customer-messages", methods=['GET'])
+def get_customer_messages():
+    """Get all chat messages for customer (from Firebase)"""
+    try:
+        # Fetch all messages from Firebase
+        url = f"{FIREBASE_DATABASE_URL}/chat.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            messages_data = response.json()
+            if not messages_data:
+                return jsonify({
+                    "success": True,
+                    "messages": []
+                }), 200
+
+            # Convert Firebase object to array and sort by timestamp
+            messages = []
+            for timestamp, msg_data in messages_data.items():
+                messages.append(msg_data)
+
+            # Sort by created_at ascending (oldest first)
+            messages.sort(key=lambda x: x.get('created_at', ''))
+
+            return jsonify({
+                "success": True,
+                "messages": messages
+            }), 200
+        else:
+            return jsonify({
+                "success": True,
+                "messages": []
+            }), 200
+
+    except Exception as e:
+        print(f"Error fetching customer messages from Firebase: {e}")
+        return jsonify({
+            "success": True,
+            "messages": []
+        }), 200
+
 @app.route("/api/chat/unread-count", methods=['GET'])
 def unread_chat_count():
     """Get count of unread chat messages (for admin)"""
