@@ -35,7 +35,7 @@ def insert_registered_part(brand, year, part_name, price, description, image=Non
 
         cursor.execute(
             'SELECT * FROM RegisteredParts WHERE PartID = ?',
-            (part_id)
+            (part_id,)
         )
         print(cursor.fetchall())
 
@@ -59,4 +59,67 @@ def insert_registered_part(brand, year, part_name, price, description, image=Non
             'success': False,
             'message': f'Error inserting part: {str(e)}',
             'part_id': None
+        }
+
+def insert_registered_car(make, model, year, license, engine=None, wheels=None, user_id=None):
+    # Get the currently logged-in user ID from session if not provided
+    user_id = 1
+    
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Insert the car into RegisteredCars table
+        cursor.execute('''
+            INSERT INTO RegisteredCars 
+            (make, model, year, license, engine, wheels)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (make, model, year, license, engine, wheels))
+        
+        # Get the auto-incremented CarID
+        car_id = cursor.lastrowid
+        
+        conn.commit()
+
+        # Link the car to the user in CarOwners table
+        cursor.execute('''
+            INSERT INTO CarOwners 
+            (CarID, UserID)
+            VALUES (?, ?)
+        ''', (car_id, user_id))
+        
+        conn.commit()
+
+        cursor.execute(
+            'SELECT * FROM RegisteredCars WHERE CarID = ?',
+            (car_id,)
+        )
+        print(cursor.fetchall())
+
+        cursor.execute(
+            'SELECT * FROM CarOwners WHERE CarID = ? AND UserID = ?',
+            (car_id, user_id)
+        )
+        print(cursor.fetchall())
+
+        conn.close()
+        
+        return {
+            'success': True,
+            'message': f'Car registered successfully with ID {car_id}',
+            'car_id': car_id
+        }
+    
+    except sqlite3.IntegrityError as e:
+        return {
+            'success': False,
+            'message': f'Database integrity error: {str(e)}',
+            'car_id': None
+        }
+    
+    except Exception as e:
+        return {
+            'success': False,
+            'message': f'Error inserting car: {str(e)}',
+            'car_id': None
         }
