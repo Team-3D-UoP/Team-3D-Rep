@@ -1,4 +1,27 @@
 <script>
+  // Store current user email for chat
+  let currentUserEmail = null;
+  let currentUserName = null;
+
+  // Get user email from session/localStorage
+  function getCurrentUserInfo() {
+    // Try to get from localStorage (set during login)
+    const storedEmail = localStorage.getItem('userEmail');
+    const storedName = localStorage.getItem('userName');
+
+    if (storedEmail) {
+      currentUserEmail = storedEmail;
+      currentUserName = storedName || 'Guest User';
+      return { email: storedEmail, name: storedName };
+    }
+
+    // Fallback if not logged in
+    return { email: 'guest@example.com', name: 'Guest User' };
+  }
+
+  // Initialize user info on page load
+  getCurrentUserInfo();
+
   // Search filter functionality
   const searchInput = document.getElementById('searchInput');
   const clearBtn = document.getElementById('clearBtn');
@@ -111,6 +134,8 @@
   // Load chat history from Firebase on modal open
   async function loadChatHistoryFromStorage() {
     try {
+      const userInfo = getCurrentUserInfo();
+
       // Load from Firebase
       const response = await fetch('/api/chat/get-customer-messages');
       if (response.ok) {
@@ -121,10 +146,15 @@
         chatMessages.innerHTML = '';
         if (initialMsg) chatMessages.appendChild(initialMsg);
 
-        // Load messages from Firebase
+        // Load messages from Firebase - filter by current user
         if (data.messages && data.messages.length > 0) {
           data.messages.forEach(msg => {
-            displayMessage(msg.message, msg.sender_type === 'admin' ? 'support' : 'user', msg.created_at);
+            // Show message if:
+            // 1. It's from the current user, OR
+            // 2. It's a reply from admin
+            if (msg.user_email === userInfo.email || msg.sender_type === 'admin') {
+              displayMessage(msg.message, msg.sender_type === 'admin' ? 'support' : 'user', msg.created_at);
+            }
           });
         }
       }
@@ -158,6 +188,7 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
     // Send to backend
+    const userInfo = getCurrentUserInfo();
     fetch('/api/chat/send', {
       method: 'POST',
       headers: {
@@ -165,8 +196,8 @@
       },
       body: JSON.stringify({
         message: messageText,
-        email: 'customer@example.com',
-        name: 'Guest User'
+        email: userInfo.email,
+        name: userInfo.name
       })
     }).then(response => {
       if (response.ok) {
