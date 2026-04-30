@@ -12,7 +12,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 from models import db, ProductReview, SellerReview, CartItem
-import db_registrations
+from db_registrations import insert_registered_part
 
 load_dotenv()
 
@@ -746,14 +746,9 @@ def save_car_registration():
 def save_part_registration():
     data = request.get_json(silent=True) or {}
 
-    # TODO: save to DB here
+    # TODO: GET USER ID FROM ACCOUNTS
     try:
-        print("brand:", data["brand"])
-        print("year:", data["year"])
-        print("part_name:", data["part_name"])
-        print("price:", data["price"])
-        print("description:", data["description"])
-        print("image:", data["image"])
+        insert_registered_part(data["brand"], data["year"], data["part_name"], data["price"], data["description"], data["image"], user_id=None)
     except:
        pass
 
