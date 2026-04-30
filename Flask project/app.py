@@ -748,7 +748,9 @@ def save_part_registration():
 
     # TODO: save to DB here
     try:
-        print("name:", data["name"])
+        print("brand:", data["brand"])
+        print("year:", data["year"])
+        print("part_name:", data["part_name"])
         print("price:", data["price"])
         print("description:", data["description"])
         print("image:", data["image"])
