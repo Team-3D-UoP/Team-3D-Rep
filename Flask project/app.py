@@ -353,46 +353,70 @@ def get_seller_reviews(seller_id):
 
 @app.route("/api/user/reviews", methods=['GET'])
 def get_user_reviews():
-    """Get all reviews submitted by the current user (both product and seller reviews)"""
+    """Get all reviews submitted by the current user (both product and seller reviews from Firebase)"""
     if 'user_id' not in session:
         return jsonify({"error": "User not logged in"}), 401
 
     try:
-        # Get all product reviews by user
-        product_reviews = ProductReview.query.filter_by(
-            user_id=session['user_id']
-        ).order_by(ProductReview.created_at.desc()).all()
-
-        # Get all seller reviews by user
-        seller_reviews = SellerReview.query.filter_by(
-            user_id=session['user_id']
-        ).order_by(SellerReview.created_at.desc()).all()
-
-        # Format product reviews with product details
+        uid = session['user_id']
         product_reviews_data = []
-        for review in product_reviews:
-            product = next((p for p in OFFER_PRODUCTS if p['id'] == review.product_id), None)
-            if product:
-                review_data = review.to_dict()
-                review_data['type'] = 'product'
-                review_data['item_name'] = product['name']
-                review_data['item_id'] = review.product_id
-                product_reviews_data.append(review_data)
-
-        # Format seller reviews with seller details
         seller_reviews_data = []
-        for review in seller_reviews:
-            seller = next((s for s in SELLERS_DATA if s['id'] == review.seller_id), None)
-            if seller:
-                review_data = review.to_dict()
-                review_data['type'] = 'seller'
-                review_data['item_name'] = seller['name']
-                review_data['item_id'] = review.seller_id
-                seller_reviews_data.append(review_data)
+
+        # Get all product reviews from Firebase
+        try:
+            url = f"{FIREBASE_DATABASE_URL}/reviews/product.json"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                all_products = response.json()
+                if all_products:
+                    for product_id, reviews in all_products.items():
+                        if isinstance(reviews, dict) and uid in reviews:
+                            review = reviews[uid]
+                            product = next((p for p in OFFER_PRODUCTS if p['id'] == review.get('item_id')), None)
+                            if product:
+                                review_data = {
+                                    'id': f"{product_id}_{uid}",
+                                    'type': 'product',
+                                    'item_name': product['name'],
+                                    'item_id': product_id,
+                                    'rating': review.get('rating', 0),
+                                    'review_text': review.get('review_text', ''),
+                                    'created_at': review.get('created_at', ''),
+                                    'user_name': review.get('user_name', 'Anonymous')
+                                }
+                                product_reviews_data.append(review_data)
+        except Exception as e:
+            print(f"Error getting product reviews from Firebase: {e}")
+
+        # Get all seller reviews from Firebase
+        try:
+            url = f"{FIREBASE_DATABASE_URL}/reviews/seller.json"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                all_sellers = response.json()
+                if all_sellers:
+                    for seller_id, reviews in all_sellers.items():
+                        if isinstance(reviews, dict) and uid in reviews:
+                            review = reviews[uid]
+                            seller = next((s for s in SELLERS_DATA if s['id'] == review.get('item_id')), None)
+                            if seller:
+                                review_data = {
+                                    'id': f"{seller_id}_{uid}",
+                                    'type': 'seller',
+                                    'item_name': seller['name'],
+                                    'item_id': seller_id,
+                                    'rating': review.get('rating', 0),
+                                    'review_text': review.get('review_text', ''),
+                                    'created_at': review.get('created_at', ''),
+                                    'user_name': review.get('user_name', 'Anonymous')
+                                }
+                                seller_reviews_data.append(review_data)
+        except Exception as e:
+            print(f"Error getting seller reviews from Firebase: {e}")
 
         # Combine and sort by date
         all_reviews = product_reviews_data + seller_reviews_data
-        all_reviews.sort(key=lambda x: x['created_at'], reverse=True)
+        all_reviews.sort(key=lambda x: x.get('created_at', ''), reverse=True)
 
         return jsonify({
             "success": True,
