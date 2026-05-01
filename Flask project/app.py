@@ -1049,16 +1049,18 @@ def reply_to_chat():
     try:
         data = request.get_json()
         message = data.get('message', '').strip()
+        target_user_email = data.get('target_user_email', '').strip()
 
         if not message or len(message) < 1:
             return jsonify({"error": "Message cannot be empty"}), 400
 
-        # Save admin reply to Firebase
+        # Save admin reply to Firebase - now with target user
         chat_data = {
             'user_name': 'Admin Support',
             'user_email': session.get('admin_email'),
             'message': message,
             'sender_type': 'admin',
+            'target_user_email': target_user_email,  # Only visible to this user
             'created_at': datetime.utcnow().isoformat()
         }
 
@@ -1070,7 +1072,7 @@ def reply_to_chat():
         response = requests.put(url, json=chat_data, timeout=5)
 
         if response.status_code in [200, 201]:
-            print(f"✓ Admin reply saved to Firebase")
+            print(f"✓ Admin reply saved to Firebase for {target_user_email}")
             return jsonify({
                 "success": True,
                 "created_at": chat_data['created_at']
