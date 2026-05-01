@@ -635,7 +635,7 @@
 
       <div class="action-buttons">
         <button class="btn-primary" id="addToCartBtn">Add to Cart</button>
-        <button class="btn-secondary">Add to Wishlist</button>
+        <button class="btn-secondary" onclick="messageSellerFromProduct()">Message Seller</button>
       </div>
 
       {% if product.seller %}
@@ -1315,6 +1315,42 @@
 
   // Load reviews when page loads
   loadUserReviews();
+
+  // Message Seller functionality
+  function messageSellerFromProduct() {
+    const userLoggedIn = '{{ session.get("user_id") }}' !== '';
+
+    if (!userLoggedIn) {
+      alert('Please log in to message the seller.');
+      window.location.href = '{{ url_for("login") }}';
+      return;
+    }
+
+    const productName = '{{ product.name }}';
+    const sellerName = '{{ product.seller.name if product.seller else "Seller" }}';
+    const message = `Hi! I'm interested in your "${productName}" product and would like to know more.`;
+
+    // Open chat modal if it exists (from homepage)
+    const chatModal = document.getElementById('chatModal');
+    const chatBtn = document.getElementById('chatBtn');
+    const chatInput = document.querySelector('.chat-input');
+
+    if (chatBtn) {
+      // Trigger chat button click to open modal
+      chatBtn.click();
+
+      // Pre-fill message after modal opens
+      setTimeout(() => {
+        if (chatInput) {
+          chatInput.value = message;
+          chatInput.focus();
+        }
+      }, 300);
+    } else {
+      // Fallback if chat isn't available on this page
+      alert(message + '\n\n(Chat not available on this page. Please visit the homepage to use chat.)');
+    }
+  }
 
   // Add to Cart functionality
   const addToCartBtn = document.getElementById('addToCartBtn');
