@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import requests
 from models import db, ProductReview, SellerReview, CartItem, Part, User, ChatMessage
+from db_registrations import *
 
 load_dotenv()
 
@@ -1300,6 +1301,10 @@ def authenticate():
         session['name'] = name
         session['authenticated'] = True
 
+        if select_user_id(email, name) == []:
+            print(f"Inserting new user into DB: {email}")
+            insert_new_user(email, name)
+
         print(f"✓ User authenticated: {email}")
         return jsonify({"success": True, "redirect": "/account"}), 200
 
@@ -1438,27 +1443,25 @@ def sellers():
 
 @app.route('/car_registration', methods=["GET"])
 def car_registration_screen():
-     print('car_registration')
-     return render_template("car_registration.html")
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+    print('car_registration')
+    return render_template("car_registration.html")
 
 @app.route('/part_registration', methods=["GET"])
 def part_registration_screen():
-     print('part_registration')
-     return render_template("part_registration.html")
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+    print('part_registration')
+    return render_template("part_registration.html")
 
 @app.route("/api/save_car_registration", methods=["POST"])
 def save_car_registration():
     data = request.get_json(silent=True) or {}
 
-    # TODO: save to DB here
+    # TODO: GET USER ID
     try:
-        #carId = Incremental
-        print("make:", data["make"])
-        print("model:", data["model"])
-        print("year:", data["year"])
-        print("license:", data["license"])
-        print("engine:", data["engine"])
-        print("wheels:", data["wheels"])
+        insert_registered_car(data["make"], data["model"], data["year"], data["license"], data["engine"], data["wheels"], select_user_id(session['email'], session['name'])[0][0])
     except:
        pass
 
@@ -1467,12 +1470,15 @@ def save_car_registration():
 @app.route("/api/save_part_registration", methods=["POST"])
 def save_part_registration():
     data = request.get_json(silent=True) or {}
+    try:
+        insert_registered_part(select_user_id(session['email'], session['name'])[0][0], data["brand"], data["year"], data["part_name"], data["price"], data["description"], data["image"])
+    except:
+       pass
 
     # Validate required fields
     required_fields = ['name', 'price', 'description', 'image']
     if not all(field in data and data[field] for field in required_fields):
         return jsonify({"error": "All fields are required"}), 400
-
     try:
         # Create new part
         new_part = Part(

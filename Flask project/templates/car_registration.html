@@ -76,6 +76,15 @@
 
         if (!errors) {
             axios.post("/api/save_car_registration", data);
+
+            errorHandler.textContent = "Part added!"
+
+            document.getElementById("make").value = ""
+            document.getElementById("model").value = ""
+            document.getElementById("year").value = ""
+            document.getElementById("license").value = ""
+            document.getElementById("engine").value = ""
+            document.getElementById("wheels").value = ""
         } else {
             errorHandler.textContent = errors;
         }
