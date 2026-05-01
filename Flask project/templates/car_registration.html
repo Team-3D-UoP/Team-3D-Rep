@@ -16,26 +16,9 @@
     <h2>Link a car to your account</h2>
 
     <section>
-        <h3>Automatic Entry:</h2>
-        <p>Enter just the licence plate to automatically fill out data from our database.</p>
-        <label>
-            <p>
-                Licence Plate: 
-                <input id="automatic_licence_plate"></input>
-                <button id="automatic_confirm" onclick="find_plate()"> <!--onPressed = Fill manual entries from DB-->
-                    Fill Out
-                </button>
-            </p>
-        </label>
-    </section>
-
-    <section>
         <h3>Manual Entry:</h2>
         <p>Manually enter data to be registered.</p>
         <form> <!--Subject to change depending on DB-->
-            <label>
-                <p>Licence Plate: <input id="licence_plate"></input></p>
-            </label>
             <label>
                 <p>Make: <input id="make"></input></p>
             </label>
@@ -43,13 +26,16 @@
                 <p>Model: <input id="model"></input></p>
             </label>
             <label>
-                <p>Engine: <input id="engine"></input></p>
-            </label>
-            <label>
                 <p>Year: <input id="year"></input></p>
             </label>
             <label>
-                <p>Tyres: <input id="tyres"></input></p>
+                <p>License Plate: <input id="license"></input></p>
+            </label>
+            <label>
+                <p>Engine: <input id="engine"></input></p>
+            </label>
+            <label>
+                <p>Wheels: <input id="wheels"></input></p>
             </label>
         </form>
         <button id="manual_confirm" onclick="save_car_registration()"> <!--Onpressed = validate fields not empty then add to DB-->
@@ -64,27 +50,6 @@
 </footer>
 
 <script>
-    function find_plate() {
-        const plate = document.getElementById("automatic_licence_plate").value
-
-        // TODO: find real data from DB
-        const data = {
-            licence_plate: plate,
-            make: "Toyota",
-            model: "Corolla",
-            engine: "1.8 Hybrid",
-            year: "2021",
-            tyres: "Michelin CrossClimate 2"
-        }
-
-        document.getElementById("licence_plate").value = data.licence_plate
-        document.getElementById("make").value = data.make
-        document.getElementById("model").value = data.model
-        document.getElementById("engine").value = data.engine
-        document.getElementById("year").value = data.year
-        document.getElementById("tyres").value = data.tyres
-    }
-
     // TODO: Add more error checks depending on the DB
     function verify_data(data) {
         for (const item in data) {
@@ -99,18 +64,27 @@
         const errorHandler = document.getElementById("errors");
 
         const data = {
-            licence_plate: document.getElementById("licence_plate").value,
             make: document.getElementById("make").value,
             model: document.getElementById("model").value,
-            engine: document.getElementById("engine").value,
             year: document.getElementById("year").value,
-            tyres: document.getElementById("tyres").value
+            license: document.getElementById("license").value,
+            engine: document.getElementById("engine").value,
+            wheels: document.getElementById("wheels").value
         };
 
         const errors = verify_data(data);
 
         if (!errors) {
             axios.post("/api/save_car_registration", data);
+
+            errorHandler.textContent = "Part added!"
+
+            document.getElementById("make").value = ""
+            document.getElementById("model").value = ""
+            document.getElementById("year").value = ""
+            document.getElementById("license").value = ""
+            document.getElementById("engine").value = ""
+            document.getElementById("wheels").value = ""
         } else {
             errorHandler.textContent = errors;
         }

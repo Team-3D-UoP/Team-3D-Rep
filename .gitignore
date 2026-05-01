@@ -21,6 +21,11 @@ ENV/
 *.swp
 *.swo
 
+# Database
+*.db
+instance/
+team3d.db
+
 # OS
 .DS_Store
 Thumbs.db

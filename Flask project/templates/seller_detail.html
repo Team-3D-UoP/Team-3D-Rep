@@ -355,5 +355,381 @@
     <div class="empty-state">No reviews yet for this seller.</div>
     {% endif %}
   </div>
+
+  <!-- User Reviews Section -->
+  <div class="user-reviews-section">
+    <h3 class="user-reviews-title">User Reviews</h3>
+    <div id="userSellerReviewsContainer">
+      <p class="no-reviews-message">Loading reviews...</p>
+    </div>
+  </div>
+
+  <!-- Review Submission Form -->
+  {% if session.get('user_id') %}
+  <div class="review-form-section">
+    <h2 class="review-form-title">Share Your Experience with {{ seller.name }}</h2>
+    <form id="sellerReviewForm">
+      <div id="successMessage" class="success-message" style="display: none;">
+        Thank you for your review! It has been submitted successfully.
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your Rating</label>
+        <div class="rating-input" id="sellerRatingInput">
+          <span class="rating-star" data-rating="1">★</span>
+          <span class="rating-star" data-rating="2">★</span>
+          <span class="rating-star" data-rating="3">★</span>
+          <span class="rating-star" data-rating="4">★</span>
+          <span class="rating-star" data-rating="5">★</span>
+        </div>
+        <input type="hidden" id="sellerRatingValue" name="rating" value="0">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="sellerReviewText">Your Review</label>
+        <textarea class="form-control textarea-control" id="sellerReviewText" name="review_text" placeholder="Share your experience with this seller..." required></textarea>
+      </div>
+
+      <button type="submit" class="form-submit-btn">Submit Review</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="review-form-section">
+    <div class="login-prompt">
+      <p class="login-prompt-text">
+        Would you like to leave a review for this seller?
+        <a href="{{ url_for('login') }}" class="login-prompt-link">Log in</a> or
+        <a href="{{ url_for('register') }}" class="login-prompt-link">Sign up</a> to share your experience.
+      </p>
+    </div>
+  </div>
+  {% endif %}
 </div>
+
+<style>
+  .user-reviews-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .user-reviews-title {
+    font-size: 1.2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .user-review-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .user-review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .user-review-author {
+    font-weight: bold;
+    color: #003d7a;
+    font-size: 0.95rem;
+  }
+
+  .user-review-date {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.25rem;
+  }
+
+  .user-review-rating {
+    color: #ffc107;
+    font-size: 0.95rem;
+    letter-spacing: 0.2rem;
+  }
+
+  .user-review-text {
+    color: #555;
+    line-height: 1.6;
+    margin: 1rem 0;
+  }
+
+  .no-reviews-message {
+    color: #666;
+    text-align: center;
+    padding: 2rem 0;
+    font-style: italic;
+  }
+
+  .review-form-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background-color: #f0f8ff;
+    border-radius: 8px;
+    border: 2px solid #003d7a;
+  }
+
+  .review-form-title {
+    font-size: 1.2rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    color: #003d7a;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #003d7a;
+    box-shadow: 0 0 4px rgba(0, 61, 122, 0.2);
+  }
+
+  .textarea-control {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .rating-input {
+    display: flex;
+    gap: 1rem;
+    font-size: 2rem;
+  }
+
+  .rating-star {
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.2s ease;
+  }
+
+  .rating-star:hover,
+  .rating-star.active {
+    color: #ffc107;
+  }
+
+  .form-submit-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .form-submit-btn:hover {
+    background-color: #002d5a;
+  }
+
+  .form-submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .login-prompt {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .login-prompt-text {
+    color: #856404;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-prompt-link {
+    color: #003d7a;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .login-prompt-link:hover {
+    text-decoration: underline;
+  }
+
+  .success-message {
+    background-color: #d4edda;
+    border: 1px solid #28a745;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+</style>
+
+<script>
+  // Rating star selection for seller reviews
+  const sellerStars = document.querySelectorAll('#sellerRatingInput .rating-star');
+  const sellerRatingValue = document.getElementById('sellerRatingValue');
+
+  sellerStars.forEach(star => {
+    star.addEventListener('click', function() {
+      const rating = this.dataset.rating;
+      sellerRatingValue.value = rating;
+
+      sellerStars.forEach(s => {
+        if(s.dataset.rating <= rating) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+    });
+
+    star.addEventListener('mouseover', function() {
+      const rating = this.dataset.rating;
+      sellerStars.forEach(s => {
+        if(s.dataset.rating <= rating) {
+          s.style.color = '#ffc107';
+        } else {
+          s.style.color = '#ddd';
+        }
+      });
+    });
+  });
+
+  document.getElementById('sellerRatingInput').addEventListener('mouseleave', function() {
+    const activeRating = sellerRatingValue.value;
+    sellerStars.forEach(s => {
+      if(s.dataset.rating <= activeRating) {
+        s.style.color = '#ffc107';
+      } else {
+        s.style.color = '#ddd';
+      }
+    });
+  });
+
+  // Form submission for seller reviews
+  document.getElementById('sellerReviewForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const rating = document.getElementById('sellerRatingValue').value;
+    const reviewText = document.getElementById('sellerReviewText').value;
+
+    if(!rating || !reviewText) {
+      alert('Please provide both a rating and review text.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/seller/{{ seller.id }}/review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          rating: parseInt(rating),
+          review_text: reviewText
+        })
+      });
+
+      if(response.ok) {
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('sellerReviewText').value = '';
+        document.getElementById('sellerRatingValue').value = 0;
+        sellerStars.forEach(s => s.classList.remove('active'));
+
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          document.getElementById('successMessage').style.display = 'none';
+          loadUserSellerReviews(); // Reload user reviews
+        }, 500);
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Error submitting review. Please try again.');
+      }
+    } catch(error) {
+      console.error('Error:', error);
+      alert('Error submitting review. Please try again.');
+    }
+  });
+
+  // Load user seller reviews from database
+  async function loadUserSellerReviews() {
+    try {
+      const response = await fetch('/seller/{{ seller.id }}/reviews');
+      const data = await response.json();
+
+      const container = document.getElementById('userSellerReviewsContainer');
+
+      if (!data.reviews || data.reviews.length === 0) {
+        container.innerHTML = '<p class="no-reviews-message">No reviews yet for this seller. Be the first to review!</p>';
+        return;
+      }
+
+      let reviewsHTML = '';
+      data.reviews.forEach(review => {
+        const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        reviewsHTML += `
+          <div class="user-review-card">
+            <div class="user-review-header">
+              <div>
+                <div class="user-review-author">${escapeHtml(review.user_name)}</div>
+                <div class="user-review-date">${reviewDate}</div>
+              </div>
+              <div class="user-review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+            </div>
+            <p class="user-review-text">${escapeHtml(review.review_text)}</p>
+          </div>
+        `;
+      });
+
+      container.innerHTML = reviewsHTML;
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      document.getElementById('userSellerReviewsContainer').innerHTML =
+        '<p class="no-reviews-message">Error loading reviews. Please try again.</p>';
+    }
+  }
+
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Load reviews when page loads
+  loadUserSellerReviews();
+</script>
+
 {% endblock %}
