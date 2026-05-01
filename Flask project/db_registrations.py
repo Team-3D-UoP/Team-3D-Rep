@@ -91,10 +91,7 @@ def insert_registered_part(user_id, brand, year, part_name, price, description, 
             'part_id': None
         }
 
-def insert_registered_car(make, model, year, license, engine=None, wheels=None, user_id=None):
-    # Get the currently logged-in user ID from session if not provided
-    user_id = 1
-    
+def insert_registered_car(make, model, year, license, engine, wheels, user_id):    
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
