@@ -1673,86 +1673,127 @@
   // Check if user is logged in
   function isUserLoggedIn() {
     const userEmail = localStorage.getItem('userEmail');
-    return userEmail && userEmail !== 'guest@example.com';
+    console.log('User email from localStorage:', userEmail);
+    return userEmail && userEmail !== 'guest@example.com' && userEmail !== null;
   }
 
   // Show login required modal
   function showLoginRequired() {
-    const loginModal = document.createElement('div');
-    loginModal.style.cssText = `
+    console.log('Showing login required modal');
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'loginOverlay';
+    overlay.style.cssText = `
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
+      z-index: 10000;
     `;
 
-    loginModal.innerHTML = `
-      <div style="
-        background-color: white;
-        border-radius: 12px;
-        padding: 2rem;
-        max-width: 400px;
-        text-align: center;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      ">
-        <div style="font-size: 2rem; margin-bottom: 1rem;">🔐</div>
-        <h2 style="color: #003d7a; margin-bottom: 1rem; font-size: 1.5rem;">Login Required</h2>
-        <p style="color: #666; margin-bottom: 1.5rem; line-height: 1.6;">
-          Please log in to your account to use the live chat and message sellers.
-        </p>
-        <div style="display: flex; gap: 1rem;">
-          <button onclick="this.closest('div').parentElement.remove()" style="
-            flex: 1;
-            background-color: #e9ecef;
-            color: #333;
-            border: none;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-          " onmouseover="this.style.backgroundColor='#dee2e6'" onmouseout="this.style.backgroundColor='#e9ecef'">
-            Close
-          </button>
-          <button onclick="window.location.href='{{ url_for('login') }}'" style="
-            flex: 1;
-            background-color: #003d7a;
-            color: white;
-            border: none;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-          " onmouseover="this.style.backgroundColor='#002d5a'" onmouseout="this.style.backgroundColor='#003d7a'">
-            Log In
-          </button>
-        </div>
+    // Create modal content
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      background-color: white;
+      border-radius: 12px;
+      padding: 2.5rem;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease-out;
+    `;
+
+    modal.innerHTML = `
+      <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔐</div>
+      <h2 style="color: #003d7a; margin-bottom: 1rem; font-size: 1.6rem; font-weight: bold;">Login Required</h2>
+      <p style="color: #666; margin-bottom: 2rem; line-height: 1.6; font-size: 0.95rem;">
+        Please log in to your account to use the live chat and message sellers.
+      </p>
+      <div style="display: flex; gap: 0.75rem; flex-direction: column;">
+        <button class="loginBtn" onclick="document.getElementById('loginOverlay').remove()" style="
+          background-color: #e9ecef;
+          color: #333;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 6px;
+          font-weight: bold;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        ">
+          Close
+        </button>
+        <button class="loginBtn" onclick="window.location.href='{{ url_for('login') }}'" style="
+          background-color: #003d7a;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 6px;
+          font-weight: bold;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        ">
+          Log In
+        </button>
       </div>
     `;
 
-    document.body.appendChild(loginModal);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
 
-    // Close modal when clicking outside
-    loginModal.addEventListener('click', (e) => {
-      if (e.target === loginModal) {
-        loginModal.remove();
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
       }
     });
+
+    // Add hover effects to buttons
+    const buttons = modal.querySelectorAll('button');
+    buttons[0].addEventListener('mouseover', () => buttons[0].style.backgroundColor = '#dee2e6');
+    buttons[0].addEventListener('mouseout', () => buttons[0].style.backgroundColor = '#e9ecef');
+    buttons[1].addEventListener('mouseover', () => buttons[1].style.backgroundColor = '#002d5a');
+    buttons[1].addEventListener('mouseout', () => buttons[1].style.backgroundColor = '#003d7a');
   }
 
+  // Add animation style
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
   chatBtn.addEventListener('click', () => {
+    console.log('Chat button clicked');
+    const userEmail = localStorage.getItem('userEmail');
+    console.log('User email from storage:', userEmail);
+    console.log('Is logged in:', isUserLoggedIn());
+
     if (!isUserLoggedIn()) {
+      console.log('User not logged in - showing login modal');
+      alert('Please log in first to use the chat feature');
       showLoginRequired();
       return;
     }
 
+    console.log('User logged in - opening chat');
     loadChatHistoryFromStorage();
     chatModal.classList.add('active');
 
