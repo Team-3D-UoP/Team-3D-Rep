@@ -1544,6 +1544,13 @@
   let currentUserName = null;
   let chatRefreshInterval;
 
+  // Get references to chat elements FIRST
+  const chatBtn = document.getElementById('chatBtn');
+  const chatModal = document.getElementById('chatModal');
+  const chatModalClose = document.getElementById('chatModalClose');
+  const chatInput = document.querySelector('.chat-input');
+  const chatSendBtn = document.querySelector('.chat-send-btn');
+
   // Get user email from session/localStorage
   function getCurrentUserInfo() {
     const storedEmail = localStorage.getItem('userEmail');
@@ -1662,13 +1669,6 @@
       console.error('Error sending message:', error);
     });
   }
-
-  // Chat modal functionality
-  const chatBtn = document.getElementById('chatBtn');
-  const chatModal = document.getElementById('chatModal');
-  const chatModalClose = document.getElementById('chatModalClose');
-  const chatInput = document.querySelector('.chat-input');
-  const chatSendBtn = document.querySelector('.chat-send-btn');
 
   // Check if user is logged in
   function isUserLoggedIn() {
