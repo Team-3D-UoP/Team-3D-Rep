@@ -1108,6 +1108,28 @@ def delete_chat_message(message_id):
         print(f"Error deleting chat message: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/chat/clear-all", methods=['POST'])
+def clear_all_chats():
+    """Clear all chat messages from Firebase (admin only)"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        # Delete all messages from Firebase
+        url = f"{FIREBASE_DATABASE_URL}/chat.json"
+        response = requests.delete(url, timeout=5)
+
+        if response.status_code in [200, 204]:
+            print(f"✓ All chat messages cleared")
+            return jsonify({"success": True, "message": "All chats cleared"}), 200
+        else:
+            print(f"⚠ Error clearing chats from Firebase: {response.status_code}")
+            return jsonify({"error": "Failed to clear chats"}), 500
+
+    except Exception as e:
+        print(f"Error clearing chats: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/chat/get-customer-messages", methods=['GET'])
 def get_customer_messages():
     """Get all chat messages for customer (from Firebase)"""
