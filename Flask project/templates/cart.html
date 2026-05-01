@@ -492,10 +492,48 @@
     }
   }
 
-  // Proceed to checkout (placeholder)
-  function proceedToCheckout() {
-    alert('Checkout functionality coming soon!');
-    // TODO: Implement checkout process
+  // Place order
+  async function proceedToCheckout() {
+    const cartTotal = document.getElementById('cartTotal').textContent;
+
+    if (cartTotal === '0.00') {
+      alert('Your cart is empty!');
+      return;
+    }
+
+    try {
+      const cartResponse = await fetch('/api/cart');
+      const cartData = await cartResponse.json();
+
+      const orderResponse = await fetch('/api/orders/place', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          items: cartData.items || [],
+          total: parseFloat(cartTotal),
+          delivery_method: 'delivery'
+        })
+      });
+
+      if (orderResponse.ok) {
+        const data = await orderResponse.json();
+        alert('✓ ' + data.message + '\n\nOrder ID: ' + data.order_id);
+
+        // Clear cart
+        await fetch('/api/cart/clear', { method: 'DELETE' });
+
+        // Redirect to orders page
+        window.location.href = '{{ url_for("my_orders") }}';
+      } else {
+        const data = await orderResponse.json();
+        alert('Error placing order: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error placing order: ' + error.message);
+    }
   }
 
   // Escape HTML to prevent XSS

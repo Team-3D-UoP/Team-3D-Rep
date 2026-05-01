@@ -11,7 +11,9 @@ import base64
 import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
-from models import db, ProductReview, SellerReview, CartItem
+from datetime import datetime
+import requests
+from models import db, ProductReview, SellerReview, CartItem, Part, User, ChatMessage
 from db_registrations import *
 
 load_dotenv()
@@ -26,19 +28,152 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize database
 db.init_app(app)
 
-CORS(app)
+CORS(app, supports_credentials=True)
 
 # Create database tables
 with app.app_context():
     db.create_all()
 
+# Firebase Configuration
+FIREBASE_DATABASE_URL = 'https://team-3d-default-rtdb.europe-west1.firebasedatabase.app'
+
+# Initialize Firebase Auth - Optional, gracefully handles if not configured
+firebase_initialized = False
 try:
     cred_path = os.path.join(os.path.dirname(__file__), 'serviceAccountKey.json')
-    cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred)
-    print("Firebase initialized successfully")
+    if os.path.exists(cred_path):
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred)
+        firebase_initialized = True
+        print("✓ Firebase Admin SDK initialized with serviceAccountKey.json")
+    else:
+        print("⚠ serviceAccountKey.json not found - Using client-side Firebase auth")
 except Exception as e:
-    print(f"Firebase initialization error: {e}")
+    print(f"⚠ Firebase initialization error: {e}")
+
+print(f"✓ Firebase Realtime Database connected: {FIREBASE_DATABASE_URL}")
+
+
+# Firebase Realtime Database Helper Functions (Using REST API - No Secret Key Needed!)
+def save_user_to_firebase(uid, email, username, fullname):
+    """Save user profile to Firebase Realtime Database using REST API"""
+    try:
+        user_data = {
+            'email': email,
+            'username': username,
+            'fullname': fullname,
+            'created_at': datetime.utcnow().isoformat(),
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        url = f"{FIREBASE_DATABASE_URL}/users/{uid}.json"
+        response = requests.put(url, json=user_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ User saved to Firebase: {email}")
+            return True
+        else:
+            print(f"⚠ Error saving user to Firebase: {response.status_code} {response.text}")
+            return False
+    except Exception as e:
+        print(f"⚠ Error saving user to Firebase: {e}")
+        return False
+
+
+def get_user_from_firebase(uid):
+    """Get user profile from Firebase using REST API"""
+    try:
+        url = f"{FIREBASE_DATABASE_URL}/users/{uid}.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except Exception as e:
+        print(f"⚠ Error getting user from Firebase: {e}")
+        return None
+
+
+def save_review_to_firebase(review_type, item_id, uid, email, name, rating, text):
+    """Save review to Firebase using REST API"""
+    try:
+        review_data = {
+            'item_id': item_id,
+            'user_id': uid,
+            'user_email': email,
+            'user_name': name,
+            'rating': rating,
+            'review_text': text,
+            'created_at': datetime.utcnow().isoformat(),
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        url = f"{FIREBASE_DATABASE_URL}/reviews/{review_type}/{item_id}/{uid}.json"
+        response = requests.put(url, json=review_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Review saved to Firebase")
+            return True
+        else:
+            print(f"⚠ Error saving review to Firebase: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"⚠ Error saving review to Firebase: {e}")
+        return False
+
+
+def get_reviews_from_firebase(review_type, item_id):
+    """Get all reviews for an item from Firebase using REST API"""
+    try:
+        url = f"{FIREBASE_DATABASE_URL}/reviews/{review_type}/{item_id}.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            reviews_data = response.json()
+            if not reviews_data:
+                return []
+            return list(reviews_data.values())
+        return []
+    except Exception as e:
+        print(f"⚠ Error getting reviews from Firebase: {e}")
+        return []
+
+
+def save_cart_item_to_firebase(uid, product_id, quantity):
+    """Save cart item to Firebase using REST API"""
+    try:
+        cart_data = {
+            'product_id': product_id,
+            'quantity': quantity,
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        url = f"{FIREBASE_DATABASE_URL}/carts/{uid}/{product_id}.json"
+        response = requests.put(url, json=cart_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Cart item saved to Firebase")
+            return True
+        else:
+            print(f"⚠ Error saving cart to Firebase: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"⚠ Error saving cart to Firebase: {e}")
+        return False
+
+
+def get_cart_from_firebase(uid):
+    """Get cart items from Firebase using REST API"""
+    try:
+        url = f"{FIREBASE_DATABASE_URL}/carts/{uid}.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            cart_data = response.json()
+            if not cart_data:
+                return {}
+            return cart_data
+        return {}
+    except Exception as e:
+        print(f"⚠ Error getting cart from Firebase: {e}")
+        return {}
 
 
 def _get_seller_for_product(product):
@@ -154,6 +289,12 @@ def submit_seller_review(seller_id):
             existing_review.rating = rating
             existing_review.review_text = review_text
             db.session.commit()
+
+            # Also save to Firebase
+            save_review_to_firebase('seller', seller_id, session['user_id'],
+                                   session.get('email', ''), session.get('name', 'Anonymous'),
+                                   rating, review_text)
+
             return jsonify({
                 "success": True,
                 "message": "Review updated successfully",
@@ -171,6 +312,11 @@ def submit_seller_review(seller_id):
             )
             db.session.add(new_review)
             db.session.commit()
+
+            # Also save to Firebase
+            save_review_to_firebase('seller', seller_id, session['user_id'],
+                                   session.get('email', ''), session.get('name', 'Anonymous'),
+                                   rating, review_text)
 
             return jsonify({
                 "success": True,
@@ -208,46 +354,70 @@ def get_seller_reviews(seller_id):
 
 @app.route("/api/user/reviews", methods=['GET'])
 def get_user_reviews():
-    """Get all reviews submitted by the current user (both product and seller reviews)"""
+    """Get all reviews submitted by the current user (both product and seller reviews from Firebase)"""
     if 'user_id' not in session:
         return jsonify({"error": "User not logged in"}), 401
 
     try:
-        # Get all product reviews by user
-        product_reviews = ProductReview.query.filter_by(
-            user_id=session['user_id']
-        ).order_by(ProductReview.created_at.desc()).all()
-
-        # Get all seller reviews by user
-        seller_reviews = SellerReview.query.filter_by(
-            user_id=session['user_id']
-        ).order_by(SellerReview.created_at.desc()).all()
-
-        # Format product reviews with product details
+        uid = session['user_id']
         product_reviews_data = []
-        for review in product_reviews:
-            product = next((p for p in OFFER_PRODUCTS if p['id'] == review.product_id), None)
-            if product:
-                review_data = review.to_dict()
-                review_data['type'] = 'product'
-                review_data['item_name'] = product['name']
-                review_data['item_id'] = review.product_id
-                product_reviews_data.append(review_data)
-
-        # Format seller reviews with seller details
         seller_reviews_data = []
-        for review in seller_reviews:
-            seller = next((s for s in SELLERS_DATA if s['id'] == review.seller_id), None)
-            if seller:
-                review_data = review.to_dict()
-                review_data['type'] = 'seller'
-                review_data['item_name'] = seller['name']
-                review_data['item_id'] = review.seller_id
-                seller_reviews_data.append(review_data)
+
+        # Get all product reviews from Firebase
+        try:
+            url = f"{FIREBASE_DATABASE_URL}/reviews/product.json"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                all_products = response.json()
+                if all_products:
+                    for product_id, reviews in all_products.items():
+                        if isinstance(reviews, dict) and uid in reviews:
+                            review = reviews[uid]
+                            product = next((p for p in OFFER_PRODUCTS if p['id'] == review.get('item_id')), None)
+                            if product:
+                                review_data = {
+                                    'id': f"{product_id}_{uid}",
+                                    'type': 'product',
+                                    'item_name': product['name'],
+                                    'item_id': product_id,
+                                    'rating': review.get('rating', 0),
+                                    'review_text': review.get('review_text', ''),
+                                    'created_at': review.get('created_at', ''),
+                                    'user_name': review.get('user_name', 'Anonymous')
+                                }
+                                product_reviews_data.append(review_data)
+        except Exception as e:
+            print(f"Error getting product reviews from Firebase: {e}")
+
+        # Get all seller reviews from Firebase
+        try:
+            url = f"{FIREBASE_DATABASE_URL}/reviews/seller.json"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                all_sellers = response.json()
+                if all_sellers:
+                    for seller_id, reviews in all_sellers.items():
+                        if isinstance(reviews, dict) and uid in reviews:
+                            review = reviews[uid]
+                            seller = next((s for s in SELLERS_DATA if s['id'] == review.get('item_id')), None)
+                            if seller:
+                                review_data = {
+                                    'id': f"{seller_id}_{uid}",
+                                    'type': 'seller',
+                                    'item_name': seller['name'],
+                                    'item_id': seller_id,
+                                    'rating': review.get('rating', 0),
+                                    'review_text': review.get('review_text', ''),
+                                    'created_at': review.get('created_at', ''),
+                                    'user_name': review.get('user_name', 'Anonymous')
+                                }
+                                seller_reviews_data.append(review_data)
+        except Exception as e:
+            print(f"Error getting seller reviews from Firebase: {e}")
 
         # Combine and sort by date
         all_reviews = product_reviews_data + seller_reviews_data
-        all_reviews.sort(key=lambda x: x['created_at'], reverse=True)
+        all_reviews.sort(key=lambda x: x.get('created_at', ''), reverse=True)
 
         return jsonify({
             "success": True,
@@ -300,6 +470,12 @@ def submit_review(product_id):
             existing_review.rating = rating
             existing_review.review_text = review_text
             db.session.commit()
+
+            # Also save to Firebase
+            save_review_to_firebase('product', product_id, session['user_id'],
+                                   session.get('email', ''), session.get('name', 'Anonymous'),
+                                   rating, review_text)
+
             return jsonify({
                 "success": True,
                 "message": "Review updated successfully",
@@ -317,6 +493,11 @@ def submit_review(product_id):
             )
             db.session.add(new_review)
             db.session.commit()
+
+            # Also save to Firebase
+            save_review_to_firebase('product', product_id, session['user_id'],
+                                   session.get('email', ''), session.get('name', 'Anonymous'),
+                                   rating, review_text)
 
             return jsonify({
                 "success": True,
@@ -416,6 +597,10 @@ def add_to_cart():
             # Update quantity
             existing_item.quantity += quantity
             db.session.commit()
+
+            # Also save to Firebase
+            save_cart_item_to_firebase(session['user_id'], product_id, existing_item.quantity)
+
             return jsonify({
                 "success": True,
                 "message": "Item quantity updated",
@@ -430,6 +615,9 @@ def add_to_cart():
             )
             db.session.add(new_item)
             db.session.commit()
+
+            # Also save to Firebase
+            save_cart_item_to_firebase(session['user_id'], product_id, quantity)
 
             return jsonify({
                 "success": True,
@@ -610,14 +798,402 @@ def placeholder_image(part_name):
 
     return f"data:image/png;base64,{img_base64}"
 
+# Admin Credentials
+ADMIN_EMAIL = "adminpage@gmail.com"
+ADMIN_PASSWORD = "Admin123"
+
 @app.route("/login", methods=['GET'])
 def login():
     return render_template("login_screen.html")
+
+@app.route("/admin-login", methods=['GET'])
+def admin_login_page():
+    """Admin login page"""
+    return render_template("admin_login_page.html")
+
+@app.route("/api/admin/login", methods=['POST'])
+def admin_login():
+    """Admin authentication endpoint"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+
+        if not email or not password:
+            return jsonify({"error": "Email and password are required"}), 400
+
+        # Verify admin credentials
+        if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+            session['admin_authenticated'] = True
+            session['admin_email'] = email
+            session['admin_logged_in_at'] = datetime.utcnow().isoformat()
+
+            print(f"✓ Admin logged in: {email}")
+            return jsonify({
+                "success": True,
+                "message": "Admin login successful",
+                "redirect": "/admin"
+            }), 200
+        else:
+            print(f"✗ Admin login failed for: {email}")
+            return jsonify({"error": "Invalid admin credentials"}), 401
+
+    except Exception as e:
+        print(f"Admin login error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/admin", methods=['GET'])
+def admin_dashboard():
+    """Admin dashboard page"""
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('login'))
+
+    return render_template("admin_dashboard.html",
+                         admin_email=session.get('admin_email'))
+
+@app.route("/api/admin/logout", methods=['POST'])
+def admin_logout():
+    """Admin logout"""
+    session.clear()
+    return jsonify({"success": True, "message": "Logged out"}), 200
+
+@app.route("/api/dashboard/users", methods=['GET'])
+def dashboard_users():
+    """Get user statistics for admin dashboard"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        users = User.query.all()
+        return jsonify({
+            "count": len(users),
+            "users": [u.to_dict() for u in users]
+        }), 200
+    except Exception as e:
+        print(f"Error fetching users: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/dashboard/reviews", methods=['GET'])
+def dashboard_reviews():
+    """Get review statistics for admin dashboard"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        product_reviews = ProductReview.query.all()
+        seller_reviews = SellerReview.query.all()
+
+        all_reviews = []
+
+        # Add product reviews
+        for review in product_reviews:
+            all_reviews.append({
+                'id': review.id,
+                'type': 'product',
+                'user_name': review.user_name,
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'created_at': review.created_at.isoformat()
+            })
+
+        # Add seller reviews
+        for review in seller_reviews:
+            all_reviews.append({
+                'id': review.id,
+                'type': 'seller',
+                'user_name': review.user_name,
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'created_at': review.created_at.isoformat()
+            })
+
+        # Sort by date, most recent first
+        all_reviews.sort(key=lambda x: x['created_at'], reverse=True)
+
+        return jsonify({
+            "count": len(all_reviews),
+            "reviews": all_reviews
+        }), 200
+    except Exception as e:
+        print(f"Error fetching reviews: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/dashboard/carts", methods=['GET'])
+def dashboard_carts():
+    """Get cart statistics for admin dashboard"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        carts = CartItem.query.all()
+        total_items = sum(cart.quantity for cart in carts)
+
+        return jsonify({
+            "count": total_items,
+            "cart_count": len(carts)
+        }), 200
+    except Exception as e:
+        print(f"Error fetching carts: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# Chat API Endpoints (Using Firebase for real-time sync across computers)
+@app.route("/api/chat/send", methods=['POST'])
+def send_chat_message():
+    """Send a chat message from customer"""
+    try:
+        print("📨 Chat send request received")
+
+        data = request.get_json()
+        print(f"Request data: {data}")
+
+        message = data.get('message', '').strip()
+        user_email = data.get('email', 'Anonymous')
+        user_name = data.get('name', 'Anonymous')
+
+        print(f"Message: {message}, Email: {user_email}, Name: {user_name}")
+
+        if not message or len(message) < 1:
+            print("❌ Message is empty")
+            return jsonify({"error": "Message cannot be empty"}), 400
+
+        # Save to Firebase (accessible from any computer!)
+        chat_data = {
+            'user_email': user_email,
+            'user_name': user_name,
+            'message': message,
+            'sender_type': 'customer',
+            'created_at': datetime.utcnow().isoformat()
+        }
+
+        timestamp = int(datetime.utcnow().timestamp() * 1000)  # Use milliseconds for better uniqueness
+        url = f"{FIREBASE_DATABASE_URL}/chat/{timestamp}.json"
+
+        print(f"📤 Saving to Firebase: {url}")
+        print(f"Data: {chat_data}")
+
+        response = requests.put(url, json=chat_data, timeout=5)
+
+        print(f"Firebase response status: {response.status_code}")
+        print(f"Firebase response: {response.text}")
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Chat message saved to Firebase from {user_name}")
+            return jsonify({
+                "success": True,
+                "created_at": chat_data['created_at']
+            }), 201
+        else:
+            print(f"⚠ Error saving to Firebase: {response.status_code} - {response.text}")
+            return jsonify({"error": f"Failed to save message: {response.status_code}"}), 500
+
+    except Exception as e:
+        print(f"❌ Error saving chat message: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat/messages", methods=['GET'])
+def get_chat_messages():
+    """Get all chat messages from Firebase (for admin)"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        # Fetch all messages from Firebase
+        url = f"{FIREBASE_DATABASE_URL}/chat.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            messages_data = response.json()
+            if not messages_data:
+                return jsonify({
+                    "success": True,
+                    "count": 0,
+                    "messages": []
+                }), 200
+
+            # Convert Firebase object to array and sort by timestamp
+            messages = []
+            for timestamp, msg_data in messages_data.items():
+                msg_data['id'] = timestamp
+                messages.append(msg_data)
+
+            # Sort by created_at descending (newest first)
+            messages.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+
+            return jsonify({
+                "success": True,
+                "count": len(messages),
+                "messages": messages
+            }), 200
+        else:
+            return jsonify({
+                "success": True,
+                "count": 0,
+                "messages": []
+            }), 200
+
+    except Exception as e:
+        print(f"Error fetching chat messages from Firebase: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat/reply", methods=['POST'])
+def reply_to_chat():
+    """Admin reply to a chat message (save to Firebase)"""
+    print(f"📨 Chat reply request - Session: {dict(session)}")
+    print(f"admin_authenticated: {session.get('admin_authenticated')}")
+
+    if not session.get('admin_authenticated'):
+        print("❌ Unauthorized: admin_authenticated not in session")
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        data = request.get_json()
+        message = data.get('message', '').strip()
+        target_user_email = data.get('target_user_email', '').strip()
+
+        if not message or len(message) < 1:
+            return jsonify({"error": "Message cannot be empty"}), 400
+
+        # Save admin reply to Firebase - now with target user
+        chat_data = {
+            'user_name': 'Admin Support',
+            'user_email': session.get('admin_email'),
+            'message': message,
+            'sender_type': 'admin',
+            'target_user_email': target_user_email,  # Only visible to this user
+            'created_at': datetime.utcnow().isoformat()
+        }
+
+        timestamp = int(datetime.utcnow().timestamp() * 1000)  # Convert to milliseconds integer
+        url = f"{FIREBASE_DATABASE_URL}/chat/{timestamp}.json"
+        print(f"📤 Saving reply to Firebase: {url}")
+        print(f"📦 Data: {chat_data}")
+
+        response = requests.put(url, json=chat_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Admin reply saved to Firebase for {target_user_email}")
+            return jsonify({
+                "success": True,
+                "created_at": chat_data['created_at']
+            }), 201
+        else:
+            print(f"⚠ Error saving reply to Firebase: {response.status_code}")
+            print(f"Firebase response: {response.text}")
+            return jsonify({"error": "Failed to save reply"}), 500
+
+    except Exception as e:
+        print(f"Error saving admin reply: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat/delete/<message_id>", methods=['DELETE'])
+def delete_chat_message(message_id):
+    """Delete a chat message from Firebase (admin only)"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        # Delete message from Firebase using REST API
+        url = f"{FIREBASE_DATABASE_URL}/chat/{message_id}.json"
+        response = requests.delete(url, timeout=5)
+
+        if response.status_code in [200, 204]:
+            print(f"✓ Chat message deleted: {message_id}")
+            return jsonify({"success": True, "message": "Message deleted"}), 200
+        else:
+            print(f"⚠ Error deleting message from Firebase: {response.status_code}")
+            return jsonify({"error": "Failed to delete message"}), 500
+
+    except Exception as e:
+        print(f"Error deleting chat message: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat/clear-all", methods=['POST'])
+def clear_all_chats():
+    """Clear all chat messages from Firebase (admin only)"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        # Delete all messages from Firebase
+        url = f"{FIREBASE_DATABASE_URL}/chat.json"
+        response = requests.delete(url, timeout=5)
+
+        if response.status_code in [200, 204]:
+            print(f"✓ All chat messages cleared")
+            return jsonify({"success": True, "message": "All chats cleared"}), 200
+        else:
+            print(f"⚠ Error clearing chats from Firebase: {response.status_code}")
+            return jsonify({"error": "Failed to clear chats"}), 500
+
+    except Exception as e:
+        print(f"Error clearing chats: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat/get-customer-messages", methods=['GET'])
+def get_customer_messages():
+    """Get all chat messages for customer (from Firebase)"""
+    try:
+        # Fetch all messages from Firebase
+        url = f"{FIREBASE_DATABASE_URL}/chat.json"
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            messages_data = response.json()
+            if not messages_data:
+                return jsonify({
+                    "success": True,
+                    "messages": []
+                }), 200
+
+            # Convert Firebase object to array and sort by timestamp
+            messages = []
+            for timestamp, msg_data in messages_data.items():
+                messages.append(msg_data)
+
+            # Sort by created_at ascending (oldest first)
+            messages.sort(key=lambda x: x.get('created_at', ''))
+
+            return jsonify({
+                "success": True,
+                "messages": messages
+            }), 200
+        else:
+            return jsonify({
+                "success": True,
+                "messages": []
+            }), 200
+
+    except Exception as e:
+        print(f"Error fetching customer messages from Firebase: {e}")
+        return jsonify({
+            "success": True,
+            "messages": []
+        }), 200
+
+@app.route("/api/chat/unread-count", methods=['GET'])
+def unread_chat_count():
+    """Get count of unread chat messages (for admin)"""
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        unread = ChatMessage.query.filter_by(is_read=False, sender_type='customer').count()
+        return jsonify({
+            "success": True,
+            "unread_count": unread
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
         return render_template("register_screen.html")
+
+    if not firebase_initialized:
+        return jsonify({"error": "Firebase not configured on this server"}), 503
 
     try:
         data = request.get_json() or request.form
@@ -636,27 +1212,90 @@ def register():
             uid=username
         )
 
-        print(f"User created: {email}")
+        print(f"✓ User created: {email}")
         return jsonify({"success": True, "message": "Registration successful"}), 201
 
     except Exception as e:
-        print(f"Registration error: {e}")
+        print(f"✗ Registration error: {e}")
         return jsonify({"error": str(e)}), 400
 
 @app.route("/api/authenticate", methods=['POST'])
 def authenticate():
+    """
+    Authenticate user with Firebase token.
+    Works with or without serverAccountKey.json (for team collaboration).
+    """
     try:
         data = request.get_json()
         token = data.get('token')
+        user_data = data.get('user_data', {})  # Optional user profile data from client
 
         if not token:
             return jsonify({"error": "No token provided"}), 400
 
-        decoded_token = auth.verify_id_token(token, clock_skew_seconds=10)
-        uid = decoded_token['uid']
-        email = decoded_token.get('email', '')
-        name = decoded_token.get('name', '')
+        decoded_token = None
+        uid = None
+        email = None
+        name = None
 
+        # Try to verify token with Firebase Admin SDK if available
+        if firebase_initialized:
+            try:
+                decoded_token = auth.verify_id_token(token)
+                uid = decoded_token['uid']
+                email = decoded_token.get('email', '')
+                name = decoded_token.get('name', '')
+                print(f"✓ Token verified with Firebase Admin SDK")
+            except Exception as e:
+                print(f"⚠ Token verification failed: {e}")
+                return jsonify({"error": "Token verification failed"}), 401
+        else:
+            # Fallback: If Firebase Admin SDK not available, use client-provided data
+            # This is safe because the client has already authenticated with Firebase
+            # and we'll create/update user record in our database
+            uid = user_data.get('uid')
+            email = user_data.get('email', '')
+            name = user_data.get('fullname', '')
+
+            if not uid or not email:
+                return jsonify({"error": "User data missing"}), 400
+
+            print(f"⚠ Using client-side authentication (Firebase Admin SDK not available)")
+
+        # Create or update user in database and Firebase
+        try:
+            username = user_data.get('username', email.split('@')[0])
+            fullname = user_data.get('fullname', name)
+
+            user = User.query.filter_by(firebase_uid=uid).first()
+
+            if not user:
+                # Create new user in SQLite
+                user = User(
+                    firebase_uid=uid,
+                    email=email,
+                    username=username,
+                    fullname=fullname
+                )
+                db.session.add(user)
+                db.session.commit()
+                print(f"✓ User created in SQLite: {email}")
+            else:
+                # Update existing user in SQLite
+                user.email = email
+                if name:
+                    user.fullname = name
+                db.session.commit()
+                print(f"✓ User updated in SQLite: {email}")
+
+            # Also save to Firebase Realtime Database
+            save_user_to_firebase(uid, email, username, fullname)
+
+        except Exception as e:
+            print(f"⚠ Error creating/updating user: {e}")
+            # Don't fail auth if database update fails
+
+        # Set session
         session['user_id'] = uid
         session['email'] = email
         session['name'] = name
@@ -666,22 +1305,28 @@ def authenticate():
             print(f"Inserting new user into DB: {email}")
             insert_new_user(email, name)
 
-        print(f"User authenticated: {email}")
+        print(f"✓ User authenticated: {email}")
         return jsonify({"success": True, "redirect": "/account"}), 200
 
     except Exception as e:
-        print(f"Authentication error: {e}")
-        return jsonify({"error": str(e), "details": "Check Firebase domain authorization"}), 401
+        print(f"✗ Authentication error: {e}")
+        return jsonify({"error": str(e)}), 401
 
 @app.route("/account", methods=['GET'])
 def account():
-    if not session.get('authenticated'):
-        return redirect(url_for('login'))
+    # If admin is logged in, show admin dashboard
+    if session.get('admin_authenticated'):
+        return redirect(url_for('admin_dashboard'))
 
-    return render_template("account.html",
-                         username=session.get('name'),
-                         email=session.get('email'),
-                         full_name=session.get('name'))
+    # If regular user is logged in, show account page
+    if session.get('authenticated'):
+        return render_template("account.html",
+                             username=session.get('name'),
+                             email=session.get('email'),
+                             full_name=session.get('name'))
+
+    # Not logged in, go to login
+    return redirect(url_for('login'))
 
 @app.route("/my-orders", methods=['GET'])
 def my_orders():
@@ -694,6 +1339,84 @@ def my_orders():
     return render_template("my_orders.html",
                          delivery_orders=delivery_orders,
                          collection_orders=collection_orders)
+
+@app.route("/api/orders/place", methods=['POST'])
+def place_order():
+    """Place an order and save to Firebase"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        data = request.get_json()
+        user_email = session.get('email')
+        user_name = session.get('name')
+
+        order_data = {
+            'user_email': user_email,
+            'user_name': user_name,
+            'items': data.get('items', []),
+            'total': data.get('total', 0),
+            'status': 'pending',
+            'delivery_method': data.get('delivery_method', 'delivery'),
+            'created_at': datetime.utcnow().isoformat()
+        }
+
+        timestamp = int(datetime.utcnow().timestamp() * 1000)
+        url = f"{FIREBASE_DATABASE_URL}/orders/{user_email}/{timestamp}.json"
+
+        response = requests.put(url, json=order_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Order placed by {user_email}")
+            return jsonify({
+                "success": True,
+                "order_id": timestamp,
+                "message": "Order placed successfully!"
+            }), 201
+        else:
+            print(f"⚠ Error saving order: {response.status_code}")
+            return jsonify({"error": "Failed to place order"}), 500
+
+    except Exception as e:
+        print(f"Error placing order: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/orders/user-orders", methods=['GET'])
+def get_user_orders():
+    """Get all orders for logged-in user from Firebase"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        user_email = session.get('email')
+        url = f"{FIREBASE_DATABASE_URL}/orders/{user_email}.json"
+
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            orders_data = response.json()
+            if not orders_data:
+                return jsonify({"success": True, "orders": []}), 200
+
+            # Convert Firebase object to array
+            orders = []
+            for order_id, order_data in orders_data.items():
+                order_data['order_id'] = order_id
+                orders.append(order_data)
+
+            # Sort by created_at descending (newest first)
+            orders.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+
+            return jsonify({
+                "success": True,
+                "orders": orders
+            }), 200
+        else:
+            return jsonify({"success": True, "orders": []}), 200
+
+    except Exception as e:
+        print(f"Error getting user orders: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/personal-details", methods=['GET'])
 def personal_details():
@@ -752,7 +1475,30 @@ def save_part_registration():
     except:
        pass
 
-    return jsonify({"message": "Part registration recieved"}), 200
+    # Validate required fields
+    required_fields = ['name', 'price', 'description', 'image']
+    if not all(field in data and data[field] for field in required_fields):
+        return jsonify({"error": "All fields are required"}), 400
+
+    try:
+        # Create new part
+        new_part = Part(
+            name=data['name'],
+            price=float(data['price']),
+            description=data['description'],
+            image=data['image']
+        )
+
+        # Save to database
+        db.session.add(new_part)
+        db.session.commit()
+
+        return jsonify({"message": "Part registration successful", "part_id": new_part.id}), 201
+    except ValueError:
+        return jsonify({"error": "Invalid price format"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to save part"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

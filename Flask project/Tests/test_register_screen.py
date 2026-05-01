@@ -7,6 +7,7 @@ from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+import app as app_module
 from app import app
 
 
@@ -19,6 +20,10 @@ class TestRegisterScreen(unittest.TestCase):
         self.app.config['TESTING'] = True
         self.client = self.app.test_client()
 
+        # Ensure the register route is active for tests even without Firebase config
+        self._firebase_initialized = getattr(app_module, 'firebase_initialized', False)
+        app_module.firebase_initialized = True
+
         # Valid test data
         self.valid_data = {
             'email': 'testuser@example.com',
@@ -29,7 +34,7 @@ class TestRegisterScreen(unittest.TestCase):
 
     def tearDown(self):
         """Clean up after each test"""
-        pass
+        app_module.firebase_initialized = self._firebase_initialized
 
 
     def test_register_page_loads_successfully(self):
