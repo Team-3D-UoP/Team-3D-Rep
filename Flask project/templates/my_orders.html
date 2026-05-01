@@ -329,15 +329,105 @@
             // Hide all tabs
             const tabs = document.querySelectorAll('.tab-content');
             tabs.forEach(tab => tab.classList.remove('active'));
-            
+
             // Remove active class from all buttons
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
-            
+
             // Show selected tab and mark button as active
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
         }
+
+        // Load orders from Firebase
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/orders/user-orders');
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    // User not logged in
+                    document.getElementById('deliveryOrders').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔒</div>
+                            <p>Please log in to view your orders</p>
+                            <a href="{{ url_for('login') }}" style="color: #0052cc; text-decoration: none; font-weight: 600;">Log In</a>
+                        </div>
+                    `;
+                    document.getElementById('collectionOrders').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔒</div>
+                            <p>Please log in to view your orders</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const orders = data.orders || [];
+
+                // Separate orders by delivery method
+                const deliveryOrders = orders.filter(o => o.delivery_method === 'delivery');
+                const collectionOrders = orders.filter(o => o.delivery_method === 'collection');
+
+                // Render delivery orders
+                renderOrders('deliveryOrders', deliveryOrders);
+
+                // Render collection orders
+                renderOrders('collectionOrders', collectionOrders);
+
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                document.getElementById('deliveryOrders').innerHTML = `
+                    <div class="empty-state">
+                        <p>Error loading orders. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderOrders(containerId, orders) {
+            const container = document.getElementById(containerId);
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <p>No orders yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Build table HTML
+            let html = `
+                <div class="table-header">
+                    <div>Order ID</div>
+                    <div>Date</div>
+                    <div>Total</div>
+                    <div>Status</div>
+                </div>
+            `;
+
+            orders.forEach(order => {
+                const date = new Date(order.created_at).toLocaleDateString('en-GB');
+                const statusClass = `status-${order.status.toLowerCase()}`;
+                const statusDisplay = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+
+                html += `
+                    <div class="table-row">
+                        <div class="table-cell">#${order.order_id}</div>
+                        <div class="table-cell">${date}</div>
+                        <div class="table-cell">£${parseFloat(order.total).toFixed(2)}</div>
+                        <div class="table-cell"><span class="status-badge ${statusClass}">${statusDisplay}</span></div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Load orders on page load
+        loadOrders();
     </script>
 </body>
 </html>
