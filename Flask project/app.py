@@ -12,7 +12,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 from models import db, ProductReview, SellerReview, CartItem
-from db_registrations import insert_registered_part
+from db_registrations import insert_registered_part, insert_registered_car
 
 load_dotenv()
 
@@ -728,15 +728,9 @@ def part_registration_screen():
 def save_car_registration():
     data = request.get_json(silent=True) or {}
 
-    # TODO: save to DB here
+    # TODO: GET USER ID
     try:
-        #carId = Incremental
-        print("make:", data["make"])
-        print("model:", data["model"])
-        print("year:", data["year"])
-        print("license:", data["license"])
-        print("engine:", data["engine"])
-        print("wheels:", data["wheels"])
+        insert_registered_car(data["make"], data["model"], data["year"], data["license"], data["engine"], data["wheels"], user_id=session.get('user_id'))
     except:
        pass
 
