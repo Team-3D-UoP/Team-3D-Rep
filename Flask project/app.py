@@ -12,7 +12,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 from models import db, ProductReview, SellerReview, CartItem
-from db_registrations import insert_registered_part, insert_registered_car
+from db_registrations import *
 
 load_dotenv()
 
@@ -661,6 +661,10 @@ def authenticate():
         session['email'] = email
         session['name'] = name
         session['authenticated'] = True
+
+        if select_user_id(email, name) == []:
+            print(f"Inserting new user into DB: {email}")
+            insert_new_user(email, name)
 
         print(f"User authenticated: {email}")
         return jsonify({"success": True, "redirect": "/account"}), 200
