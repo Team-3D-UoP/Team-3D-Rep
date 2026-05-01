@@ -652,7 +652,7 @@ def authenticate():
         if not token:
             return jsonify({"error": "No token provided"}), 400
 
-        decoded_token = auth.verify_id_token(token)
+        decoded_token = auth.verify_id_token(token, clock_skew_seconds=10)
         uid = decoded_token['uid']
         email = decoded_token.get('email', '')
         name = decoded_token.get('name', '')
