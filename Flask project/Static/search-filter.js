@@ -386,6 +386,8 @@ class ProductSearchFilter {
 
         if (matches.length > 6) {
             html += `<div class="live-search-view-all">View all ${matches.length} results</div>`;
+        } else if (matches.length > 0) {
+            html += `<div class="live-search-view-all">View all results</div>`;
         }
 
         html += '</div>';
