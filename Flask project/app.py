@@ -720,13 +720,17 @@ def sellers():
 
 @app.route('/car_registration', methods=["GET"])
 def car_registration_screen():
-     print('car_registration')
-     return render_template("car_registration.html")
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+    print('car_registration')
+    return render_template("car_registration.html")
 
 @app.route('/part_registration', methods=["GET"])
 def part_registration_screen():
-     print('part_registration')
-     return render_template("part_registration.html")
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+    print('part_registration')
+    return render_template("part_registration.html")
 
 @app.route("/api/save_car_registration", methods=["POST"])
 def save_car_registration():
