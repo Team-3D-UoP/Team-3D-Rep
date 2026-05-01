@@ -1479,7 +1479,6 @@ def save_part_registration():
     required_fields = ['name', 'price', 'description', 'image']
     if not all(field in data and data[field] for field in required_fields):
         return jsonify({"error": "All fields are required"}), 400
-
     try:
         # Create new part
         new_part = Part(

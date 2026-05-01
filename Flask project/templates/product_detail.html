@@ -601,7 +601,230 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* Chat Styles */
+  .chat-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    z-index: 999;
+  }
+
+  .chat-button:hover {
+    background-color: #002d5a;
+    transform: scale(1.1);
+  }
+
+  .chat-modal {
+    display: none;
+    position: fixed;
+    bottom: 5.5rem;
+    right: 2rem;
+    width: 400px;
+    height: 80vh;
+    max-height: 700px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    flex-direction: column;
+    z-index: 998;
+  }
+
+  .chat-modal.active {
+    display: flex;
+  }
+
+  .chat-modal-header {
+    background-color: #0d0d0d;
+    color: white;
+    padding: 1rem;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+  }
+
+  .chat-modal-title {
+    font-weight: bold;
+    font-size: 1rem;
+  }
+
+  .chat-modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .chat-modal-close:hover {
+    color: #999;
+  }
+
+  .chat-modal-body {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .chat-message {
+    padding: 0.8rem 1rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-width: 75%;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .chat-message-user {
+    background-color: #4caf50;
+    color: white;
+    align-self: flex-end;
+    margin-right: 0.5rem;
+    border-bottom-right-radius: 4px;
+  }
+
+  .chat-message-company {
+    background-color: #2196f3;
+    color: white;
+    align-self: flex-start;
+    margin-left: 0.5rem;
+    border-bottom-left-radius: 4px;
+  }
+
+  .chat-message-time {
+    font-size: 0.7rem;
+    opacity: 0.8;
+    margin-top: 0.3rem;
+  }
+
+  .chat-input-section {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 1rem;
+  }
+
+  .chat-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 0.75rem;
+  }
+
+  .chat-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .chat-input:focus {
+    outline: none;
+    border-color: #003d7a;
+  }
+
+  .chat-send-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .chat-send-btn:hover {
+    background-color: #45a049;
+  }
+
+  .chat-counter {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .chat-button {
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 50px;
+      height: 50px;
+      font-size: 1.2rem;
+    }
+
+    .chat-modal {
+      bottom: 5rem;
+      right: 1rem;
+      left: 1rem;
+      width: auto;
+    }
+  }
 </style>
+
+<!-- Chat Button -->
+<button class="chat-button" id="chatBtn">💬</button>
+
+<!-- Chat Modal -->
+<div id="chatModal" class="chat-modal">
+  <div class="chat-modal-header">
+    <div class="chat-modal-title">Team 3D Support</div>
+    <button id="chatModalClose" class="chat-modal-close">×</button>
+  </div>
+  <div class="chat-modal-body">
+    <div class="chat-messages" style="border-bottom: 1px solid #e0e0e0; padding-bottom: 1rem; margin-bottom: 1rem;">
+      <div class="chat-message chat-message-company">
+        <div>👋 Hello! Welcome to Team 3D Support. How can we help you today?</div>
+        <div class="chat-message-time" id="initialTime"></div>
+      </div>
+    </div>
+    <div class="chat-input-section">
+      <label class="chat-label">Message</label>
+      <div class="chat-input-group">
+        <input type="text" class="chat-input" placeholder="Type your message...">
+        <button class="chat-send-btn">Send</button>
+      </div>
+      <div class="chat-counter">0 of 0</div>
+    </div>
+  </div>
+</div>
 
 <div class="product-detail-container">
   <div class="breadcrumb">
@@ -635,7 +858,7 @@
 
       <div class="action-buttons">
         <button class="btn-primary" id="addToCartBtn">Add to Cart</button>
-        <button class="btn-secondary">Add to Wishlist</button>
+        <button class="btn-secondary" onclick="messageSellerFromProduct()">Message Seller</button>
       </div>
 
       {% if product.seller %}
@@ -1141,6 +1364,37 @@
 </div>
 
 <script>
+  // Initialize chat elements immediately
+  let chatBtn, chatModal, chatModalClose, chatInput, chatSendBtn;
+
+  function initializeChatElements() {
+    chatBtn = document.getElementById('chatBtn');
+    chatModal = document.getElementById('chatModal');
+    chatModalClose = document.getElementById('chatModalClose');
+    chatInput = document.querySelector('.chat-input');
+    chatSendBtn = document.querySelector('.chat-send-btn');
+
+    console.log('Chat elements initialized:');
+    console.log('chatBtn:', chatBtn);
+    console.log('chatModal:', chatModal);
+    console.log('chatInput:', chatInput);
+    console.log('chatSendBtn:', chatSendBtn);
+
+    // Only attach listeners if all elements exist
+    if (chatBtn && chatModal && chatInput && chatSendBtn && chatModalClose) {
+      attachChatListeners();
+    } else {
+      console.error('Chat elements not found in DOM');
+    }
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeChatElements);
+  } else {
+    initializeChatElements();
+  }
+
   // Rating star selection
   const stars = document.querySelectorAll('.rating-star');
   const ratingValue = document.getElementById('ratingValue');
@@ -1315,6 +1569,310 @@
 
   // Load reviews when page loads
   loadUserReviews();
+
+  // Store current user email for chat
+  let currentUserEmail = null;
+  let currentUserName = null;
+  let chatRefreshInterval;
+
+  // Get user email from session/localStorage
+  function getCurrentUserInfo() {
+    const storedEmail = localStorage.getItem('userEmail');
+    const storedName = localStorage.getItem('userName');
+
+    if (storedEmail) {
+      currentUserEmail = storedEmail;
+      currentUserName = storedName || 'Guest User';
+      return { email: storedEmail, name: storedName };
+    }
+
+    return { email: 'guest@example.com', name: 'Guest User' };
+  }
+
+  getCurrentUserInfo();
+
+  // Display a message in the chat UI
+  function displayMessage(text, sender, timestamp) {
+    const chatMessages = document.querySelector('.chat-messages');
+    const msgDiv = document.createElement('div');
+    const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    msgDiv.className = `chat-message ${sender === 'support' ? 'chat-message-company' : 'chat-message-user'}`;
+    msgDiv.innerHTML = `
+      <div>${text}</div>
+      <div class="chat-message-time">${time}</div>
+    `;
+    chatMessages.appendChild(msgDiv);
+  }
+
+  // Load chat history from Firebase
+  async function loadChatHistoryFromStorage() {
+    try {
+      const userInfo = getCurrentUserInfo();
+      const chatMessages = document.querySelector('.chat-messages');
+
+      const response = await fetch('/api/chat/get-customer-messages');
+      if (response.ok) {
+        const data = await response.json();
+
+        // Keep the initial greeting
+        const initialMsg = chatMessages.querySelector('.chat-message-company');
+        chatMessages.innerHTML = '';
+        if (initialMsg) chatMessages.appendChild(initialMsg);
+
+        // Load messages from Firebase - filter by current user
+        if (data.messages && data.messages.length > 0) {
+          data.messages.forEach(msg => {
+            const isCurrentUser = msg.user_email === userInfo.email;
+            const isAdminReply = msg.sender_type === 'admin';
+            const isTargetedToUser = msg.target_user_email === userInfo.email || !msg.target_user_email;
+            const isGuestUser = userInfo.email === 'guest@example.com';
+
+            if (isCurrentUser || (isAdminReply && isTargetedToUser) || isGuestUser) {
+              displayMessage(msg.message, msg.sender_type === 'admin' ? 'support' : 'user', msg.created_at);
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    }
+
+    // Update counter
+    const chatMessages = document.querySelector('.chat-messages');
+    const messageCount = chatMessages.children.length;
+    document.querySelector('.chat-counter').textContent = `${messageCount} of ${messageCount}`;
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Send message handler
+  function sendMessage() {
+    const chatInput = document.querySelector('.chat-input');
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
+
+    // Display user message immediately
+    displayMessage(messageText, 'user', new Date().toISOString());
+    chatInput.value = '';
+
+    // Update message counter
+    const chatMessages = document.querySelector('.chat-messages');
+    let messageCount = chatMessages.children.length;
+    document.querySelector('.chat-counter').textContent = `${messageCount} of ${messageCount}`;
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Send to backend
+    const userInfo = getCurrentUserInfo();
+    fetch('/api/chat/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: messageText,
+        email: userInfo.email,
+        name: userInfo.name
+      })
+    }).then(response => {
+      if (response.ok) {
+        console.log('✓ Message sent to support team');
+        // Show response after 2 seconds
+        setTimeout(() => {
+          const supportResponse = 'Thank you for your message! Our support team will reply shortly.';
+          displayMessage(supportResponse, 'support', new Date().toISOString());
+
+          messageCount = chatMessages.children.length;
+          document.querySelector('.chat-counter').textContent = `${messageCount} of ${messageCount}`;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 2000);
+      }
+    }).catch(error => {
+      console.error('Error sending message:', error);
+    });
+  }
+
+  // Check if user is logged in
+  function isUserLoggedIn() {
+    const userEmail = localStorage.getItem('userEmail');
+    console.log('User email from localStorage:', userEmail);
+    return userEmail && userEmail !== 'guest@example.com' && userEmail !== null;
+  }
+
+  // Show login required modal
+  function showLoginRequired() {
+    console.log('Showing login required modal');
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'loginOverlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    `;
+
+    // Create modal content
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      background-color: white;
+      border-radius: 12px;
+      padding: 2.5rem;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease-out;
+    `;
+
+    modal.innerHTML = `
+      <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔐</div>
+      <h2 style="color: #003d7a; margin-bottom: 1rem; font-size: 1.6rem; font-weight: bold;">Login Required</h2>
+      <p style="color: #666; margin-bottom: 2rem; line-height: 1.6; font-size: 0.95rem;">
+        Please log in to your account to use the live chat and message sellers.
+      </p>
+      <div style="display: flex; gap: 0.75rem; flex-direction: column;">
+        <button class="loginBtn" onclick="document.getElementById('loginOverlay').remove()" style="
+          background-color: #e9ecef;
+          color: #333;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 6px;
+          font-weight: bold;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        ">
+          Close
+        </button>
+        <button class="loginBtn" onclick="window.location.href='{{ url_for('login') }}'" style="
+          background-color: #003d7a;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 6px;
+          font-weight: bold;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        ">
+          Log In
+        </button>
+      </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+      }
+    });
+
+    // Add hover effects to buttons
+    const buttons = modal.querySelectorAll('button');
+    buttons[0].addEventListener('mouseover', () => buttons[0].style.backgroundColor = '#dee2e6');
+    buttons[0].addEventListener('mouseout', () => buttons[0].style.backgroundColor = '#e9ecef');
+    buttons[1].addEventListener('mouseover', () => buttons[1].style.backgroundColor = '#002d5a');
+    buttons[1].addEventListener('mouseout', () => buttons[1].style.backgroundColor = '#003d7a');
+  }
+
+  // Add animation style
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Attach chat event listeners
+  function attachChatListeners() {
+    if (!chatBtn) return;
+
+    chatBtn.addEventListener('click', () => {
+      console.log('Chat button clicked');
+      const userEmail = localStorage.getItem('userEmail');
+      console.log('User email from storage:', userEmail);
+      console.log('Is logged in:', isUserLoggedIn());
+
+      if (!isUserLoggedIn()) {
+        console.log('User not logged in - showing login modal');
+        alert('Please log in first to use the chat feature');
+        showLoginRequired();
+        return;
+      }
+
+      console.log('User logged in - opening chat');
+      loadChatHistoryFromStorage();
+      chatModal.classList.add('active');
+
+      // Auto-refresh messages every 2 seconds while modal is open
+      if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+      chatRefreshInterval = setInterval(() => {
+        loadChatHistoryFromStorage();
+      }, 2000);
+    });
+
+    chatModalClose.addEventListener('click', () => {
+      chatModal.classList.remove('active');
+      clearInterval(chatRefreshInterval);
+    });
+
+    chatModal.addEventListener('click', (e) => {
+      if (e.target === chatModal) {
+        chatModal.classList.remove('active');
+        clearInterval(chatRefreshInterval);
+      }
+    });
+
+    chatSendBtn.addEventListener('click', sendMessage);
+
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  }
+
+  // Message Seller functionality
+  function messageSellerFromProduct() {
+    if (!isUserLoggedIn()) {
+      showLoginRequired();
+      return;
+    }
+
+    const productName = '{{ product.name }}';
+    const sellerName = '{{ product.seller.name if product.seller else "Seller" }}';
+    const message = `Hi! I'm interested in your "${productName}" product and would like to know more.`;
+
+    // Open chat modal
+    chatBtn.click();
+
+    // Pre-fill message after modal opens
+    setTimeout(() => {
+      chatInput.value = message;
+      chatInput.focus();
+    }, 300);
+  }
 
   // Add to Cart functionality
   const addToCartBtn = document.getElementById('addToCartBtn');
