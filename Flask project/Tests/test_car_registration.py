@@ -94,3 +94,20 @@ class TestCarRegistration(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        def test_empty_fields(self):
+         data = {
+            "make": "",
+            "model": "",
+            "year": "",
+            "license": "",
+            "engine": "",
+            "wheels": ""
+        }
+
+        response = self.client.post(
+            '/api/save_car_registration',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
