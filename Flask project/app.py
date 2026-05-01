@@ -456,5 +456,45 @@ def close_chat(chat_id):
         print(f"Error closing chat: {e}")
         return jsonify({"error": str(e)}), 400
 
+@app.route("/search-results", methods=['GET'])
+def search_results():
+    """Search results page with pagination and filters"""
+    search_query = request.args.get('q', '').strip().lower()
+    page = request.args.get('page', 1, type=int)
+    
+    # Pagination settings
+    items_per_page = 12
+    
+    # Filter products by search query
+    filtered_products = []
+    for product in OFFER_PRODUCTS:
+        if search_query in product.get('name', '').lower():
+            product_copy = product.copy()
+            product_copy['seller'] = _get_seller_for_product(product)
+            filtered_products.append(product_copy)
+    
+    # Calculate pagination
+    total_results = len(filtered_products)
+    total_pages = (total_results + items_per_page - 1) // items_per_page
+    
+    # Ensure page is valid
+    if page < 1:
+        page = 1
+    if page > total_pages and total_pages > 0:
+        page = total_pages
+    
+    # Get items for current page
+    start_idx = (page - 1) * items_per_page
+    end_idx = start_idx + items_per_page
+    paginated_products = filtered_products[start_idx:end_idx]
+    
+    return render_template("search_results.html",
+                         search_query=search_query,
+                         products=paginated_products,
+                         current_page=page,
+                         total_pages=total_pages,
+                         total_results=total_results,
+                         items_per_page=items_per_page)
+
 if __name__ == "__main__":
     app.run(debug=True)
