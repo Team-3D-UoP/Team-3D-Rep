@@ -805,6 +805,11 @@ ADMIN_PASSWORD = "Admin123"
 def login():
     return render_template("login_screen.html")
 
+@app.route("/admin-login", methods=['GET'])
+def admin_login_page():
+    """Admin login page"""
+    return render_template("admin_login_page.html")
+
 @app.route("/api/admin/login", methods=['POST'])
 def admin_login():
     """Admin authentication endpoint"""
