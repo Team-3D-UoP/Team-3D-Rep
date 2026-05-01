@@ -193,7 +193,10 @@
                 <h1>🔐 Admin Dashboard</h1>
                 <p>Logged in as: {{ admin_email }}</p>
             </div>
-            <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="admin-logout-btn" onclick="clearAllChats()" style="background-color: #dc3545;">🗑️ Clear All Chats</button>
+                <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
+            </div>
         </div>
 
         <!-- Welcome Message -->
@@ -286,6 +289,40 @@
                 }).then(() => {
                     window.location.href = '/login';
                 });
+            }
+        }
+
+        // Clear all chats function
+        async function clearAllChats() {
+            if (!confirm('⚠️ Are you sure you want to delete ALL chat messages? This action cannot be undone!')) {
+                return;
+            }
+
+            if (!confirm('This will permanently delete all chat history. Click OK again to confirm.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/chat/clear-all', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    alert('✓ All chats have been cleared');
+                    selectedUserEmail = null;
+                    document.getElementById('selected-user-info').innerHTML = '<strong>Select a user to start chatting</strong>';
+                    loadUsersWithMessages();
+                    loadChatMessages();
+                } else {
+                    alert('Error clearing chats');
+                }
+            } catch (error) {
+                console.error('Error clearing chats:', error);
+                alert('Error clearing chats: ' + error.message);
             }
         }
 
