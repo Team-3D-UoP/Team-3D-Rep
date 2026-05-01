@@ -25,3 +25,39 @@ class TestCarRegistration(unittest.TestCase):
     def test_car_registration_content_type(self):
         response = self.client.get('/car_registration')
         self.assertIn('text/html', response.content_type)
+        def test_valid_car_registration(self):
+         data = {
+            "make": "Toyota",
+            "model": "Corolla",
+            "year": "2025",
+            "license": "ABC123",
+            "engine": "V6",
+            "wheels": "Alloy"
+        }
+
+        response = self.client.post(
+            '/api/save_car_registration',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+    
+
+        def test_valid_car_registration(self):
+         data = {
+            "make": "Toyota",
+            "model": "Corolla",
+            "year": "2025",
+            "license": "ABC123",
+            "engine": "V6",
+            "wheels": "Alloy"
+        }
+
+        response = self.client.post(
+            '/api/save_car_registration',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
