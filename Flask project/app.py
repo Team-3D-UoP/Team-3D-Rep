@@ -1335,6 +1335,84 @@ def my_orders():
                          delivery_orders=delivery_orders,
                          collection_orders=collection_orders)
 
+@app.route("/api/orders/place", methods=['POST'])
+def place_order():
+    """Place an order and save to Firebase"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        data = request.get_json()
+        user_email = session.get('email')
+        user_name = session.get('name')
+
+        order_data = {
+            'user_email': user_email,
+            'user_name': user_name,
+            'items': data.get('items', []),
+            'total': data.get('total', 0),
+            'status': 'pending',
+            'delivery_method': data.get('delivery_method', 'delivery'),
+            'created_at': datetime.utcnow().isoformat()
+        }
+
+        timestamp = int(datetime.utcnow().timestamp() * 1000)
+        url = f"{FIREBASE_DATABASE_URL}/orders/{user_email}/{timestamp}.json"
+
+        response = requests.put(url, json=order_data, timeout=5)
+
+        if response.status_code in [200, 201]:
+            print(f"✓ Order placed by {user_email}")
+            return jsonify({
+                "success": True,
+                "order_id": timestamp,
+                "message": "Order placed successfully!"
+            }), 201
+        else:
+            print(f"⚠ Error saving order: {response.status_code}")
+            return jsonify({"error": "Failed to place order"}), 500
+
+    except Exception as e:
+        print(f"Error placing order: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/orders/user-orders", methods=['GET'])
+def get_user_orders():
+    """Get all orders for logged-in user from Firebase"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        user_email = session.get('email')
+        url = f"{FIREBASE_DATABASE_URL}/orders/{user_email}.json"
+
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            orders_data = response.json()
+            if not orders_data:
+                return jsonify({"success": True, "orders": []}), 200
+
+            # Convert Firebase object to array
+            orders = []
+            for order_id, order_data in orders_data.items():
+                order_data['order_id'] = order_id
+                orders.append(order_data)
+
+            # Sort by created_at descending (newest first)
+            orders.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+
+            return jsonify({
+                "success": True,
+                "orders": orders
+            }), 200
+        else:
+            return jsonify({"success": True, "orders": []}), 200
+
+    except Exception as e:
+        print(f"Error getting user orders: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/personal-details", methods=['GET'])
 def personal_details():
     if not session.get('authenticated'):
