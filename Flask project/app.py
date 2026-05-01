@@ -734,7 +734,7 @@ def save_car_registration():
 
     # TODO: GET USER ID
     try:
-        insert_registered_car(data["make"], data["model"], data["year"], data["license"], data["engine"], data["wheels"], user_id=session.get('user_id'))
+        insert_registered_car(data["make"], data["model"], data["year"], data["license"], data["engine"], data["wheels"], select_user_id(session['email'], session['name'])[0][0])
     except:
        pass
 
@@ -743,10 +743,8 @@ def save_car_registration():
 @app.route("/api/save_part_registration", methods=["POST"])
 def save_part_registration():
     data = request.get_json(silent=True) or {}
-
-    # TODO: GET USER ID FROM ACCOUNTS
     try:
-        insert_registered_part(data["brand"], data["year"], data["part_name"], data["price"], data["description"], data["image"], user_id=None)
+        insert_registered_part(select_user_id(session['email'], session['name'])[0][0], data["brand"], data["year"], data["part_name"], data["price"], data["description"], data["image"])
     except:
        pass
 
