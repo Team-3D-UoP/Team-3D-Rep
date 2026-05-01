@@ -1364,6 +1364,37 @@
 </div>
 
 <script>
+  // Initialize chat elements immediately
+  let chatBtn, chatModal, chatModalClose, chatInput, chatSendBtn;
+
+  function initializeChatElements() {
+    chatBtn = document.getElementById('chatBtn');
+    chatModal = document.getElementById('chatModal');
+    chatModalClose = document.getElementById('chatModalClose');
+    chatInput = document.querySelector('.chat-input');
+    chatSendBtn = document.querySelector('.chat-send-btn');
+
+    console.log('Chat elements initialized:');
+    console.log('chatBtn:', chatBtn);
+    console.log('chatModal:', chatModal);
+    console.log('chatInput:', chatInput);
+    console.log('chatSendBtn:', chatSendBtn);
+
+    // Only attach listeners if all elements exist
+    if (chatBtn && chatModal && chatInput && chatSendBtn && chatModalClose) {
+      attachChatListeners();
+    } else {
+      console.error('Chat elements not found in DOM');
+    }
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeChatElements);
+  } else {
+    initializeChatElements();
+  }
+
   // Rating star selection
   const stars = document.querySelectorAll('.rating-star');
   const ratingValue = document.getElementById('ratingValue');
@@ -1543,13 +1574,6 @@
   let currentUserEmail = null;
   let currentUserName = null;
   let chatRefreshInterval;
-
-  // Get references to chat elements FIRST
-  const chatBtn = document.getElementById('chatBtn');
-  const chatModal = document.getElementById('chatModal');
-  const chatModalClose = document.getElementById('chatModalClose');
-  const chatInput = document.querySelector('.chat-input');
-  const chatSendBtn = document.querySelector('.chat-send-btn');
 
   // Get user email from session/localStorage
   function getCurrentUserInfo() {
@@ -1780,49 +1804,54 @@
   `;
   document.head.appendChild(style);
 
-  chatBtn.addEventListener('click', () => {
-    console.log('Chat button clicked');
-    const userEmail = localStorage.getItem('userEmail');
-    console.log('User email from storage:', userEmail);
-    console.log('Is logged in:', isUserLoggedIn());
+  // Attach chat event listeners
+  function attachChatListeners() {
+    if (!chatBtn) return;
 
-    if (!isUserLoggedIn()) {
-      console.log('User not logged in - showing login modal');
-      alert('Please log in first to use the chat feature');
-      showLoginRequired();
-      return;
-    }
+    chatBtn.addEventListener('click', () => {
+      console.log('Chat button clicked');
+      const userEmail = localStorage.getItem('userEmail');
+      console.log('User email from storage:', userEmail);
+      console.log('Is logged in:', isUserLoggedIn());
 
-    console.log('User logged in - opening chat');
-    loadChatHistoryFromStorage();
-    chatModal.classList.add('active');
+      if (!isUserLoggedIn()) {
+        console.log('User not logged in - showing login modal');
+        alert('Please log in first to use the chat feature');
+        showLoginRequired();
+        return;
+      }
 
-    // Auto-refresh messages every 2 seconds while modal is open
-    if (chatRefreshInterval) clearInterval(chatRefreshInterval);
-    chatRefreshInterval = setInterval(() => {
+      console.log('User logged in - opening chat');
       loadChatHistoryFromStorage();
-    }, 2000);
-  });
+      chatModal.classList.add('active');
 
-  chatModalClose.addEventListener('click', () => {
-    chatModal.classList.remove('active');
-    clearInterval(chatRefreshInterval);
-  });
+      // Auto-refresh messages every 2 seconds while modal is open
+      if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+      chatRefreshInterval = setInterval(() => {
+        loadChatHistoryFromStorage();
+      }, 2000);
+    });
 
-  chatModal.addEventListener('click', (e) => {
-    if (e.target === chatModal) {
+    chatModalClose.addEventListener('click', () => {
       chatModal.classList.remove('active');
       clearInterval(chatRefreshInterval);
-    }
-  });
+    });
 
-  chatSendBtn.addEventListener('click', sendMessage);
+    chatModal.addEventListener('click', (e) => {
+      if (e.target === chatModal) {
+        chatModal.classList.remove('active');
+        clearInterval(chatRefreshInterval);
+      }
+    });
 
-  chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
-  });
+    chatSendBtn.addEventListener('click', sendMessage);
+
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  }
 
   // Message Seller functionality
   function messageSellerFromProduct() {
