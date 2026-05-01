@@ -22,18 +22,16 @@
     <section id="burgerMenu">
         <section>
             <p>Jump to another page</p>
-        </section id="headerSection">
             <section id="headerAccounts">
-                <p>Must <a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('register') }}">Register</a></p>
+                <p>Must be logged in</p>
                 <p><a href="{{ url_for('account') }}">Account</a></p>
                 {% if session.get('authenticated') %}
                 <p><a href="{{ url_for('view_cart') }}">Shopping Cart</a></p>
                 {% endif %}
                 <p><a href="{{ url_for('my_orders') }}">Orders</a></p>
+                <p><a href="{{ url_for('car_registration_screen') }}">Car Registration</a></p>
+                <p><a href="{{ url_for('part_registration_screen') }}">Part Registration</a></p>
             </section>
-            
-            <p><a href="{{ url_for('car_registration_screen') }}">Car Registration</a></p>
-            <p><a href="{{ url_for('part_registration_screen') }}">Part Registration</a></p>
         </section>
     </section>
 </section>
