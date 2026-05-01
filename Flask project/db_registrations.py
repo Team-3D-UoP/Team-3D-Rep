@@ -4,7 +4,7 @@ from pathlib import Path
 from flask import session
 from datetime import datetime
 
-db_path = "database.db"
+db_path = os.path.join(os.path.dirname(__file__), '../database.db')
 
 def select_user_id(email, username):
     conn = sqlite3.connect(db_path)
