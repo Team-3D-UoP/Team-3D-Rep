@@ -409,9 +409,9 @@ class ProductSearchFilter {
             viewAllBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // Just focus on the search and apply filters
-                this.applyFiltersAndSearch();
-                this.hideLiveSearchDropdown();
+                // Redirect to search results page with the search query
+                const encodedQuery = encodeURIComponent(this.searchTerm);
+                window.location.href = `/search-results?q=${encodedQuery}`;
             });
         }
     }
