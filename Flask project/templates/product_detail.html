@@ -1670,7 +1670,89 @@
   const chatInput = document.querySelector('.chat-input');
   const chatSendBtn = document.querySelector('.chat-send-btn');
 
+  // Check if user is logged in
+  function isUserLoggedIn() {
+    const userEmail = localStorage.getItem('userEmail');
+    return userEmail && userEmail !== 'guest@example.com';
+  }
+
+  // Show login required modal
+  function showLoginRequired() {
+    const loginModal = document.createElement('div');
+    loginModal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    `;
+
+    loginModal.innerHTML = `
+      <div style="
+        background-color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      ">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">🔐</div>
+        <h2 style="color: #003d7a; margin-bottom: 1rem; font-size: 1.5rem;">Login Required</h2>
+        <p style="color: #666; margin-bottom: 1.5rem; line-height: 1.6;">
+          Please log in to your account to use the live chat and message sellers.
+        </p>
+        <div style="display: flex; gap: 1rem;">
+          <button onclick="this.closest('div').parentElement.remove()" style="
+            flex: 1;
+            background-color: #e9ecef;
+            color: #333;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+          " onmouseover="this.style.backgroundColor='#dee2e6'" onmouseout="this.style.backgroundColor='#e9ecef'">
+            Close
+          </button>
+          <button onclick="window.location.href='{{ url_for('login') }}'" style="
+            flex: 1;
+            background-color: #003d7a;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+          " onmouseover="this.style.backgroundColor='#002d5a'" onmouseout="this.style.backgroundColor='#003d7a'">
+            Log In
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(loginModal);
+
+    // Close modal when clicking outside
+    loginModal.addEventListener('click', (e) => {
+      if (e.target === loginModal) {
+        loginModal.remove();
+      }
+    });
+  }
+
   chatBtn.addEventListener('click', () => {
+    if (!isUserLoggedIn()) {
+      showLoginRequired();
+      return;
+    }
+
     loadChatHistoryFromStorage();
     chatModal.classList.add('active');
 
@@ -1703,11 +1785,8 @@
 
   // Message Seller functionality
   function messageSellerFromProduct() {
-    const userLoggedIn = '{{ session.get("user_id") }}' !== '';
-
-    if (!userLoggedIn) {
-      alert('Please log in to message the seller.');
-      window.location.href = '{{ url_for("login") }}';
+    if (!isUserLoggedIn()) {
+      showLoginRequired();
       return;
     }
 
