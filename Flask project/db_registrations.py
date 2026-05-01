@@ -4,19 +4,49 @@ from pathlib import Path
 from flask import session
 from datetime import datetime
 
-db_path = os.path.join(os.path.dirname(__file__), '../database.db')
+db_path = "database.db"
 
-def insert_registered_part(brand, year, part_name, price, description, image=None, user_id=None):
-    # Get the currently logged-in user ID from session if not provided
-    user_id = 1
+def select_user_id(email, username):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        'SELECT UserID FROM Users WHERE email = ? AND username = ?',
+        (email, username)
+    )
+    output = cursor.fetchall()
+    print(output)
+    conn.close()
     
-    if not user_id:
-        return {
-            'success': False,
-            'message': 'User not logged in',
-            'part_id': None
-        }
+    return output
+
+def insert_new_user(email, username):
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO Users (email, username)
+            VALUES (?, ?)
+        ''', (email, username))
+        
+        conn.commit()
+
+        cursor.execute(
+            'SELECT * FROM Users WHERE email = ? AND username = ?',
+            (email, username)
+        )
+        print(cursor.fetchall())
+
+        conn.close()
     
+    except sqlite3.IntegrityError as e:
+        print(f"Database integrity error: {str(e)}")
+    
+    except Exception as e:
+        print(f"Error inserting user: {str(e)}")
+
+def insert_registered_part(user_id, brand, year, part_name, price, description, image):
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
