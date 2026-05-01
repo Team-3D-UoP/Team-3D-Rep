@@ -310,59 +310,15 @@
             
             <!-- Delivery Tab -->
             <div id="delivery" class="tab-content active">
-                <div class="orders-table">
-                    <div class="table-header">
-                        <div>Order number</div>
-                        <div>Order placed</div>
-                        <div>Total</div>
-                        <div>Status</div>
-                    </div>
-                    {% if delivery_orders %}
-                        {% for order in delivery_orders %}
-                        <div class="table-row">
-                            <div class="table-cell">#{{ order.order_number }}</div>
-                            <div class="table-cell">{{ order.order_date }}</div>
-                            <div class="table-cell">£{{ order.total }}</div>
-                            <div class="table-cell">
-                                <span class="status-badge status-{{ order.status | lower }}">{{ order.status }}</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📦</div>
-                        <p>No delivery orders found</p>
-                    </div>
-                    {% endif %}
+                <div class="orders-table" id="deliveryOrders">
+                    <div style="padding: 30px; text-align: center; color: #666;">Loading orders...</div>
                 </div>
             </div>
-            
+
             <!-- Collection Tab -->
             <div id="collection" class="tab-content">
-                <div class="orders-table">
-                    <div class="table-header">
-                        <div>Order number</div>
-                        <div>Order placed</div>
-                        <div>Total</div>
-                        <div>Status</div>
-                    </div>
-                    {% if collection_orders %}
-                        {% for order in collection_orders %}
-                        <div class="table-row">
-                            <div class="table-cell">#{{ order.order_number }}</div>
-                            <div class="table-cell">{{ order.order_date }}</div>
-                            <div class="table-cell">£{{ order.total }}</div>
-                            <div class="table-cell">
-                                <span class="status-badge status-{{ order.status | lower }}">{{ order.status }}</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📦</div>
-                        <p>No collection orders found</p>
-                    </div>
-                    {% endif %}
+                <div class="orders-table" id="collectionOrders">
+                    <div style="padding: 30px; text-align: center; color: #666;">No collection orders yet</div>
                 </div>
             </div>
         </div>
