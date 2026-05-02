@@ -467,7 +467,7 @@
 
             container.innerHTML = products.map(product => `
                 <div class="product-card" data-product-id="${product.id}" style="cursor: pointer;">
-                    <div class="product-image">🔧</div>
+                    <div class="product-image">${product.emoji || '🔧'}</div>
                     <div class="product-info">
                         <div class="product-brand">${product.brand}</div>
                         <div class="product-name">${product.name}</div>

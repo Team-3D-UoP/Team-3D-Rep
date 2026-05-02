@@ -834,7 +834,11 @@
   <div class="product-grid">
     <div class="product-image-section">
       <div class="product-image-main">
-        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+        {% if product.emoji %}
+          <div style="font-size: 8rem; text-align: center; line-height: 1;">{{ product.emoji }}</div>
+        {% else %}
+          <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+        {% endif %}
       </div>
     </div>
 
