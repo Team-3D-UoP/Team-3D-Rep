@@ -3,22 +3,1162 @@
 {% block title %}Home - Team 3D{% endblock %}
 
 {% block content %}
-<!-- Include styles -->
-{% include "assets/homepage_styles.html" %}
+<style>
+  body {
+    background-color: #f0f0f0;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .account-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .account-btn:hover {
+    background-color: #002d5a;
+  }
+  
+  .content-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    .content-card {
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+  }
+  
+  .heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    flex-wrap: wrap;
+  }
+  
+  .checkmark {
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .car-model {
+    font-weight: bold;
+  }
+  
+  .change-link {
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-left: auto;
+  }
+  
+  .change-link:hover {
+    text-decoration: underline;
+  }
+  
+  .view-all-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  
+  .view-all-btn:hover {
+    background-color: #002d5a;
+  }
+  
+  @media (max-width: 768px) {
+    .heading-row {
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+    
+    .view-all-btn {
+      width: 100%;
+      text-align: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
+    
+    .product-card {
+      height: 160px;
+      width: 110px;
+      min-width: 110px;
+      padding: 0.75rem;
+    }
+    
+    .product-image {
+      width: 70px;
+      height: 70px;
+    }
+  }
+  
+  .products-grid {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  
+  .product-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    height: 160px;
+    width: 110px;
+    min-width: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  
+  .product-image {
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+    margin-bottom: 0.35rem;
+  }
+  
+  .product-name {
+    font-size: 0.75rem;
+    color: #003d7a;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  
+  .trending-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .trending-heading {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #003d7a;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .promo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  
+  .promo-card {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    border-radius: 8px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .promo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  }
+  
+  .promo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 768px) {
+    .promo-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+    
+    .promo-card {
+      height: 100px;
+    }
+  }
+  
+  .offers-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .offers-heading {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #003d7a;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .offers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .offer-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    padding: 1rem;
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  .offer-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  
+  .offer-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background-color: #dc3545;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    z-index: 1;
+  }
+  
+  .offer-heart {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 1;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.2));
+  }
+  
+  .offer-image {
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  
+  .offer-name {
+    font-size: 0.9rem;
+    color: #003d7a;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+  }
+  
+  .offer-pricing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .offer-old-price {
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: line-through;
+  }
+  
+  .offer-discount {
+    font-size: 0.75rem;
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .offer-current-price {
+    font-size: 1rem;
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .offer-shop-link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .offer-shop-link:hover {
+    color: #0056b3;
+  }
+  
+  .offer-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .section-heading {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #003d7a;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+  }
+  
+  @media (max-width: 1024px) {
+    .offers-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .offers-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .reviews-section {
+    background-color: #e3f2fd;
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    margin-top: 2rem;
+  }
+  
+  .reviews-heading {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #003d7a;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .review-summary {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .review-summary-text {
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .review-stars {
+    color: #ffc107;
+    font-size: 1rem;
+    margin: 0 0.5rem;
+    letter-spacing: 0.2rem;
+  }
+  
+  .review-score {
+    font-weight: bold;
+    color: #003d7a;
+  }
+  
+  .review-count {
+    font-weight: bold;
+    color: #666;
+  }
+  
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .review-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .review-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  
+  .review-name {
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: #003d7a;
+  }
+  
+  .review-time {
+    font-size: 0.75rem;
+    color: #999;
+  }
+  
+  .review-badge {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .review-rating {
+    color: #ffc107;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.1rem;
+  }
+  
+  .review-text {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.4;
+  }
+  
+  @media (max-width: 1024px) {
+    .reviews-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .reviews-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .reviews-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .review-arrow {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+  }
+  
+  .review-arrow:hover {
+    background-color: #002d5a;
+  }
+  
+  .review-arrow-prev {
+    order: -1;
+  }
+  
+  .review-arrow-next {
+    order: 1;
+  }
+  
+  .reviews-grid-wrapper {
+    flex: 1;
+  }
+  
+  @media (max-width: 1200px) {
+    .reviews-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .reviews-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .review-arrow {
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
+    }
+    
+    .reviews-container {
+      gap: 0.5rem;
+    }
+  }
 
-<!-- Popular Parts Section -->
-{% include "components/popular_parts.html" %}
+  .search-filter-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    align-items: center;
+  }
 
-<!-- Trending Section -->
-{% include "components/trending_section.html" %}
+  .search-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-<!-- Offers Section -->
-{% include "components/offers_section.html" %}
+  .search-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+  }
 
-<!-- Reviews Section -->
-{% include "components/reviews_section.html" %}
+  .search-input:focus {
+    outline: none;
+    border-color: #003d7a;
+    box-shadow: 0 0 4px rgba(0, 61, 122, 0.2);
+  }
 
-<!-- Chat Button and Modal -->
+  .search-icon {
+    color: #666;
+    font-size: 1.1rem;
+  }
+
+  .clear-btn {
+    background-color: #e9ecef;
+    color: #666;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .clear-btn:hover {
+    background-color: #dee2e6;
+  }
+
+  @media (max-width: 768px) {
+    .search-filter-container {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .search-input-wrapper {
+      width: 100%;
+    }
+
+    .search-input {
+      padding: 0.6rem;
+      font-size: 0.9rem;
+    }    .clear-btn {
+      width: 100%;
+    }
+  }
+
+  /* Search Dropdown Menu Styles */
+  .search-filters-btn {
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .search-filters-btn:hover {
+    background-color: #002d5a;
+  }
+
+  .search-filters-btn.active {
+    background-color: #002d5a;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .filters-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 6px 6px 6px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 280px;
+    max-height: 400px;
+    overflow-y: auto;
+    animation: slideDown 0.2s ease-out;
+  }
+
+  .filters-dropdown.active {
+    display: block;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .filter-section {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .filter-section:last-child {
+    border-bottom: none;
+  }
+
+  .filter-title {
+    font-weight: 600;
+    color: #003d7a;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .filter-option:hover {
+    background-color: #f0f0f0;
+  }
+
+  .filter-option input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: #003d7a;
+  }
+
+  .filter-option input[type="radio"] {
+    cursor: pointer;
+    accent-color: #003d7a;
+  }
+
+  .filter-option label {
+    flex: 1;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+    user-select: none;
+  }
+
+  .sort-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sort-btn {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .sort-btn:hover {
+    background-color: #e3f2fd;
+    border-color: #003d7a;
+    color: #003d7a;
+  }
+
+  .sort-btn.active {
+    background-color: #003d7a;
+    color: white;
+    border-color: #003d7a;
+  }
+
+  .sort-btn::before {
+    content: '⊗ ';
+    opacity: 0;
+    margin-right: 0.5rem;
+  }
+
+  .sort-btn.active::before {
+    content: '✓ ';
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .filters-dropdown {
+      min-width: 250px;
+    }
+
+    .filter-section {
+      padding: 0.75rem;
+    }
+
+    .filter-title {
+      font-size: 0.85rem;
+    }
+  }
+
+  .chat-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    background-color: #003d7a;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    z-index: 999;
+  }
+
+  .chat-button:hover {
+    background-color: #002d5a;
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 768px) {
+    .chat-button {
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 50px;
+      height: 50px;
+      font-size: 1.2rem;
+    }
+  }
+
+  .chat-modal {
+    display: none;
+    position: fixed;
+    bottom: 5.5rem;
+    right: 2rem;
+    width: 400px;
+    height: 80vh;
+    max-height: 700px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    flex-direction: column;
+    z-index: 998;
+  }
+
+  .chat-modal.active {
+    display: flex;
+  }
+
+  .chat-modal-header {
+    background-color: #0d0d0d;
+    color: white;
+    padding: 1rem;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+  }
+
+  .chat-modal-title {
+    font-weight: bold;
+    font-size: 1rem;
+  }
+
+  .chat-modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .chat-modal-close:hover {
+    color: #999;
+  }
+
+  .chat-modal-body {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .chat-message {
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .chat-message-company {
+    background-color: #f5f5f5;
+    color: #333;
+    align-self: flex-start;
+    max-width: 85%;
+  }
+
+  .chat-message-time {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 0.25rem;
+  }
+
+  .chat-input-section {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 1rem;
+  }
+
+  .chat-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 0.75rem;
+  }
+
+  .chat-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .chat-input:focus {
+    outline: none;
+    border-color: #003d7a;
+  }
+
+  .chat-send-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .chat-send-btn:hover {
+    background-color: #45a049;
+  }
+
+  .chat-counter {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.5rem;
+  }
+
+  .chat-logo {
+    width: 40px;
+    height: 40px;
+    background-color: #dc3545;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  .chat-loading {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #003d7a;
+    border-radius: 50%;
+    animation: chat-blink 1.4s infinite;
+    margin-right: 0.3rem;
+  }
+
+  .chat-loading:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .chat-loading:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes chat-blink {
+    0%, 60%, 100% {
+      opacity: 0.3;
+    }
+    30% {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .chat-message-company {
+      max-width: 100%;
+    }
+  }
+</style>
+
+<div class="page-header">
+  <a href="/login" class="account-btn">👤 Account</a>
+</div>
+
+<div class="content-card">
+  <div class="heading-row">
+    <span>Popular parts for your <span class="checkmark">✓</span> <span class="car-model">Peugeot 2008 2018</span> <a href="#" class="change-link">Change</a></span>
+    <button class="view-all-btn">View All Parts</button>
+  </div>
+  
+  <div class="products-grid">
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/car-battery.png') }}" alt="Car Battery" class="product-image">
+      <div class="product-name">Car Battery</div>
+    </div>
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/brake-disc.png') }}" alt="Brake Pads" class="product-image">
+      <div class="product-name">Brake Pads</div>
+    </div>
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/oil-filter.png') }}" alt="Oil Filter" class="product-image">
+      <div class="product-name">Oil Filter</div>
+    </div>
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/headlight.png') }}" alt="Headlights" class="product-image">
+      <div class="product-name">Headlights</div>
+    </div>
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/filter.png') }}" alt="Air Filter" class="product-image">
+      <div class="product-name">Air Filter</div>
+    </div>
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/windshield-wiper.png') }}" alt="Windshield Wiper" class="product-image">
+      <div class="product-name">Windshield Wiper</div>
+    </div>
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/exhaust.png') }}" alt="Exhaust" class="product-image">
+      <div class="product-name">Exhaust</div>
+    </div>
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/reduced.png') }}" alt="Engine" class="product-image">
+      <div class="product-name">Engine</div>
+    </div>
+    <div class="product-card">
+      <img src="{{ url_for('static', filename='images/tyre.png') }}" alt="Tyre" class="product-image">
+      <div class="product-name">Tyre</div>
+    </div>
+  </div>
+  
+  <div class="trending-section">
+    <h2 class="trending-heading">Top Trending</h2>
+    
+    <div class="promo-grid">
+      <div class="promo-card">
+        <img src="{{ url_for('static', filename='images/25-percent.png') }}" alt="25% Off" class="promo-image">
+      </div>
+      <div class="promo-card">
+        <img src="{{ url_for('static', filename='images/car-sales.png') }}" alt="Car Sales" class="promo-image">
+      </div>
+      <div class="promo-card">
+        <img src="{{ url_for('static', filename='images/discount.png') }}" alt="Discount" class="promo-image">
+      </div>
+    </div>
+  </div>
+    <div class="offers-section">
+    <h2 class="section-heading">Latest Offers & Top Sellers</h2>
+
+    <div class="offers-grid">
+      {% for product in offer_products %}
+      <div class="offer-card">
+        <span class="offer-badge">-{{ product.discount_percent }}%</span>
+        <span class="offer-heart">♡</span>
+        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="offer-image">
+        <div class="offer-item">
+          <div class="offer-name">{{ product.name }}</div>
+          <div class="offer-pricing">
+            <span class="offer-old-price">£{{ "%.2f"|format(product.old_price) }}</span>
+            <span class="offer-discount">-{{ product.discount_percent }}%</span>
+            <span class="offer-current-price">£{{ "%.2f"|format(product.current_price) }}</span>
+          </div>
+          <a href="{{ url_for('product_detail', product_id=product.id) }}" class="offer-shop-link">Shop now →</a>
+          
+          {% if product.seller %}
+          <div class="seller-info-divider"></div>
+          <div class="card-seller-info">
+            <div class="card-seller-header">
+              <div class="card-seller-avatar">{{ product.seller.pfp }}</div>
+              <div class="card-seller-details">
+                <div class="card-seller-name">{{ product.seller.name }}</div>
+                <div class="card-seller-rating">{{ '★' * product.seller.rating|int }}{{ '☆' * (5 - product.seller.rating|int) }} ({{ product.seller.reviews }})</div>
+              </div>
+            </div>
+            <div class="card-seller-stats">
+              <div class="card-stat-item">
+                <span class="card-stat-label">Feedback:</span>
+                <span class="card-stat-value">{{ product.seller.positive_feedback }}%</span>
+              </div>
+              <div class="card-stat-item">
+                <span class="card-stat-label">Sold:</span>
+                <span class="card-stat-value">{{ product.seller.products_sold }}</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <div class="reviews-section">
+    <h2 class="reviews-heading">What Buyers and Sellers Think</h2>
+    
+    <div class="review-summary">
+      <div class="review-summary-text">
+        Excellent <span class="review-stars">★★★★★</span> <span class="review-score">4.67</span> based on <span class="review-count">267,420 reviews</span>
+      </div>
+    </div>
+    
+    <div class="reviews-container">
+      <button class="review-arrow review-arrow-prev">‹</button>
+      
+      <div class="reviews-grid-wrapper">
+        <div class="reviews-grid">
+          {% for review in reviews %}
+          <div class="review-card">
+            <div class="review-header">
+              <span class="review-name">{{ review.name }}</span>
+              <span class="review-time">{{ review.time }}</span>
+            </div>
+            <span class="review-badge">✓ Verified Customer</span>
+            <div class="review-rating">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</div>
+            <div class="review-text">{{ review.text }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <button class="review-arrow review-arrow-next">›</button>
+    </div>
+  </div>
+</div>
+
 <button class="chat-button" id="chatBtn" title="Chat with us">💬</button>
 
 <div class="chat-modal" id="chatModal">
@@ -34,7 +1174,7 @@
         <div class="chat-message-time">22:20</div>
       </div>
     </div>
-
+    
     <div class="chat-input-section">
       <label class="chat-label">Message</label>
       <div class="chat-input-group">
@@ -43,12 +1183,181 @@
       </div>
       <div class="chat-counter">1 of 1</div>
     </div>
-
+    
     <div class="chat-logo">3DS</div>
   </div>
 </div>
 
-<!-- Include scripts -->
-{% include "assets/homepage_scripts.html" %}
+<script>
+  // Review carousel functionality
+  let currentReviewIndex = 0;
+  const reviewCards = document.querySelectorAll('.review-card');
+  const totalReviews = reviewCards.length;
+  let autoRotateInterval;
+  
+  function getReviewsPerPage() {
+    if (window.innerWidth >= 1200) return 4;
+    if (window.innerWidth >= 768) return 2;
+    return 1;
+  }
+  
+  function showReviews() {
+    const reviewsPerPage = getReviewsPerPage();
+    reviewCards.forEach((card, index) => {
+      card.style.display = 'none';
+    });
+    
+    for (let i = 0; i < reviewsPerPage && currentReviewIndex + i < totalReviews; i++) {
+      reviewCards[currentReviewIndex + i].style.display = 'block';
+    }
+  }
+  
+  function nextReview() {
+    const reviewsPerPage = getReviewsPerPage();
+    currentReviewIndex = (currentReviewIndex + reviewsPerPage) % totalReviews;
+    showReviews();
+  }
+  
+  function prevReview() {
+    const reviewsPerPage = getReviewsPerPage();
+    currentReviewIndex = (currentReviewIndex - reviewsPerPage + totalReviews) % totalReviews;
+    showReviews();
+  }
+  
+  function startAutoRotate() {
+    autoRotateInterval = setInterval(nextReview, 4000);
+  }
+  
+  function resetAutoRotate() {
+    clearInterval(autoRotateInterval);
+    startAutoRotate();
+  }
+  
+  document.querySelector('.review-arrow-prev').addEventListener('click', () => {
+    prevReview();
+    resetAutoRotate();
+  });
+  
+  document.querySelector('.review-arrow-next').addEventListener('click', () => {
+    nextReview();
+    resetAutoRotate();
+  });
+  
+  window.addEventListener('resize', () => {
+    showReviews();
+  });
+  
+  showReviews();
+  startAutoRotate();  // Chat modal functionality with localStorage persistence
+  const chatBtn = document.getElementById('chatBtn');
+  const chatModal = document.getElementById('chatModal');
+  const chatModalClose = document.getElementById('chatModalClose');
+  const chatInput = document.querySelector('.chat-input');
+  const chatSendBtn = document.querySelector('.chat-send-btn');
+  const chatMessages = document.querySelector('.chat-messages');
+  const chatCounter = document.querySelector('.chat-counter');
+  const CHAT_STORAGE_KEY = 'modal_chat_history';
+
+  // Display a message in the chat UI
+  function displayMessage(text, sender, timestamp) {
+    const msgDiv = document.createElement('div');
+    const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    msgDiv.className = `chat-message ${sender === 'support' ? 'chat-message-company' : 'chat-message-user'}`;
+    msgDiv.innerHTML = `
+      <div>${text}</div>
+      <div class="chat-message-time">${time}</div>
+    `;
+    chatMessages.appendChild(msgDiv);
+  }
+
+  // Load chat history from localStorage on modal open
+  function loadChatHistoryFromStorage() {
+    const history = localStorage.getItem(CHAT_STORAGE_KEY);
+    
+    // Clear existing messages except the initial greeting
+    const initialMsg = chatMessages.querySelector('.chat-message-company');
+    chatMessages.innerHTML = '';
+    if (initialMsg) chatMessages.appendChild(initialMsg);
+
+    // Load messages from localStorage
+    if (history) {
+      const messages = JSON.parse(history);
+      messages.forEach(msg => {
+        displayMessage(msg.text, msg.sender, msg.timestamp);
+      });
+    }
+
+    // Update counter
+    const messageCount = chatMessages.children.length;
+    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Save message to localStorage
+  function saveChatMessage(text, sender) {
+    const timestamp = new Date().toISOString();
+    const message = { text, sender, timestamp };
+
+    // Save to localStorage
+    let history = localStorage.getItem(CHAT_STORAGE_KEY);
+    history = history ? JSON.parse(history) : [];
+    history.push(message);
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(history));
+  }
+
+  // Send message handler
+  function sendMessage() {
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
+
+    // Display and save user message
+    displayMessage(messageText, 'user', new Date().toISOString());
+    saveChatMessage(messageText, 'user');
+    chatInput.value = '';
+
+    // Update message counter
+    const messageCount = chatMessages.children.length;
+    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Simulate support response after 2 seconds
+    setTimeout(() => {
+      const supportResponse = 'Thank you for your message! A support representative will get back to you shortly.';
+      displayMessage(supportResponse, 'support', new Date().toISOString());
+      saveChatMessage(supportResponse, 'support');
+      
+      const messageCount = chatMessages.children.length;
+      chatCounter.textContent = `${messageCount} of ${messageCount}`;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 2000);
+  }
+
+  chatBtn.addEventListener('click', () => {
+    loadChatHistoryFromStorage();
+    chatModal.classList.add('active');
+  });
+
+  chatModalClose.addEventListener('click', () => {
+    chatModal.classList.remove('active');
+  });
+
+  chatModal.addEventListener('click', (e) => {
+    if (e.target === chatModal) {
+      chatModal.classList.remove('active');
+    }
+  });
+
+  chatSendBtn.addEventListener('click', sendMessage);
+  
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+</script>
 
 {% endblock %}
