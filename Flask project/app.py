@@ -305,8 +305,11 @@ def home():
 
 @app.route("/product/<int:product_id>", methods=['GET'])
 def product_detail(product_id):
-    # Find the product by ID
+    # Find the product by ID - check both TEST_PRODUCTS (search) and OFFER_PRODUCTS (homepage)
     product = next((p for p in TEST_PRODUCTS if p['id'] == product_id), None)
+
+    if not product:
+        product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
 
     if not product:
         return "Product not found", 404

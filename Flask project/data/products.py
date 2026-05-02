@@ -2,7 +2,7 @@
 
 OFFER_PRODUCTS = [
     {
-        "id": 1,
+        "id": 1001,
         "name": "Pressure Washer",
         "image": "car.png",
         "old_price": 89.99,
@@ -10,7 +10,7 @@ OFFER_PRODUCTS = [
         "current_price": 71.99
     },
     {
-        "id": 2,
+        "id": 1002,
         "name": "Car Cleaning Kit",
         "image": "tire.png",
         "old_price": 34.50,
@@ -18,7 +18,7 @@ OFFER_PRODUCTS = [
         "current_price": 25.87
     },
     {
-        "id": 3,
+        "id": 1003,
         "name": "Oil Filter",
         "image": "oil-filter.png",
         "old_price": 18.99,
@@ -26,7 +26,7 @@ OFFER_PRODUCTS = [
         "current_price": 16.14
     },
     {
-        "id": 4,
+        "id": 1004,
         "name": "Air Freshener Pack",
         "image": "freshener.png",
         "old_price": 12.00,
@@ -34,7 +34,7 @@ OFFER_PRODUCTS = [
         "current_price": 8.40
     },
     {
-        "id": 5,
+        "id": 1005,
         "name": "Roof Bars Set",
         "image": "bars.png",
         "old_price": 125.00,
@@ -42,7 +42,7 @@ OFFER_PRODUCTS = [
         "current_price": 100.00
     },
     {
-        "id": 6,
+        "id": 1006,
         "name": "Engine Oil 5L",
         "image": "engine-oil.png",
         "old_price": 32.50,
@@ -50,7 +50,7 @@ OFFER_PRODUCTS = [
         "current_price": 24.37
     },
     {
-        "id": 7,
+        "id": 1007,
         "name": "Wiper Blades Pair",
         "image": "windshield-wiper.png",
         "old_price": 19.99,
@@ -58,7 +58,7 @@ OFFER_PRODUCTS = [
         "current_price": 16.99
     },
     {
-        "id": 8,
+        "id": 1008,
         "name": "Car Battery 12V",
         "image": "car-battery.png",
         "old_price": 67.50,
@@ -66,7 +66,7 @@ OFFER_PRODUCTS = [
         "current_price": 54.00
     },
     {
-        "id": 9,
+        "id": 1009,
         "name": "Headlight Bulbs Kit",
         "image": "headlight.png",
         "old_price": 24.00,
@@ -74,7 +74,7 @@ OFFER_PRODUCTS = [
         "current_price": 18.00
     },
     {
-        "id": 10,
+        "id": 1010,
         "name": "Brake Pads Set",
         "image": "brake-disc.png",
         "old_price": 45.00,
@@ -82,7 +82,7 @@ OFFER_PRODUCTS = [
         "current_price": 31.50
     },
     {
-        "id": 11,
+        "id": 1011,
         "name": "Car Polish & Wax",
         "image": "car-polish.png",
         "old_price": 22.00,
@@ -90,7 +90,7 @@ OFFER_PRODUCTS = [
         "current_price": 17.60
     },
     {
-        "id": 12,
+        "id": 1012,
         "name": "Portable Tyre Inflator",
         "image": "car (1).png",
         "old_price": 38.00,
@@ -98,7 +98,7 @@ OFFER_PRODUCTS = [
         "current_price": 28.50
     },
     {
-        "id": 13,
+        "id": 1013,
         "name": "Windscreen Wash 5L",
         "image": "windshield-wiper.png",
         "old_price": 12.50,
@@ -106,7 +106,7 @@ OFFER_PRODUCTS = [
         "current_price": 8.75
     },
     {
-        "id": 14,
+        "id": 1014,
         "name": "Portable Jump Starter",
         "image": "disk-key.png",
         "old_price": 79.99,
@@ -114,7 +114,7 @@ OFFER_PRODUCTS = [
         "current_price": 63.99
     },
     {
-        "id": 15,
+        "id": 1015,
         "name": "Car Tool Kit 50pc",
         "image": "wrench.png",
         "old_price": 65.00,
