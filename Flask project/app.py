@@ -1,5 +1,4 @@
 import os
-import random
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 from data.products import OFFER_PRODUCTS
@@ -11,7 +10,6 @@ import base64
 import firebase_admin
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
-import db_chatManager
 from datetime import datetime
 import requests
 from models import db, ProductReview, SellerReview, CartItem, Part, User, ChatMessage
@@ -939,7 +937,7 @@ def dashboard_carts():
 
 # Chat API Endpoints (Using Firebase for real-time sync across computers)
 @app.route("/api/chat/send", methods=['POST'])
-def send_chat_message_firebase():
+def send_chat_message():
     """Send a chat message from customer"""
     try:
         print("📨 Chat send request received")
@@ -1499,167 +1497,6 @@ def save_part_registration():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to save part"}), 500
-
-# ==================== LIVE CHAT SUPPORT ENDPOINTS ====================
-
-@app.route("/api/chat/create_session", methods=['POST'])
-def create_chat_session():
-    """Create or get a chat session for the user"""
-    if 'user_id' not in session:
-        return jsonify({"error": "User not authenticated"}), 401
-    
-    chat_id = db_chatManager.create_or_get_chat_session(
-        user_id=session.get('user_id'),
-        username=session.get('name', 'Anonymous'),
-        email=session.get('email', '')
-    )
-    
-    return jsonify({"chat_id": chat_id}), 200
-
-@app.route("/api/chat/<int:chat_id>/send", methods=['POST'])
-def send_chat_message(chat_id):
-    """Send a message in a chat"""
-    if 'user_id' not in session:
-        return jsonify({"error": "User not authenticated"}), 401
-    
-    data = request.get_json(silent=True)
-    message = data.get('message', '').strip() if data else ''
-    
-    if not message:
-        return jsonify({"error": "Message cannot be empty"}), 400
-    
-    try:
-        message_id = db_chatManager.send_message(
-            chat_id=chat_id,
-            sender_id=session.get('user_id'),
-            sender_type='user',
-            message=message
-        )
-        
-        return jsonify({
-            "success": True,
-            "message_id": message_id,
-            "message": message
-        }), 200
-    except Exception as e:
-        print(f"Error sending message: {e}")
-        return jsonify({"error": str(e)}), 400
-
-@app.route("/api/chat/<int:chat_id>/messages", methods=['GET'])
-def get_chat_messages_api(chat_id):
-    """Get all messages from a chat"""
-    if 'user_id' not in session:
-        return jsonify({"error": "User not authenticated"}), 401
-    
-    try:
-        messages = db_chatManager.get_chat_messages(chat_id)
-        return jsonify({"messages": messages}), 200
-    except Exception as e:
-        print(f"Error fetching messages: {e}")
-        return jsonify({"error": str(e)}), 400
-
-@app.route("/support", methods=['GET'])
-def support_dashboard():
-    """Support agent dashboard"""
-    sessions = db_chatManager.get_all_chat_sessions()
-    return render_template("support_dashboard.html", chat_sessions=sessions)
-
-@app.route("/support/chat/<int:chat_id>", methods=['GET'])
-def support_chat_view(chat_id):
-    """Support agent view for a specific chat"""
-    chat_info = db_chatManager.get_chat_session_info(chat_id)
-    if not chat_info:
-        return "Chat not found", 404
-    
-    db_chatManager.mark_messages_as_read(chat_id)
-    messages = db_chatManager.get_chat_messages(chat_id)
-    return render_template("support_chat.html", chat=chat_info, messages=messages)
-
-@app.route("/api/support/send_message/<int:chat_id>", methods=['POST'])
-def support_send_message(chat_id):
-    """Support agent sends a message"""
-    data = request.get_json(silent=True)
-    message = data.get('message', '').strip() if data else ''
-    
-    if not message:
-        return jsonify({"error": "Message cannot be empty"}), 400
-    
-    try:
-        message_id = db_chatManager.send_message(
-            chat_id=chat_id,
-            sender_id='support',
-            sender_type='support',
-            message=message
-        )
-        
-        return jsonify({
-            "success": True,
-            "message_id": message_id,
-            "message": message
-        }), 200
-    except Exception as e:
-        print(f"Error sending support message: {e}")
-        return jsonify({"error": str(e)}), 400
-
-@app.route("/api/support/sessions", methods=['GET'])
-def get_all_sessions():
-    """Get all chat sessions for support dashboard (AJAX)"""
-    try:
-        sessions = db_chatManager.get_all_chat_sessions()
-        return jsonify({"sessions": sessions}), 200
-    except Exception as e:
-        print(f"Error fetching sessions: {e}")
-        return jsonify({"error": str(e)}), 400
-
-@app.route("/api/support/close_chat/<int:chat_id>", methods=['POST'])
-def close_chat(chat_id):
-    """Close a chat session"""
-    try:
-        db_chatManager.close_chat_session(chat_id)
-        return jsonify({"success": True}), 200
-    except Exception as e:
-        print(f"Error closing chat: {e}")
-        return jsonify({"error": str(e)}), 400
-
-@app.route("/search-results", methods=['GET'])
-def search_results():
-    """Search results page with pagination and filters"""
-    search_query = request.args.get('q', '').strip().lower()
-    page = request.args.get('page', 1, type=int)
-    
-    # Pagination settings
-    items_per_page = 12
-    
-    # Filter products by search query
-    filtered_products = []
-    for product in OFFER_PRODUCTS:
-        if search_query in product.get('name', '').lower():
-            product_copy = product.copy()
-            product_copy['seller'] = _get_seller_for_product(product)
-            filtered_products.append(product_copy)
-    
-    # Calculate pagination
-    total_results = len(filtered_products)
-    total_pages = (total_results + items_per_page - 1) // items_per_page
-    
-    # Ensure page is valid
-    if page < 1:
-        page = 1
-    if page > total_pages and total_pages > 0:
-        page = total_pages
-    
-    # Get items for current page
-    start_idx = (page - 1) * items_per_page
-    end_idx = start_idx + items_per_page
-    paginated_products = filtered_products[start_idx:end_idx]
-    
-    return render_template("search_results.html",
-                         search_query=search_query,
-                         products=paginated_products,
-                         current_page=page,
-                         total_pages=total_pages,
-                         total_results=total_results,
-                         items_per_page=items_per_page)
 
 if __name__ == "__main__":
     app.run(debug=True)
