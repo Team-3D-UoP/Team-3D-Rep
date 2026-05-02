@@ -207,6 +207,89 @@ def _get_reviews_for_seller(seller_id):
     return [REVIEWS_DATA[(offset + i) % n] for i in range(min(4, n))]
 
 
+
+# ============================================================================
+# PRODUCTS DATABASE - Single source of truth for all products (cars + parts)
+# Used by both search_parts() and product_detail() routes
+# ============================================================================
+TEST_PRODUCTS = [
+    # CARS - TOYOTA
+    {'id': 1, 'name': 'Toyota Corolla 2024', 'brand': 'Toyota', 'year': '2024', 'price': 28000, 'description': 'Toyota Corolla 1.8L Hybrid', 'old_price': 30434, 'discount_percent': 8, 'current_price': 28000, 'image': 'product.jpg'},
+    {'id': 2, 'name': 'Toyota Corolla 2025', 'brand': 'Toyota', 'year': '2025', 'price': 29000, 'description': 'Toyota Corolla 2.0L Petrol', 'old_price': 31521, 'discount_percent': 8, 'current_price': 29000, 'image': 'product.jpg'},
+    {'id': 3, 'name': 'Toyota RAV4 2024', 'brand': 'Toyota', 'year': '2024', 'price': 35000, 'description': 'Toyota RAV4 2.5L Hybrid AWD', 'old_price': 38043, 'discount_percent': 8, 'current_price': 35000, 'image': 'product.jpg'},
+    {'id': 4, 'name': 'Toyota RAV4 2025', 'brand': 'Toyota', 'year': '2025', 'price': 36000, 'description': 'Toyota RAV4 2.5L Hybrid', 'old_price': 39130, 'discount_percent': 8, 'current_price': 36000, 'image': 'product.jpg'},
+    # CARS - HONDA
+    {'id': 5, 'name': 'Honda Civic 2024', 'brand': 'Honda', 'year': '2024', 'price': 26000, 'description': 'Honda Civic 2.0L Petrol', 'old_price': 28260, 'discount_percent': 8, 'current_price': 26000, 'image': 'product.jpg'},
+    {'id': 6, 'name': 'Honda Civic 2025', 'brand': 'Honda', 'year': '2025', 'price': 27000, 'description': 'Honda Civic 1.5L Turbo', 'old_price': 29347, 'discount_percent': 8, 'current_price': 27000, 'image': 'product.jpg'},
+    {'id': 7, 'name': 'Honda CR-V 2024', 'brand': 'Honda', 'year': '2024', 'price': 32000, 'description': 'Honda CR-V 2.0L Hybrid', 'old_price': 34782, 'discount_percent': 8, 'current_price': 32000, 'image': 'product.jpg'},
+    {'id': 8, 'name': 'Honda CR-V 2025', 'brand': 'Honda', 'year': '2025', 'price': 33000, 'description': 'Honda CR-V 2.0L Hybrid AWD', 'old_price': 35869, 'discount_percent': 8, 'current_price': 33000, 'image': 'product.jpg'},
+    # CARS - BMW
+    {'id': 9, 'name': 'BMW 3 Series 2024', 'brand': 'BMW', 'year': '2024', 'price': 45000, 'description': 'BMW 3 Series 2.0L Turbo', 'old_price': 48913, 'discount_percent': 8, 'current_price': 45000, 'image': 'product.jpg'},
+    {'id': 10, 'name': 'BMW 3 Series 2025', 'brand': 'BMW', 'year': '2025', 'price': 47000, 'description': 'BMW 3 Series 3.0L Turbo', 'old_price': 51086, 'discount_percent': 8, 'current_price': 47000, 'image': 'product.jpg'},
+    {'id': 11, 'name': 'BMW X5 2024', 'brand': 'BMW', 'year': '2024', 'price': 65000, 'description': 'BMW X5 3.0L Diesel', 'old_price': 70652, 'discount_percent': 8, 'current_price': 65000, 'image': 'product.jpg'},
+    {'id': 12, 'name': 'BMW X5 2025', 'brand': 'BMW', 'year': '2025', 'price': 67000, 'description': 'BMW X5 3.0L Hybrid', 'old_price': 72826, 'discount_percent': 8, 'current_price': 67000, 'image': 'product.jpg'},
+    # CARS - AUDI
+    {'id': 13, 'name': 'Audi A4 2024', 'brand': 'Audi', 'year': '2024', 'price': 42000, 'description': 'Audi A4 2.0L Petrol', 'old_price': 45652, 'discount_percent': 8, 'current_price': 42000, 'image': 'product.jpg'},
+    {'id': 14, 'name': 'Audi A4 2025', 'brand': 'Audi', 'year': '2025', 'price': 44000, 'description': 'Audi A4 2.0L Diesel', 'old_price': 47826, 'discount_percent': 8, 'current_price': 44000, 'image': 'product.jpg'},
+    {'id': 15, 'name': 'Audi Q5 2024', 'brand': 'Audi', 'year': '2024', 'price': 55000, 'description': 'Audi Q5 2.0L Diesel', 'old_price': 59782, 'discount_percent': 8, 'current_price': 55000, 'image': 'product.jpg'},
+    {'id': 16, 'name': 'Audi Q5 2025', 'brand': 'Audi', 'year': '2025', 'price': 57000, 'description': 'Audi Q5 2.0L Hybrid', 'old_price': 61956, 'discount_percent': 8, 'current_price': 57000, 'image': 'product.jpg'},
+    # CARS - MERCEDES
+    {'id': 17, 'name': 'Mercedes C-Class 2024', 'brand': 'Mercedes', 'year': '2024', 'price': 48000, 'description': 'Mercedes C-Class 2.0L Hybrid', 'old_price': 52173, 'discount_percent': 8, 'current_price': 48000, 'image': 'product.jpg'},
+    {'id': 18, 'name': 'Mercedes C-Class 2025', 'brand': 'Mercedes', 'year': '2025', 'price': 50000, 'description': 'Mercedes C-Class 2.0L Petrol', 'old_price': 54347, 'discount_percent': 8, 'current_price': 50000, 'image': 'product.jpg'},
+    {'id': 19, 'name': 'Mercedes GLC 2024', 'brand': 'Mercedes', 'year': '2024', 'price': 58000, 'description': 'Mercedes GLC 2.0L Diesel', 'old_price': 63043, 'discount_percent': 8, 'current_price': 58000, 'image': 'product.jpg'},
+    {'id': 20, 'name': 'Mercedes GLC 2025', 'brand': 'Mercedes', 'year': '2025', 'price': 60000, 'description': 'Mercedes GLC 2.0L Hybrid', 'old_price': 65217, 'discount_percent': 8, 'current_price': 60000, 'image': 'product.jpg'},
+    # CAR PARTS - TOYOTA
+    {'id': 101, 'name': 'Toyota Oil Filter', 'brand': 'Toyota', 'year': '2026', 'price': 27, 'description': 'Toyota oil filter', 'old_price': 30, 'discount_percent': 10, 'current_price': 27, 'image': 'product.jpg'},
+    {'id': 102, 'name': 'Toyota Headlight', 'brand': 'Toyota', 'year': '2024', 'price': 92, 'description': 'Toyota headlight', 'old_price': 102, 'discount_percent': 10, 'current_price': 92, 'image': 'product.jpg'},
+    {'id': 103, 'name': 'Toyota Air Filter', 'brand': 'Toyota', 'year': '2025', 'price': 32, 'description': 'Toyota air filter', 'old_price': 35, 'discount_percent': 10, 'current_price': 32, 'image': 'product.jpg'},
+    {'id': 104, 'name': 'Toyota Windshield Wiper', 'brand': 'Toyota', 'year': '2026', 'price': 21, 'description': 'Toyota wiper', 'old_price': 23, 'discount_percent': 10, 'current_price': 21, 'image': 'product.jpg'},
+    {'id': 105, 'name': 'Toyota Exhaust', 'brand': 'Toyota', 'year': '2024', 'price': 205, 'description': 'Toyota exhaust', 'old_price': 227, 'discount_percent': 10, 'current_price': 205, 'image': 'product.jpg'},
+    {'id': 106, 'name': 'Toyota Engine', 'brand': 'Toyota', 'year': '2025', 'price': 1520, 'description': 'Toyota engine', 'old_price': 1652, 'discount_percent': 8, 'current_price': 1520, 'image': 'product.jpg'},
+    {'id': 107, 'name': 'Toyota Tyres', 'brand': 'Toyota', 'year': '2026', 'price': 410, 'description': 'Toyota tyres', 'old_price': 455, 'discount_percent': 10, 'current_price': 410, 'image': 'product.jpg'},
+    {'id': 108, 'name': 'Toyota Battery', 'brand': 'Toyota', 'year': '2024', 'price': 128, 'description': 'Toyota battery', 'old_price': 142, 'discount_percent': 10, 'current_price': 128, 'image': 'product.jpg'},
+    {'id': 109, 'name': 'Toyota Brake Pads', 'brand': 'Toyota', 'year': '2025', 'price': 63, 'description': 'Toyota brake pads', 'old_price': 70, 'discount_percent': 10, 'current_price': 63, 'image': 'product.jpg'},
+    # HONDA
+    {'id': 141, 'name': 'Honda Oil Filter', 'brand': 'Honda', 'year': '2026', 'price': 25, 'description': 'Honda oil filter', 'old_price': 27, 'discount_percent': 10, 'current_price': 25, 'image': 'product.jpg'},
+    {'id': 142, 'name': 'Honda Headlight', 'brand': 'Honda', 'year': '2024', 'price': 86, 'description': 'Honda headlight', 'old_price': 95, 'discount_percent': 10, 'current_price': 86, 'image': 'product.jpg'},
+    {'id': 143, 'name': 'Honda Air Filter', 'brand': 'Honda', 'year': '2025', 'price': 29, 'description': 'Honda air filter', 'old_price': 32, 'discount_percent': 10, 'current_price': 29, 'image': 'product.jpg'},
+    {'id': 144, 'name': 'Honda Windshield Wiper', 'brand': 'Honda', 'year': '2026', 'price': 19, 'description': 'Honda wiper', 'old_price': 21, 'discount_percent': 10, 'current_price': 19, 'image': 'product.jpg'},
+    {'id': 145, 'name': 'Honda Exhaust', 'brand': 'Honda', 'year': '2024', 'price': 192, 'description': 'Honda exhaust', 'old_price': 213, 'discount_percent': 10, 'current_price': 192, 'image': 'product.jpg'},
+    {'id': 146, 'name': 'Honda Engine', 'brand': 'Honda', 'year': '2025', 'price': 1420, 'description': 'Honda engine', 'old_price': 1543, 'discount_percent': 8, 'current_price': 1420, 'image': 'product.jpg'},
+    {'id': 147, 'name': 'Honda Tyres', 'brand': 'Honda', 'year': '2026', 'price': 385, 'description': 'Honda tyres', 'old_price': 427, 'discount_percent': 10, 'current_price': 385, 'image': 'product.jpg'},
+    {'id': 148, 'name': 'Honda Battery', 'brand': 'Honda', 'year': '2024', 'price': 119, 'description': 'Honda battery', 'old_price': 132, 'discount_percent': 10, 'current_price': 119, 'image': 'product.jpg'},
+    {'id': 149, 'name': 'Honda Brake Pads', 'brand': 'Honda', 'year': '2025', 'price': 61, 'description': 'Honda brake pads', 'old_price': 67, 'discount_percent': 10, 'current_price': 61, 'image': 'product.jpg'},
+    # BMW
+    {'id': 181, 'name': 'BMW Oil Filter', 'brand': 'BMW', 'year': '2026', 'price': 37, 'description': 'BMW oil filter', 'old_price': 41, 'discount_percent': 10, 'current_price': 37, 'image': 'product.jpg'},
+    {'id': 182, 'name': 'BMW Headlight', 'brand': 'BMW', 'year': '2024', 'price': 122, 'description': 'BMW headlight', 'old_price': 135, 'discount_percent': 10, 'current_price': 122, 'image': 'product.jpg'},
+    {'id': 183, 'name': 'BMW Air Filter', 'brand': 'BMW', 'year': '2025', 'price': 41, 'description': 'BMW air filter', 'old_price': 45, 'discount_percent': 10, 'current_price': 41, 'image': 'product.jpg'},
+    {'id': 184, 'name': 'BMW Windshield Wiper', 'brand': 'BMW', 'year': '2026', 'price': 26, 'description': 'BMW wiper', 'old_price': 28, 'discount_percent': 10, 'current_price': 26, 'image': 'product.jpg'},
+    {'id': 185, 'name': 'BMW Exhaust', 'brand': 'BMW', 'year': '2024', 'price': 305, 'description': 'BMW exhaust', 'old_price': 338, 'discount_percent': 10, 'current_price': 305, 'image': 'product.jpg'},
+    {'id': 186, 'name': 'BMW Engine', 'brand': 'BMW', 'year': '2025', 'price': 2550, 'description': 'BMW engine', 'old_price': 2771, 'discount_percent': 8, 'current_price': 2550, 'image': 'product.jpg'},
+    {'id': 187, 'name': 'BMW Tyres', 'brand': 'BMW', 'year': '2026', 'price': 610, 'description': 'BMW tyres', 'old_price': 677, 'discount_percent': 10, 'current_price': 610, 'image': 'product.jpg'},
+    {'id': 188, 'name': 'BMW Battery', 'brand': 'BMW', 'year': '2024', 'price': 158, 'description': 'BMW battery', 'old_price': 175, 'discount_percent': 10, 'current_price': 158, 'image': 'product.jpg'},
+    {'id': 189, 'name': 'BMW Brake Pads', 'brand': 'BMW', 'year': '2025', 'price': 86, 'description': 'BMW brake pads', 'old_price': 95, 'discount_percent': 10, 'current_price': 86, 'image': 'product.jpg'},
+    # AUDI
+    {'id': 221, 'name': 'Audi Oil Filter', 'brand': 'Audi', 'year': '2026', 'price': 35, 'description': 'Audi oil filter', 'old_price': 38, 'discount_percent': 10, 'current_price': 35, 'image': 'product.jpg'},
+    {'id': 222, 'name': 'Audi Headlight', 'brand': 'Audi', 'year': '2024', 'price': 117, 'description': 'Audi headlight', 'old_price': 130, 'discount_percent': 10, 'current_price': 117, 'image': 'product.jpg'},
+    {'id': 223, 'name': 'Audi Air Filter', 'brand': 'Audi', 'year': '2025', 'price': 39, 'description': 'Audi air filter', 'old_price': 43, 'discount_percent': 10, 'current_price': 39, 'image': 'product.jpg'},
+    {'id': 224, 'name': 'Audi Windshield Wiper', 'brand': 'Audi', 'year': '2026', 'price': 25, 'description': 'Audi wiper', 'old_price': 27, 'discount_percent': 10, 'current_price': 25, 'image': 'product.jpg'},
+    {'id': 225, 'name': 'Audi Exhaust', 'brand': 'Audi', 'year': '2024', 'price': 292, 'description': 'Audi exhaust', 'old_price': 324, 'discount_percent': 10, 'current_price': 292, 'image': 'product.jpg'},
+    {'id': 226, 'name': 'Audi Engine', 'brand': 'Audi', 'year': '2025', 'price': 2420, 'description': 'Audi engine', 'old_price': 2630, 'discount_percent': 8, 'current_price': 2420, 'image': 'product.jpg'},
+    {'id': 227, 'name': 'Audi Tyres', 'brand': 'Audi', 'year': '2026', 'price': 585, 'description': 'Audi tyres', 'old_price': 650, 'discount_percent': 10, 'current_price': 585, 'image': 'product.jpg'},
+    {'id': 228, 'name': 'Audi Battery', 'brand': 'Audi', 'year': '2024', 'price': 149, 'description': 'Audi battery', 'old_price': 165, 'discount_percent': 10, 'current_price': 149, 'image': 'product.jpg'},
+    {'id': 229, 'name': 'Audi Brake Pads', 'brand': 'Audi', 'year': '2025', 'price': 81, 'description': 'Audi brake pads', 'old_price': 90, 'discount_percent': 10, 'current_price': 81, 'image': 'product.jpg'},
+    # MERCEDES
+    {'id': 261, 'name': 'Mercedes Oil Filter', 'brand': 'Mercedes', 'year': '2026', 'price': 42, 'description': 'Mercedes oil filter', 'old_price': 46, 'discount_percent': 10, 'current_price': 42, 'image': 'product.jpg'},
+    {'id': 262, 'name': 'Mercedes Headlight', 'brand': 'Mercedes', 'year': '2024', 'price': 132, 'description': 'Mercedes headlight', 'old_price': 146, 'discount_percent': 10, 'current_price': 132, 'image': 'product.jpg'},
+    {'id': 263, 'name': 'Mercedes Air Filter', 'brand': 'Mercedes', 'year': '2025', 'price': 46, 'description': 'Mercedes air filter', 'old_price': 51, 'discount_percent': 10, 'current_price': 46, 'image': 'product.jpg'},
+    {'id': 264, 'name': 'Mercedes Windshield Wiper', 'brand': 'Mercedes', 'year': '2026', 'price': 29, 'description': 'Mercedes wiper', 'old_price': 32, 'discount_percent': 10, 'current_price': 29, 'image': 'product.jpg'},
+    {'id': 265, 'name': 'Mercedes Exhaust', 'brand': 'Mercedes', 'year': '2024', 'price': 325, 'description': 'Mercedes exhaust', 'old_price': 361, 'discount_percent': 10, 'current_price': 325, 'image': 'product.jpg'},
+    {'id': 266, 'name': 'Mercedes Engine', 'brand': 'Mercedes', 'year': '2025', 'price': 2750, 'description': 'Mercedes engine', 'old_price': 2989, 'discount_percent': 8, 'current_price': 2750, 'image': 'product.jpg'},
+    {'id': 267, 'name': 'Mercedes Tyres', 'brand': 'Mercedes', 'year': '2026', 'price': 660, 'description': 'Mercedes tyres', 'old_price': 733, 'discount_percent': 10, 'current_price': 660, 'image': 'product.jpg'},
+    {'id': 268, 'name': 'Mercedes Battery', 'brand': 'Mercedes', 'year': '2024', 'price': 168, 'description': 'Mercedes battery', 'old_price': 186, 'discount_percent': 10, 'current_price': 168, 'image': 'product.jpg'},
+    {'id': 269, 'name': 'Mercedes Brake Pads', 'brand': 'Mercedes', 'year': '2025', 'price': 96, 'description': 'Mercedes brake pads', 'old_price': 106, 'discount_percent': 10, 'current_price': 96, 'image': 'product.jpg'},
+]
+
 @app.route("/", methods=['GET'])
 def home():
     # Assign sellers to each product (deterministic so seller profile matches).
@@ -223,7 +306,7 @@ def home():
 @app.route("/product/<int:product_id>", methods=['GET'])
 def product_detail(product_id):
     # Find the product by ID
-    product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
+    product = next((p for p in TEST_PRODUCTS if p['id'] == product_id), None)
 
     if not product:
         return "Product not found", 404
@@ -1598,86 +1681,10 @@ def search_parts():
     keyword = request.args.get('q', '').lower().strip()
 
     # All cars and parts from database (Toyota, Honda, BMW, Audi, Mercedes)
-    test_parts = [
-        # CARS - TOYOTA
-        {'id': 1, 'name': 'Toyota Corolla 2024', 'brand': 'Toyota', 'year': '2024', 'price': 28000, 'description': 'Toyota Corolla 1.8L Hybrid'},
-        {'id': 2, 'name': 'Toyota Corolla 2025', 'brand': 'Toyota', 'year': '2025', 'price': 29000, 'description': 'Toyota Corolla 2.0L Petrol'},
-        {'id': 3, 'name': 'Toyota RAV4 2024', 'brand': 'Toyota', 'year': '2024', 'price': 35000, 'description': 'Toyota RAV4 2.5L Hybrid AWD'},
-        {'id': 4, 'name': 'Toyota RAV4 2025', 'brand': 'Toyota', 'year': '2025', 'price': 36000, 'description': 'Toyota RAV4 2.5L Hybrid'},
-        # CARS - HONDA
-        {'id': 5, 'name': 'Honda Civic 2024', 'brand': 'Honda', 'year': '2024', 'price': 26000, 'description': 'Honda Civic 2.0L Petrol'},
-        {'id': 6, 'name': 'Honda Civic 2025', 'brand': 'Honda', 'year': '2025', 'price': 27000, 'description': 'Honda Civic 1.5L Turbo'},
-        {'id': 7, 'name': 'Honda CR-V 2024', 'brand': 'Honda', 'year': '2024', 'price': 32000, 'description': 'Honda CR-V 2.0L Hybrid'},
-        {'id': 8, 'name': 'Honda CR-V 2025', 'brand': 'Honda', 'year': '2025', 'price': 33000, 'description': 'Honda CR-V 2.0L Hybrid AWD'},
-        # CARS - BMW
-        {'id': 9, 'name': 'BMW 3 Series 2024', 'brand': 'BMW', 'year': '2024', 'price': 45000, 'description': 'BMW 3 Series 2.0L Turbo'},
-        {'id': 10, 'name': 'BMW 3 Series 2025', 'brand': 'BMW', 'year': '2025', 'price': 47000, 'description': 'BMW 3 Series 3.0L Turbo'},
-        {'id': 11, 'name': 'BMW X5 2024', 'brand': 'BMW', 'year': '2024', 'price': 65000, 'description': 'BMW X5 3.0L Diesel'},
-        {'id': 12, 'name': 'BMW X5 2025', 'brand': 'BMW', 'year': '2025', 'price': 67000, 'description': 'BMW X5 3.0L Hybrid'},
-        # CARS - AUDI
-        {'id': 13, 'name': 'Audi A4 2024', 'brand': 'Audi', 'year': '2024', 'price': 42000, 'description': 'Audi A4 2.0L Petrol'},
-        {'id': 14, 'name': 'Audi A4 2025', 'brand': 'Audi', 'year': '2025', 'price': 44000, 'description': 'Audi A4 2.0L Diesel'},
-        {'id': 15, 'name': 'Audi Q5 2024', 'brand': 'Audi', 'year': '2024', 'price': 55000, 'description': 'Audi Q5 2.0L Diesel'},
-        {'id': 16, 'name': 'Audi Q5 2025', 'brand': 'Audi', 'year': '2025', 'price': 57000, 'description': 'Audi Q5 2.0L Hybrid'},
-        # CARS - MERCEDES
-        {'id': 17, 'name': 'Mercedes C-Class 2024', 'brand': 'Mercedes', 'year': '2024', 'price': 48000, 'description': 'Mercedes C-Class 2.0L Hybrid'},
-        {'id': 18, 'name': 'Mercedes C-Class 2025', 'brand': 'Mercedes', 'year': '2025', 'price': 50000, 'description': 'Mercedes C-Class 2.0L Petrol'},
-        {'id': 19, 'name': 'Mercedes GLC 2024', 'brand': 'Mercedes', 'year': '2024', 'price': 58000, 'description': 'Mercedes GLC 2.0L Diesel'},
-        {'id': 20, 'name': 'Mercedes GLC 2025', 'brand': 'Mercedes', 'year': '2025', 'price': 60000, 'description': 'Mercedes GLC 2.0L Hybrid'},
-        # CAR PARTS - TOYOTA
-        {'id': 101, 'name': 'Toyota Oil Filter', 'brand': 'Toyota', 'year': '2026', 'price': 27, 'description': 'Toyota oil filter'},
-        {'id': 102, 'name': 'Toyota Headlight', 'brand': 'Toyota', 'year': '2024', 'price': 92, 'description': 'Toyota headlight'},
-        {'id': 103, 'name': 'Toyota Air Filter', 'brand': 'Toyota', 'year': '2025', 'price': 32, 'description': 'Toyota air filter'},
-        {'id': 104, 'name': 'Toyota Windshield Wiper', 'brand': 'Toyota', 'year': '2026', 'price': 21, 'description': 'Toyota wiper'},
-        {'id': 105, 'name': 'Toyota Exhaust', 'brand': 'Toyota', 'year': '2024', 'price': 205, 'description': 'Toyota exhaust'},
-        {'id': 106, 'name': 'Toyota Engine', 'brand': 'Toyota', 'year': '2025', 'price': 1520, 'description': 'Toyota engine'},
-        {'id': 107, 'name': 'Toyota Tyres', 'brand': 'Toyota', 'year': '2026', 'price': 410, 'description': 'Toyota tyres'},
-        {'id': 108, 'name': 'Toyota Battery', 'brand': 'Toyota', 'year': '2024', 'price': 128, 'description': 'Toyota battery'},
-        {'id': 109, 'name': 'Toyota Brake Pads', 'brand': 'Toyota', 'year': '2025', 'price': 63, 'description': 'Toyota brake pads'},
-        # HONDA
-        {'id': 141, 'name': 'Honda Oil Filter', 'brand': 'Honda', 'year': '2026', 'price': 25, 'description': 'Honda oil filter'},
-        {'id': 142, 'name': 'Honda Headlight', 'brand': 'Honda', 'year': '2024', 'price': 86, 'description': 'Honda headlight'},
-        {'id': 143, 'name': 'Honda Air Filter', 'brand': 'Honda', 'year': '2025', 'price': 29, 'description': 'Honda air filter'},
-        {'id': 144, 'name': 'Honda Windshield Wiper', 'brand': 'Honda', 'year': '2026', 'price': 19, 'description': 'Honda wiper'},
-        {'id': 145, 'name': 'Honda Exhaust', 'brand': 'Honda', 'year': '2024', 'price': 192, 'description': 'Honda exhaust'},
-        {'id': 146, 'name': 'Honda Engine', 'brand': 'Honda', 'year': '2025', 'price': 1420, 'description': 'Honda engine'},
-        {'id': 147, 'name': 'Honda Tyres', 'brand': 'Honda', 'year': '2026', 'price': 385, 'description': 'Honda tyres'},
-        {'id': 148, 'name': 'Honda Battery', 'brand': 'Honda', 'year': '2024', 'price': 119, 'description': 'Honda battery'},
-        {'id': 149, 'name': 'Honda Brake Pads', 'brand': 'Honda', 'year': '2025', 'price': 61, 'description': 'Honda brake pads'},
-        # BMW
-        {'id': 181, 'name': 'BMW Oil Filter', 'brand': 'BMW', 'year': '2026', 'price': 37, 'description': 'BMW oil filter'},
-        {'id': 182, 'name': 'BMW Headlight', 'brand': 'BMW', 'year': '2024', 'price': 122, 'description': 'BMW headlight'},
-        {'id': 183, 'name': 'BMW Air Filter', 'brand': 'BMW', 'year': '2025', 'price': 41, 'description': 'BMW air filter'},
-        {'id': 184, 'name': 'BMW Windshield Wiper', 'brand': 'BMW', 'year': '2026', 'price': 26, 'description': 'BMW wiper'},
-        {'id': 185, 'name': 'BMW Exhaust', 'brand': 'BMW', 'year': '2024', 'price': 305, 'description': 'BMW exhaust'},
-        {'id': 186, 'name': 'BMW Engine', 'brand': 'BMW', 'year': '2025', 'price': 2550, 'description': 'BMW engine'},
-        {'id': 187, 'name': 'BMW Tyres', 'brand': 'BMW', 'year': '2026', 'price': 610, 'description': 'BMW tyres'},
-        {'id': 188, 'name': 'BMW Battery', 'brand': 'BMW', 'year': '2024', 'price': 158, 'description': 'BMW battery'},
-        {'id': 189, 'name': 'BMW Brake Pads', 'brand': 'BMW', 'year': '2025', 'price': 86, 'description': 'BMW brake pads'},
-        # AUDI
-        {'id': 221, 'name': 'Audi Oil Filter', 'brand': 'Audi', 'year': '2026', 'price': 35, 'description': 'Audi oil filter'},
-        {'id': 222, 'name': 'Audi Headlight', 'brand': 'Audi', 'year': '2024', 'price': 117, 'description': 'Audi headlight'},
-        {'id': 223, 'name': 'Audi Air Filter', 'brand': 'Audi', 'year': '2025', 'price': 39, 'description': 'Audi air filter'},
-        {'id': 224, 'name': 'Audi Windshield Wiper', 'brand': 'Audi', 'year': '2026', 'price': 25, 'description': 'Audi wiper'},
-        {'id': 225, 'name': 'Audi Exhaust', 'brand': 'Audi', 'year': '2024', 'price': 292, 'description': 'Audi exhaust'},
-        {'id': 226, 'name': 'Audi Engine', 'brand': 'Audi', 'year': '2025', 'price': 2420, 'description': 'Audi engine'},
-        {'id': 227, 'name': 'Audi Tyres', 'brand': 'Audi', 'year': '2026', 'price': 585, 'description': 'Audi tyres'},
-        {'id': 228, 'name': 'Audi Battery', 'brand': 'Audi', 'year': '2024', 'price': 149, 'description': 'Audi battery'},
-        {'id': 229, 'name': 'Audi Brake Pads', 'brand': 'Audi', 'year': '2025', 'price': 81, 'description': 'Audi brake pads'},
-        # MERCEDES
-        {'id': 261, 'name': 'Mercedes Oil Filter', 'brand': 'Mercedes', 'year': '2026', 'price': 42, 'description': 'Mercedes oil filter'},
-        {'id': 262, 'name': 'Mercedes Headlight', 'brand': 'Mercedes', 'year': '2024', 'price': 132, 'description': 'Mercedes headlight'},
-        {'id': 263, 'name': 'Mercedes Air Filter', 'brand': 'Mercedes', 'year': '2025', 'price': 46, 'description': 'Mercedes air filter'},
-        {'id': 264, 'name': 'Mercedes Windshield Wiper', 'brand': 'Mercedes', 'year': '2026', 'price': 29, 'description': 'Mercedes wiper'},
-        {'id': 265, 'name': 'Mercedes Exhaust', 'brand': 'Mercedes', 'year': '2024', 'price': 325, 'description': 'Mercedes exhaust'},
-        {'id': 266, 'name': 'Mercedes Engine', 'brand': 'Mercedes', 'year': '2025', 'price': 2750, 'description': 'Mercedes engine'},
-        {'id': 267, 'name': 'Mercedes Tyres', 'brand': 'Mercedes', 'year': '2026', 'price': 660, 'description': 'Mercedes tyres'},
-        {'id': 268, 'name': 'Mercedes Battery', 'brand': 'Mercedes', 'year': '2024', 'price': 168, 'description': 'Mercedes battery'},
-        {'id': 269, 'name': 'Mercedes Brake Pads', 'brand': 'Mercedes', 'year': '2025', 'price': 96, 'description': 'Mercedes brake pads'},
-    ]
+# TEST_PRODUCTS moved to module level above
 
     results = []
-    for part in test_parts:
+    for part in TEST_PRODUCTS:
         if not keyword or keyword in part['name'].lower() or keyword in part['brand'].lower() or keyword in part['description'].lower():
             results.append(part)
 
