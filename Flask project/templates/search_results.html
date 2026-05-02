@@ -466,7 +466,7 @@
             }
 
             container.innerHTML = products.map(product => `
-                <div class="product-card">
+                <div class="product-card" data-product-id="${product.id}" style="cursor: pointer;">
                     <div class="product-image">🔧</div>
                     <div class="product-info">
                         <div class="product-brand">${product.brand}</div>
@@ -474,8 +474,8 @@
                         <div class="product-description">${product.description}</div>
                         <div class="product-pricing">
                             <span class="product-price">£${product.price}</span>
-                            <span class="product-old-price">£${product.old_price}</span>
-                            <span class="product-discount">-${product.discount_percent}%</span>
+                            <span class="product-old-price">£${product.old_price || product.price}</span>
+                            <span class="product-discount">-${product.discount_percent || 0}%</span>
                         </div>
                     </div>
                     ${product.seller ? `
@@ -494,8 +494,8 @@
                     </div>
                     ` : ''}
                     <div class="product-actions">
-                        <button class="btn btn-primary" onclick="addToCart(${product.id})">Add to Cart</button>
-                        <button class="btn btn-secondary" onclick="viewDetails(${product.id})">Details</button>
+                        <button class="btn btn-primary" onclick="addToCart(${product.id}); event.stopPropagation();">Add to Cart</button>
+                        <button class="btn btn-secondary" onclick="viewDetails(${product.id}); event.stopPropagation();">Details</button>
                     </div>
                 </div>
             `).join('');
@@ -587,6 +587,17 @@
         function viewDetails(partId) {
             window.location.href = `/product/${partId}`;
         }
+
+        // Click on product card to view details
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.product-card')) {
+                const card = e.target.closest('.product-card');
+                const productId = card.dataset.productId;
+                if (productId) {
+                    viewDetails(productId);
+                }
+            }
+        });
 
         // Initialize
         window.addEventListener('DOMContentLoaded', init);
