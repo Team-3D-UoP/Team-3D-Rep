@@ -1,124 +1,19 @@
 # Product data for Latest Offers & Top Sellers section
 
 OFFER_PRODUCTS = [
-    {
-        "id": 1,
-        "name": "Pressure Washer",
-        "image": "car.png",
-        "old_price": 89.99,
-        "discount_percent": 20,
-        "current_price": 71.99
-    },
-    {
-        "id": 2,
-        "name": "Car Cleaning Kit",
-        "image": "tire.png",
-        "old_price": 34.50,
-        "discount_percent": 25,
-        "current_price": 25.87
-    },
-    {
-        "id": 3,
-        "name": "Oil Filter",
-        "image": "oil-filter.png",
-        "old_price": 18.99,
-        "discount_percent": 15,
-        "current_price": 16.14
-    },
-    {
-        "id": 4,
-        "name": "Air Freshener Pack",
-        "image": "freshener.png",
-        "old_price": 12.00,
-        "discount_percent": 30,
-        "current_price": 8.40
-    },
-    {
-        "id": 5,
-        "name": "Roof Bars Set",
-        "image": "bars.png",
-        "old_price": 125.00,
-        "discount_percent": 20,
-        "current_price": 100.00
-    },
-    {
-        "id": 6,
-        "name": "Engine Oil 5L",
-        "image": "engine-oil.png",
-        "old_price": 32.50,
-        "discount_percent": 25,
-        "current_price": 24.37
-    },
-    {
-        "id": 7,
-        "name": "Wiper Blades Pair",
-        "image": "windshield-wiper.png",
-        "old_price": 19.99,
-        "discount_percent": 15,
-        "current_price": 16.99
-    },
-    {
-        "id": 8,
-        "name": "Car Battery 12V",
-        "image": "car-battery.png",
-        "old_price": 67.50,
-        "discount_percent": 20,
-        "current_price": 54.00
-    },
-    {
-        "id": 9,
-        "name": "Headlight Bulbs Kit",
-        "image": "headlight.png",
-        "old_price": 24.00,
-        "discount_percent": 25,
-        "current_price": 18.00
-    },
-    {
-        "id": 10,
-        "name": "Brake Pads Set",
-        "image": "brake-disc.png",
-        "old_price": 45.00,
-        "discount_percent": 30,
-        "current_price": 31.50
-    },
-    {
-        "id": 11,
-        "name": "Car Polish & Wax",
-        "image": "car-polish.png",
-        "old_price": 22.00,
-        "discount_percent": 20,
-        "current_price": 17.60
-    },
-    {
-        "id": 12,
-        "name": "Portable Tyre Inflator",
-        "image": "car (1).png",
-        "old_price": 38.00,
-        "discount_percent": 25,
-        "current_price": 28.50
-    },
-    {
-        "id": 13,
-        "name": "Windscreen Wash 5L",
-        "image": "windshield-wiper.png",
-        "old_price": 12.50,
-        "discount_percent": 30,
-        "current_price": 8.75
-    },
-    {
-        "id": 14,
-        "name": "Portable Jump Starter",
-        "image": "disk-key.png",
-        "old_price": 79.99,
-        "discount_percent": 20,
-        "current_price": 63.99
-    },
-    {
-        "id": 15,
-        "name": "Car Tool Kit 50pc",
-        "image": "wrench.png",
-        "old_price": 65.00,
-        "discount_percent": 25,
-        "current_price": 48.75
-    }
+    {"id": 1001, "name": "Pressure Washer", "brand": "CarCare Pro", "year": "2024", "price": 71.99, "description": "Professional-grade pressure washer for deep cleaning vehicles and outdoor surfaces", "image": "car.png", "old_price": 89.99, "discount_percent": 20, "current_price": 71.99},
+    {"id": 1002, "name": "Car Cleaning Kit", "brand": "DetailPro", "year": "2024", "price": 25.87, "description": "Complete car cleaning kit with brushes, cloths, and cleaning solutions", "image": "tire.png", "old_price": 34.50, "discount_percent": 25, "current_price": 25.87},
+    {"id": 1003, "name": "Oil Filter", "brand": "AutoCare", "year": "2024", "price": 16.14, "description": "High-performance oil filter for engine protection and longevity", "image": "oil-filter.png", "old_price": 18.99, "discount_percent": 15, "current_price": 16.14},
+    {"id": 1004, "name": "Air Freshener Pack", "brand": "FreshAir", "year": "2024", "price": 8.40, "description": "Pleasant-smelling air fresheners to keep your car interior fresh", "image": "freshener.png", "old_price": 12.00, "discount_percent": 30, "current_price": 8.40},
+    {"id": 1005, "name": "Roof Bars Set", "brand": "CarRack", "year": "2024", "price": 100.00, "description": "Universal roof bars for cargo and luggage transportation", "image": "bars.png", "old_price": 125.00, "discount_percent": 20, "current_price": 100.00},
+    {"id": 1006, "name": "Engine Oil 5L", "brand": "PremiumOil", "year": "2024", "price": 24.37, "description": "Premium synthetic engine oil for optimal performance and protection", "image": "engine-oil.png", "old_price": 32.50, "discount_percent": 25, "current_price": 24.37},
+    {"id": 1007, "name": "Wiper Blades Pair", "brand": "ClearView", "year": "2024", "price": 16.99, "description": "High-quality wiper blades for clear windshield visibility", "image": "windshield-wiper.png", "old_price": 19.99, "discount_percent": 15, "current_price": 16.99},
+    {"id": 1008, "name": "Car Battery 12V", "brand": "PowerCell", "year": "2024", "price": 54.00, "description": "Reliable 12V car battery with excellent starting power", "image": "car-battery.png", "old_price": 67.50, "discount_percent": 20, "current_price": 54.00},
+    {"id": 1009, "name": "Headlight Bulbs Kit", "brand": "BrightLight", "year": "2024", "price": 18.00, "description": "LED headlight bulbs for improved visibility and efficiency", "image": "headlight.png", "old_price": 24.00, "discount_percent": 25, "current_price": 18.00},
+    {"id": 1010, "name": "Brake Pads Set", "brand": "SafeStop", "year": "2024", "price": 31.50, "description": "Premium brake pads for reliable stopping power and safety", "image": "brake-disc.png", "old_price": 45.00, "discount_percent": 30, "current_price": 31.50},
+    {"id": 1011, "name": "Car Polish & Wax", "brand": "ShineMax", "year": "2024", "price": 17.60, "description": "Professional-grade polish and wax for a showroom shine", "image": "car-polish.png", "old_price": 22.00, "discount_percent": 20, "current_price": 17.60},
+    {"id": 1012, "name": "Portable Tyre Inflator", "brand": "AirPump", "year": "2024", "price": 28.50, "description": "Portable electric tyre inflator for emergency roadside repairs", "image": "car (1).png", "old_price": 38.00, "discount_percent": 25, "current_price": 28.50},
+    {"id": 1013, "name": "Windscreen Wash 5L", "brand": "ClearView", "year": "2024", "price": 8.75, "description": "Effective windscreen washing solution for crystal-clear visibility", "image": "windshield-wiper.png", "old_price": 12.50, "discount_percent": 30, "current_price": 8.75},
+    {"id": 1014, "name": "Portable Jump Starter", "brand": "PowerStart", "year": "2024", "price": 63.99, "description": "Portable jump starter battery pack for emergency vehicle starting", "image": "disk-key.png", "old_price": 79.99, "discount_percent": 20, "current_price": 63.99},
+    {"id": 1015, "name": "Car Tool Kit 50pc", "brand": "ToolMaster", "year": "2024", "price": 48.75, "description": "Complete 50-piece car tool kit for maintenance and repairs", "image": "wrench.png", "old_price": 65.00, "discount_percent": 25, "current_price": 48.75}
 ]

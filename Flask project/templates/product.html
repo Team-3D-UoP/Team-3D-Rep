@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Product Details - AutoPartFinder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #003d7a;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+
+        .product-container {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            padding: 3rem;
+        }
+
+        .product-image {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+            color: white;
+        }
+
+        .product-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-brand {
+            font-size: 0.85rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #003d7a;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .rating-value {
+            font-size: 1.3rem;
+            color: #ffc107;
+        }
+
+        .rating-text {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .price-section {
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid #28a745;
+        }
+
+        .price-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .price-row:last-child {
+            border-bottom: none;
+        }
+
+        .price-current {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #28a745;
+            margin: 0.75rem 0;
+        }
+
+        .price-original {
+            font-size: 1rem;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .discount-badge {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .description-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #003d7a;
+            margin-bottom: 0.75rem;
+        }
+
+        .description-text {
+            line-height: 1.7;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .specs-section {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            font-weight: 600;
+            color: #003d7a;
+        }
+
+        .spec-value {
+            color: #666;
+        }
+
+        .seller-section {
+            background-color: #f0f8ff;
+            border: 2px solid #e0e8ff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .seller-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .seller-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .seller-info {
+            flex: 1;
+        }
+
+        .seller-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .seller-title {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.2rem 0;
+        }
+
+        .seller-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .seller-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #28a745;
+            margin-left: 0.5rem;
+        }
+
+        .seller-status.inactive {
+            background-color: #dc3545;
+        }
+
+        .seller-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding-top: 1rem;
+            margin-top: 1rem;
+            border-top: 1px solid #e0e8ff;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #003d7a;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #003d7a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #002d5a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 61, 122, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e3f2fd;
+            border-color: #003d7a;
+            color: #003d7a;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            margin-left: 1rem;
+            border: 4px solid #f0f0f0;
+            border-top-color: #003d7a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+        }
+
+        .reviews-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #eee;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .review-card {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-author {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .review-stars {
+            color: #ffc107;
+            font-size: 1rem;
+        }
+
+        .review-text {
+            color: #666;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .no-reviews {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .product-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 1.5rem;
+            }
+
+            .product-title {
+                font-size: 1.5rem;
+            }
+
+            .price-current {
+                font-size: 2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .seller-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <div class="container">
+        <a class="back-button" onclick="window.history.back()">← Back to Results</a>
+        <div id="content" class="product-container">
+            <div class="loading"></div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script>
+        async function loadProduct() {
+            const params = new URLSearchParams(window.location.search);
+            let productId = params.get('id');
+
+            // If no ID in query params, get from URL path (e.g., /product/1)
+            if (!productId) {
+                const pathParts = window.location.pathname.split('/');
+                productId = pathParts[pathParts.length - 1];
+            }
+
+            if (!productId) {
+                showError('Product not found');
+                return;
+            }
+
+            try {
+                // Fetch all products and find the matching one
+                const response = await fetch(`/api/parts/search`);
+                const data = await response.json();
+
+                if (data.success && data.products) {
+                    const product = data.products.find(p => p.id == productId);
+                    if (product) {
+                        displayProduct(product);
+                    } else {
+                        showError('Product not found in our database');
+                    }
+                } else {
+                    showError('Could not load products');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error loading product: ' + error.message);
+            }
+        }
+
+        let currentProduct = null;
+
+        function displayProduct(product) {
+            currentProduct = product;
+            const content = document.getElementById('content');
+            document.getElementById('pageTitle').textContent = product.name + ' - AutoPartFinder';
+
+            let sellerHTML = '';
+            if (product.seller) {
+                const statusClass = product.seller.active ? '' : 'inactive';
+                sellerHTML = `
+                    <div class="seller-section">
+                        <h3 class="section-title">Sold By</h3>
+                        <div class="seller-header">
+                            <div class="seller-avatar">${product.seller.pfp}</div>
+                            <div class="seller-info">
+                                <div class="seller-name">
+                                    ${product.seller.name}
+                                    <span class="seller-status ${statusClass}"></span>
+                                </div>
+                                <div class="seller-title">${product.seller.title || 'Verified Seller'}</div>
+                                <div class="seller-rating">
+                                    <span style="color: #ffc107;">★ ${product.seller.rating}</span>
+                                    <span>(${product.seller.reviews} reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="seller-stats">
+                            <div class="stat">
+                                <div class="stat-value">${product.seller.rating || '4.5'}</div>
+                                <div class="stat-label">Feedback</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${product.seller.reviews || '542'}</div>
+                                <div class="stat-label">Sold</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${product.seller.response_time || '2 hours'}</div>
+                                <div class="stat-label">Response</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = `
+                <div class="product-content">
+                    <div class="product-image">🔧</div>
+                    <div class="product-details">
+                        <div class="product-brand">${product.brand}</div>
+                        <h1 class="product-title">${product.name}</h1>
+
+                        <div class="product-rating">
+                            <span class="rating-value">★ ${product.seller ? product.seller.rating : '4.5'}</span>
+                            <span class="rating-text">${product.seller ? product.seller.reviews + ' reviews' : 'Not rated'}</span>
+                        </div>
+
+                        <div class="price-section">
+                            <div class="price-row">
+                                <span class="price-label">Original Price:</span>
+                                <span class="price-original">£${(product.old_price || product.price).toFixed(2)}</span>
+                            </div>
+                            <div class="price-row">
+                                <span class="price-label">Discount:</span>
+                                <span><span class="discount-badge">-${product.discount_percent || 0}%</span></span>
+                            </div>
+                            <div class="price-row" style="border-bottom: none; padding-top: 1rem; border-top: 2px solid #ddd;">
+                                <span class="price-label">Final Price:</span>
+                                <span class="price-current" style="margin: 0; font-size: 2rem; color: #28a745;">£${(product.price || 0).toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div class="description-section">
+                            <h3 class="section-title">Description</h3>
+                            <p class="description-text">${product.description}</p>
+                        </div>
+
+                        <div class="specs-section">
+                            <h3 class="section-title" style="margin-bottom: 1rem;">Product Specifications</h3>
+                            <div class="spec-row">
+                                <span class="spec-label">Brand</span>
+                                <span class="spec-value">${product.brand}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Part Type</span>
+                                <span class="spec-value">${product.part_type}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Year</span>
+                                <span class="spec-value">${product.year}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Product ID</span>
+                                <span class="spec-value">PART-${product.id}</span>
+                            </div>
+                        </div>
+
+                        ${sellerHTML}
+
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="addToCart(${product.id})">
+                                🛒 Add to Cart
+                            </button>
+                            <button class="btn btn-secondary" onclick="messageSeller()">
+                                💬 Message Seller
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviews-section">
+                    <h2 class="section-title">Buyer Reviews</h2>
+                    <div id="reviewsContainer" class="reviews-grid">
+                        <div class="no-reviews">Loading reviews...</div>
+                    </div>
+                </div>
+            `;
+
+            // Load reviews after displaying product
+            loadReviews(product.id);
+        }
+
+        async function loadReviews(productId) {
+            try {
+                const response = await fetch(`/api/product/${productId}/reviews`);
+                const data = await response.json();
+                const reviewsContainer = document.getElementById('reviewsContainer');
+
+                if (data.success && data.reviews && data.reviews.length > 0) {
+                    reviewsContainer.innerHTML = data.reviews.map(review => `
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="review-author">${review.user_name}</span>
+                                <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                            </div>
+                            <p class="review-text">${review.review_text}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    reviewsContainer.innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review this product!</div>';
+                }
+            } catch (error) {
+                console.log('No reviews available');
+                document.getElementById('reviewsContainer').innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review this product!</div>';
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('content').innerHTML = `
+                <div class="error">
+                    <h2>Error</h2>
+                    <p>${message}</p>
+                    <button class="btn btn-secondary" onclick="window.history.back()" style="margin-top: 1rem; width: 200px;">Go Back</button>
+                </div>
+            `;
+        }
+
+        async function addToCart(partId) {
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: partId, quantity: 1 })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('✓ Added to cart!');
+                    document.dispatchEvent(new Event('cartUpdated'));
+                } else {
+                    alert('Error: ' + (data.error || 'Could not add to cart'));
+                }
+            } catch (error) {
+                alert('Error adding to cart');
+            }
+        }
+
+        function messageSeller() {
+            if (!currentProduct || !currentProduct.seller) {
+                alert('Seller information not available');
+                return;
+            }
+            alert(`Message feature coming soon!\n\nContact: ${currentProduct.seller.name}\n\nYou can send them a direct message about this product.`);
+        }
+
+        window.addEventListener('DOMContentLoaded', loadProduct);
+    </script>
+</body>
+</html>

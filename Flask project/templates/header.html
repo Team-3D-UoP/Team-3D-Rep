@@ -6,8 +6,11 @@
 
         <a href="{{ url_for('home') }}" class="headerButton">Home</a>
 
-        <input id="headerSearch"></input>
-        <button>Search</button>
+        <div class="search-wrapper">
+            <input id="headerSearch" placeholder="Search car parts..." autocomplete="off"></input>
+            <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
+        <button id="searchBtn">Search</button>
 
         <a href="{{ url_for('account') }}" class="headerButton">Account</a>
 
@@ -72,6 +75,93 @@
 
     // Listen for custom event to update cart when item is added
     document.addEventListener('cartUpdated', updateCartCount);
+
+    // ===== LIVE SEARCH FUNCTIONALITY =====
+    const searchInput = document.getElementById('headerSearch');
+    const searchDropdown = document.getElementById('searchDropdown');
+    const searchBtn = document.getElementById('searchBtn');
+    let searchTimeout;
+
+    // Live search as user types
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+
+        if (query.length < 2) {
+            searchDropdown.style.display = 'none';
+            return;
+        }
+
+        // Debounce search - wait 300ms before searching
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/parts/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                if (data.success && data.products.length > 0) {
+                    displaySearchResults(data.products.slice(0, 8)); // Show max 8 results
+                } else {
+                    searchDropdown.innerHTML = '<div class="search-no-results">No parts found</div>';
+                    searchDropdown.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                searchDropdown.innerHTML = '<div class="search-error">Error searching</div>';
+                searchDropdown.style.display = 'block';
+            }
+        }, 300);
+    });
+
+    // Handle Enter key to go to search results
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            goToSearchResults();
+        }
+    });
+
+    // Search button click
+    searchBtn.addEventListener('click', goToSearchResults);
+
+    function displaySearchResults(products) {
+        let html = '<div class="search-results">';
+        products.forEach(product => {
+            const sellerInfo = product.seller
+                ? `<div class="search-result-seller"><span class="stars">★ ${product.seller.rating}</span> by ${product.seller.name}</div>`
+                : '';
+            html += `
+                <div class="search-result-item" onclick="viewProductDetail(${product.id})">
+                    <div style="flex: 1;">
+                        <div class="search-result-name">${product.name}</div>
+                        ${sellerInfo}
+                    </div>
+                    <div class="search-result-price">£${product.price}</div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        searchDropdown.innerHTML = html;
+        searchDropdown.style.display = 'block';
+    }
+
+    function viewProductDetail(productId) {
+        window.location.href = `/product/${productId}`;
+    }
+
+    function goToSearchResults(selectedQuery) {
+        const query = selectedQuery || document.getElementById('headerSearch').value.trim();
+        if (query.length > 0) {
+            window.location.href = `/search-results?q=${encodeURIComponent(query)}`;
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.search-wrapper') && !e.target.closest('#searchBtn')) {
+            searchDropdown.style.display = 'none';
+        }
+    });
 </script>
 
 <style>
@@ -199,5 +289,105 @@
         font-size: 0.8rem;
         font-weight: bold;
         min-width: 22px;
+    }
+
+    /* Live Search Styles */
+    .search-wrapper {
+        flex: 1.5;
+        position: relative;
+        min-width: 250px;
+    }
+
+    .search-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: none;
+        z-index: 1000;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .search-results {
+        padding: 0;
+    }
+
+    .search-result-item {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.2s ease;
+    }
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-item:hover {
+        background-color: #f5f5f5;
+    }
+
+    .search-result-name {
+        flex: 1;
+        font-size: 0.95rem;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .search-result-price {
+        font-weight: 700;
+        color: #003d7a;
+        margin-left: 1rem;
+        white-space: nowrap;
+        font-size: 0.9rem;
+    }
+
+    .search-result-seller {
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 0.3rem;
+    }
+
+    .search-result-seller .stars {
+        color: #ffc107;
+    }
+
+    .search-no-results,
+    .search-error {
+        padding: 1rem;
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .search-error {
+        color: #dc3545;
+    }
+
+    @media (max-width: 768px) {
+        .search-wrapper {
+            min-width: 200px;
+        }
+
+        .search-result-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-result-price {
+            margin-left: 0;
+            margin-top: 0.5rem;
+        }
     }
 </style>

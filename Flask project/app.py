@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 from data.products import OFFER_PRODUCTS
@@ -13,7 +14,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import requests
 from models import db, ProductReview, SellerReview, CartItem, Part, User, ChatMessage
-from db_registrations import *
+from db_registrations import *  # noqa: F401,F403 - Required for select_user_id, insert_* functions
 
 load_dotenv()
 
@@ -109,7 +110,7 @@ def save_review_to_firebase(review_type, item_id, uid, email, name, rating, text
         response = requests.put(url, json=review_data, timeout=5)
 
         if response.status_code in [200, 201]:
-            print(f"✓ Review saved to Firebase")
+            print("✓ Review saved to Firebase")
             return True
         else:
             print(f"⚠ Error saving review to Firebase: {response.status_code}")
@@ -148,7 +149,7 @@ def save_cart_item_to_firebase(uid, product_id, quantity):
         response = requests.put(url, json=cart_data, timeout=5)
 
         if response.status_code in [200, 201]:
-            print(f"✓ Cart item saved to Firebase")
+            print("✓ Cart item saved to Firebase")
             return True
         else:
             print(f"⚠ Error saving cart to Firebase: {response.status_code}")
@@ -206,6 +207,89 @@ def _get_reviews_for_seller(seller_id):
     return [REVIEWS_DATA[(offset + i) % n] for i in range(min(4, n))]
 
 
+
+# ============================================================================
+# PRODUCTS DATABASE - Single source of truth for all products (cars + parts)
+# Used by both search_parts() and product_detail() routes
+# ============================================================================
+TEST_PRODUCTS = [
+    # CARS - TOYOTA
+    {'id': 1, 'name': 'Toyota Corolla 2024', 'brand': 'Toyota', 'year': '2024', 'price': 28000, 'description': 'Toyota Corolla 1.8L Hybrid', 'old_price': 30434, 'discount_percent': 8, 'current_price': 28000, 'image': 'product.jpg'},
+    {'id': 2, 'name': 'Toyota Corolla 2025', 'brand': 'Toyota', 'year': '2025', 'price': 29000, 'description': 'Toyota Corolla 2.0L Petrol', 'old_price': 31521, 'discount_percent': 8, 'current_price': 29000, 'image': 'product.jpg'},
+    {'id': 3, 'name': 'Toyota RAV4 2024', 'brand': 'Toyota', 'year': '2024', 'price': 35000, 'description': 'Toyota RAV4 2.5L Hybrid AWD', 'old_price': 38043, 'discount_percent': 8, 'current_price': 35000, 'image': 'product.jpg', 'emoji': '🚙'},
+    {'id': 4, 'name': 'Toyota RAV4 2025', 'brand': 'Toyota', 'year': '2025', 'price': 36000, 'description': 'Toyota RAV4 2.5L Hybrid', 'old_price': 39130, 'discount_percent': 8, 'current_price': 36000, 'image': 'product.jpg', 'emoji': '🚙'},
+    # CARS - HONDA
+    {'id': 5, 'name': 'Honda Civic 2024', 'brand': 'Honda', 'year': '2024', 'price': 26000, 'description': 'Honda Civic 2.0L Petrol', 'old_price': 28260, 'discount_percent': 8, 'current_price': 26000, 'image': 'product.jpg'},
+    {'id': 6, 'name': 'Honda Civic 2025', 'brand': 'Honda', 'year': '2025', 'price': 27000, 'description': 'Honda Civic 1.5L Turbo', 'old_price': 29347, 'discount_percent': 8, 'current_price': 27000, 'image': 'product.jpg'},
+    {'id': 7, 'name': 'Honda CR-V 2024', 'brand': 'Honda', 'year': '2024', 'price': 32000, 'description': 'Honda CR-V 2.0L Hybrid', 'old_price': 34782, 'discount_percent': 8, 'current_price': 32000, 'image': 'product.jpg', 'emoji': '🚙'},
+    {'id': 8, 'name': 'Honda CR-V 2025', 'brand': 'Honda', 'year': '2025', 'price': 33000, 'description': 'Honda CR-V 2.0L Hybrid AWD', 'old_price': 35869, 'discount_percent': 8, 'current_price': 33000, 'image': 'product.jpg', 'emoji': '🚙'},
+    # CARS - BMW
+    {'id': 9, 'name': 'BMW 3 Series 2024', 'brand': 'BMW', 'year': '2024', 'price': 45000, 'description': 'BMW 3 Series 2.0L Turbo', 'old_price': 48913, 'discount_percent': 8, 'current_price': 45000, 'image': 'product.jpg', 'emoji': '🏎️'},
+    {'id': 10, 'name': 'BMW 3 Series 2025', 'brand': 'BMW', 'year': '2025', 'price': 47000, 'description': 'BMW 3 Series 3.0L Turbo', 'old_price': 51086, 'discount_percent': 8, 'current_price': 47000, 'image': 'product.jpg', 'emoji': '🏎️'},
+    {'id': 11, 'name': 'BMW X5 2024', 'brand': 'BMW', 'year': '2024', 'price': 65000, 'description': 'BMW X5 3.0L Diesel', 'old_price': 70652, 'discount_percent': 8, 'current_price': 65000, 'image': 'product.jpg', 'emoji': '🚙'},
+    {'id': 12, 'name': 'BMW X5 2025', 'brand': 'BMW', 'year': '2025', 'price': 67000, 'description': 'BMW X5 3.0L Hybrid', 'old_price': 72826, 'discount_percent': 8, 'current_price': 67000, 'image': 'product.jpg', 'emoji': '🚙'},
+    # CARS - AUDI
+    {'id': 13, 'name': 'Audi A4 2024', 'brand': 'Audi', 'year': '2024', 'price': 42000, 'description': 'Audi A4 2.0L Petrol', 'old_price': 45652, 'discount_percent': 8, 'current_price': 42000, 'image': 'product.jpg', 'emoji': '🏎️'},
+    {'id': 14, 'name': 'Audi A4 2025', 'brand': 'Audi', 'year': '2025', 'price': 44000, 'description': 'Audi A4 2.0L Diesel', 'old_price': 47826, 'discount_percent': 8, 'current_price': 44000, 'image': 'product.jpg', 'emoji': '🏎️'},
+    {'id': 15, 'name': 'Audi Q5 2024', 'brand': 'Audi', 'year': '2024', 'price': 55000, 'description': 'Audi Q5 2.0L Diesel', 'old_price': 59782, 'discount_percent': 8, 'current_price': 55000, 'image': 'product.jpg', 'emoji': '🚙'},
+    {'id': 16, 'name': 'Audi Q5 2025', 'brand': 'Audi', 'year': '2025', 'price': 57000, 'description': 'Audi Q5 2.0L Hybrid', 'old_price': 61956, 'discount_percent': 8, 'current_price': 57000, 'image': 'product.jpg', 'emoji': '🚙'},
+    # CARS - MERCEDES
+    {'id': 17, 'name': 'Mercedes C-Class 2024', 'brand': 'Mercedes', 'year': '2024', 'price': 48000, 'description': 'Mercedes C-Class 2.0L Hybrid', 'old_price': 52173, 'discount_percent': 8, 'current_price': 48000, 'image': 'product.jpg', 'emoji': '🏎️'},
+    {'id': 18, 'name': 'Mercedes C-Class 2025', 'brand': 'Mercedes', 'year': '2025', 'price': 50000, 'description': 'Mercedes C-Class 2.0L Petrol', 'old_price': 54347, 'discount_percent': 8, 'current_price': 50000, 'image': 'product.jpg', 'emoji': '🏎️'},
+    {'id': 19, 'name': 'Mercedes GLC 2024', 'brand': 'Mercedes', 'year': '2024', 'price': 58000, 'description': 'Mercedes GLC 2.0L Diesel', 'old_price': 63043, 'discount_percent': 8, 'current_price': 58000, 'image': 'product.jpg', 'emoji': '🚙'},
+    {'id': 20, 'name': 'Mercedes GLC 2025', 'brand': 'Mercedes', 'year': '2025', 'price': 60000, 'description': 'Mercedes GLC 2.0L Hybrid', 'old_price': 65217, 'discount_percent': 8, 'current_price': 60000, 'image': 'product.jpg', 'emoji': '🚙'},
+    # CAR PARTS - TOYOTA
+    {'id': 101, 'name': 'Toyota Oil Filter', 'brand': 'Toyota', 'year': '2026', 'price': 27, 'description': 'Toyota oil filter', 'old_price': 30, 'discount_percent': 10, 'current_price': 27, 'image': 'product.jpg'},
+    {'id': 102, 'name': 'Toyota Headlight', 'brand': 'Toyota', 'year': '2024', 'price': 92, 'description': 'Toyota headlight', 'old_price': 102, 'discount_percent': 10, 'current_price': 92, 'image': 'product.jpg'},
+    {'id': 103, 'name': 'Toyota Air Filter', 'brand': 'Toyota', 'year': '2025', 'price': 32, 'description': 'Toyota air filter', 'old_price': 35, 'discount_percent': 10, 'current_price': 32, 'image': 'product.jpg'},
+    {'id': 104, 'name': 'Toyota Windshield Wiper', 'brand': 'Toyota', 'year': '2026', 'price': 21, 'description': 'Toyota wiper', 'old_price': 23, 'discount_percent': 10, 'current_price': 21, 'image': 'product.jpg'},
+    {'id': 105, 'name': 'Toyota Exhaust', 'brand': 'Toyota', 'year': '2024', 'price': 205, 'description': 'Toyota exhaust', 'old_price': 227, 'discount_percent': 10, 'current_price': 205, 'image': 'product.jpg'},
+    {'id': 106, 'name': 'Toyota Engine', 'brand': 'Toyota', 'year': '2025', 'price': 1520, 'description': 'Toyota engine', 'old_price': 1652, 'discount_percent': 8, 'current_price': 1520, 'image': 'product.jpg'},
+    {'id': 107, 'name': 'Toyota Tyres', 'brand': 'Toyota', 'year': '2026', 'price': 410, 'description': 'Toyota tyres', 'old_price': 455, 'discount_percent': 10, 'current_price': 410, 'image': 'product.jpg'},
+    {'id': 108, 'name': 'Toyota Battery', 'brand': 'Toyota', 'year': '2024', 'price': 128, 'description': 'Toyota battery', 'old_price': 142, 'discount_percent': 10, 'current_price': 128, 'image': 'product.jpg'},
+    {'id': 109, 'name': 'Toyota Brake Pads', 'brand': 'Toyota', 'year': '2025', 'price': 63, 'description': 'Toyota brake pads', 'old_price': 70, 'discount_percent': 10, 'current_price': 63, 'image': 'product.jpg'},
+    # HONDA
+    {'id': 141, 'name': 'Honda Oil Filter', 'brand': 'Honda', 'year': '2026', 'price': 25, 'description': 'Honda oil filter', 'old_price': 27, 'discount_percent': 10, 'current_price': 25, 'image': 'product.jpg'},
+    {'id': 142, 'name': 'Honda Headlight', 'brand': 'Honda', 'year': '2024', 'price': 86, 'description': 'Honda headlight', 'old_price': 95, 'discount_percent': 10, 'current_price': 86, 'image': 'product.jpg'},
+    {'id': 143, 'name': 'Honda Air Filter', 'brand': 'Honda', 'year': '2025', 'price': 29, 'description': 'Honda air filter', 'old_price': 32, 'discount_percent': 10, 'current_price': 29, 'image': 'product.jpg'},
+    {'id': 144, 'name': 'Honda Windshield Wiper', 'brand': 'Honda', 'year': '2026', 'price': 19, 'description': 'Honda wiper', 'old_price': 21, 'discount_percent': 10, 'current_price': 19, 'image': 'product.jpg'},
+    {'id': 145, 'name': 'Honda Exhaust', 'brand': 'Honda', 'year': '2024', 'price': 192, 'description': 'Honda exhaust', 'old_price': 213, 'discount_percent': 10, 'current_price': 192, 'image': 'product.jpg'},
+    {'id': 146, 'name': 'Honda Engine', 'brand': 'Honda', 'year': '2025', 'price': 1420, 'description': 'Honda engine', 'old_price': 1543, 'discount_percent': 8, 'current_price': 1420, 'image': 'product.jpg'},
+    {'id': 147, 'name': 'Honda Tyres', 'brand': 'Honda', 'year': '2026', 'price': 385, 'description': 'Honda tyres', 'old_price': 427, 'discount_percent': 10, 'current_price': 385, 'image': 'product.jpg'},
+    {'id': 148, 'name': 'Honda Battery', 'brand': 'Honda', 'year': '2024', 'price': 119, 'description': 'Honda battery', 'old_price': 132, 'discount_percent': 10, 'current_price': 119, 'image': 'product.jpg'},
+    {'id': 149, 'name': 'Honda Brake Pads', 'brand': 'Honda', 'year': '2025', 'price': 61, 'description': 'Honda brake pads', 'old_price': 67, 'discount_percent': 10, 'current_price': 61, 'image': 'product.jpg'},
+    # BMW
+    {'id': 181, 'name': 'BMW Oil Filter', 'brand': 'BMW', 'year': '2026', 'price': 37, 'description': 'BMW oil filter', 'old_price': 41, 'discount_percent': 10, 'current_price': 37, 'image': 'product.jpg'},
+    {'id': 182, 'name': 'BMW Headlight', 'brand': 'BMW', 'year': '2024', 'price': 122, 'description': 'BMW headlight', 'old_price': 135, 'discount_percent': 10, 'current_price': 122, 'image': 'product.jpg'},
+    {'id': 183, 'name': 'BMW Air Filter', 'brand': 'BMW', 'year': '2025', 'price': 41, 'description': 'BMW air filter', 'old_price': 45, 'discount_percent': 10, 'current_price': 41, 'image': 'product.jpg'},
+    {'id': 184, 'name': 'BMW Windshield Wiper', 'brand': 'BMW', 'year': '2026', 'price': 26, 'description': 'BMW wiper', 'old_price': 28, 'discount_percent': 10, 'current_price': 26, 'image': 'product.jpg'},
+    {'id': 185, 'name': 'BMW Exhaust', 'brand': 'BMW', 'year': '2024', 'price': 305, 'description': 'BMW exhaust', 'old_price': 338, 'discount_percent': 10, 'current_price': 305, 'image': 'product.jpg'},
+    {'id': 186, 'name': 'BMW Engine', 'brand': 'BMW', 'year': '2025', 'price': 2550, 'description': 'BMW engine', 'old_price': 2771, 'discount_percent': 8, 'current_price': 2550, 'image': 'product.jpg'},
+    {'id': 187, 'name': 'BMW Tyres', 'brand': 'BMW', 'year': '2026', 'price': 610, 'description': 'BMW tyres', 'old_price': 677, 'discount_percent': 10, 'current_price': 610, 'image': 'product.jpg'},
+    {'id': 188, 'name': 'BMW Battery', 'brand': 'BMW', 'year': '2024', 'price': 158, 'description': 'BMW battery', 'old_price': 175, 'discount_percent': 10, 'current_price': 158, 'image': 'product.jpg'},
+    {'id': 189, 'name': 'BMW Brake Pads', 'brand': 'BMW', 'year': '2025', 'price': 86, 'description': 'BMW brake pads', 'old_price': 95, 'discount_percent': 10, 'current_price': 86, 'image': 'product.jpg'},
+    # AUDI
+    {'id': 221, 'name': 'Audi Oil Filter', 'brand': 'Audi', 'year': '2026', 'price': 35, 'description': 'Audi oil filter', 'old_price': 38, 'discount_percent': 10, 'current_price': 35, 'image': 'product.jpg'},
+    {'id': 222, 'name': 'Audi Headlight', 'brand': 'Audi', 'year': '2024', 'price': 117, 'description': 'Audi headlight', 'old_price': 130, 'discount_percent': 10, 'current_price': 117, 'image': 'product.jpg'},
+    {'id': 223, 'name': 'Audi Air Filter', 'brand': 'Audi', 'year': '2025', 'price': 39, 'description': 'Audi air filter', 'old_price': 43, 'discount_percent': 10, 'current_price': 39, 'image': 'product.jpg'},
+    {'id': 224, 'name': 'Audi Windshield Wiper', 'brand': 'Audi', 'year': '2026', 'price': 25, 'description': 'Audi wiper', 'old_price': 27, 'discount_percent': 10, 'current_price': 25, 'image': 'product.jpg'},
+    {'id': 225, 'name': 'Audi Exhaust', 'brand': 'Audi', 'year': '2024', 'price': 292, 'description': 'Audi exhaust', 'old_price': 324, 'discount_percent': 10, 'current_price': 292, 'image': 'product.jpg'},
+    {'id': 226, 'name': 'Audi Engine', 'brand': 'Audi', 'year': '2025', 'price': 2420, 'description': 'Audi engine', 'old_price': 2630, 'discount_percent': 8, 'current_price': 2420, 'image': 'product.jpg'},
+    {'id': 227, 'name': 'Audi Tyres', 'brand': 'Audi', 'year': '2026', 'price': 585, 'description': 'Audi tyres', 'old_price': 650, 'discount_percent': 10, 'current_price': 585, 'image': 'product.jpg'},
+    {'id': 228, 'name': 'Audi Battery', 'brand': 'Audi', 'year': '2024', 'price': 149, 'description': 'Audi battery', 'old_price': 165, 'discount_percent': 10, 'current_price': 149, 'image': 'product.jpg'},
+    {'id': 229, 'name': 'Audi Brake Pads', 'brand': 'Audi', 'year': '2025', 'price': 81, 'description': 'Audi brake pads', 'old_price': 90, 'discount_percent': 10, 'current_price': 81, 'image': 'product.jpg'},
+    # MERCEDES
+    {'id': 261, 'name': 'Mercedes Oil Filter', 'brand': 'Mercedes', 'year': '2026', 'price': 42, 'description': 'Mercedes oil filter', 'old_price': 46, 'discount_percent': 10, 'current_price': 42, 'image': 'product.jpg'},
+    {'id': 262, 'name': 'Mercedes Headlight', 'brand': 'Mercedes', 'year': '2024', 'price': 132, 'description': 'Mercedes headlight', 'old_price': 146, 'discount_percent': 10, 'current_price': 132, 'image': 'product.jpg'},
+    {'id': 263, 'name': 'Mercedes Air Filter', 'brand': 'Mercedes', 'year': '2025', 'price': 46, 'description': 'Mercedes air filter', 'old_price': 51, 'discount_percent': 10, 'current_price': 46, 'image': 'product.jpg'},
+    {'id': 264, 'name': 'Mercedes Windshield Wiper', 'brand': 'Mercedes', 'year': '2026', 'price': 29, 'description': 'Mercedes wiper', 'old_price': 32, 'discount_percent': 10, 'current_price': 29, 'image': 'product.jpg'},
+    {'id': 265, 'name': 'Mercedes Exhaust', 'brand': 'Mercedes', 'year': '2024', 'price': 325, 'description': 'Mercedes exhaust', 'old_price': 361, 'discount_percent': 10, 'current_price': 325, 'image': 'product.jpg'},
+    {'id': 266, 'name': 'Mercedes Engine', 'brand': 'Mercedes', 'year': '2025', 'price': 2750, 'description': 'Mercedes engine', 'old_price': 2989, 'discount_percent': 8, 'current_price': 2750, 'image': 'product.jpg'},
+    {'id': 267, 'name': 'Mercedes Tyres', 'brand': 'Mercedes', 'year': '2026', 'price': 660, 'description': 'Mercedes tyres', 'old_price': 733, 'discount_percent': 10, 'current_price': 660, 'image': 'product.jpg'},
+    {'id': 268, 'name': 'Mercedes Battery', 'brand': 'Mercedes', 'year': '2024', 'price': 168, 'description': 'Mercedes battery', 'old_price': 186, 'discount_percent': 10, 'current_price': 168, 'image': 'product.jpg'},
+    {'id': 269, 'name': 'Mercedes Brake Pads', 'brand': 'Mercedes', 'year': '2025', 'price': 96, 'description': 'Mercedes brake pads', 'old_price': 106, 'discount_percent': 10, 'current_price': 96, 'image': 'product.jpg'},
+]
+
 @app.route("/", methods=['GET'])
 def home():
     # Assign sellers to each product (deterministic so seller profile matches).
@@ -221,8 +305,11 @@ def home():
 
 @app.route("/product/<int:product_id>", methods=['GET'])
 def product_detail(product_id):
-    # Find the product by ID
-    product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
+    # Find the product by ID - check both TEST_PRODUCTS (search) and OFFER_PRODUCTS (homepage)
+    product = next((p for p in TEST_PRODUCTS if p['id'] == product_id), None)
+
+    if not product:
+        product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
 
     if not product:
         return "Product not found", 404
@@ -232,6 +319,70 @@ def product_detail(product_id):
     product_with_seller['seller'] = _get_seller_for_product(product)
 
     return render_template("product_detail.html", product=product_with_seller)
+
+
+@app.route("/api/cart", methods=['POST'])
+def add_product_to_cart():
+    """Add a product to the user's shopping cart"""
+    try:
+        data = request.get_json(silent=True)
+        print(f"Cart request data: {data}")
+
+        if not data or 'part_id' not in data:
+            return jsonify({'success': False, 'error': 'Missing part_id'}), 400
+
+        try:
+            part_id = int(data.get('part_id'))
+            quantity = int(data.get('quantity', 1))
+        except (ValueError, TypeError) as e:
+            print(f"Type conversion error: {e}")
+            return jsonify({'success': False, 'error': f'Invalid data types: {e}'}), 400
+
+        print(f"Looking for product ID: {part_id} (type: {type(part_id)})")
+        print(f"TEST_PRODUCTS count: {len(TEST_PRODUCTS)}")
+        print(f"First few product IDs: {[p['id'] for p in TEST_PRODUCTS[:5]]}")
+
+        # Initialize cart in session if not exists
+        if 'cart' not in session:
+            session['cart'] = {}
+
+        # Add or update item in cart
+        if str(part_id) in session['cart']:
+            session['cart'][str(part_id)]['quantity'] += quantity
+        else:
+            # Find product details
+            product = next((p for p in TEST_PRODUCTS if p['id'] == part_id), None)
+            print(f"Product found in TEST_PRODUCTS: {product is not None}")
+
+            if not product:
+                product = next((p for p in OFFER_PRODUCTS if p['id'] == part_id), None)
+                print(f"Product found in OFFER_PRODUCTS: {product is not None}")
+
+            if not product:
+                print(f"Product {part_id} not found in either list!")
+                return jsonify({'success': False, 'error': f'Product ID {part_id} not found'}), 404
+
+            session['cart'][str(part_id)] = {
+                'id': part_id,
+                'name': product['name'],
+                'price': product['current_price'],
+                'quantity': quantity
+            }
+
+        # Mark session as modified
+        session.modified = True
+
+        return jsonify({
+            'success': True,
+            'message': f'Added {quantity} item(s) to cart',
+            'cart_count': sum(item['quantity'] for item in session['cart'].values())
+        }), 200
+
+    except Exception as e:
+        print(f"Error adding to cart: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route("/seller/<int:seller_id>", methods=['GET'])
@@ -740,8 +891,8 @@ def view_cart():
     return render_template("cart.html")
 
 
-@app.route("/api/calcTax", methods=['GET', 'POST'])
-def calcTax():
+@app.route("/api/calc_tax", methods=['GET', 'POST'])
+def calc_tax():
     if request.method == 'POST':
         data = request.get_json(silent=True)
 
@@ -1120,7 +1271,7 @@ def clear_all_chats():
         response = requests.delete(url, timeout=5)
 
         if response.status_code in [200, 204]:
-            print(f"✓ All chat messages cleared")
+            print("✓ All chat messages cleared")
             return jsonify({"success": True, "message": "All chats cleared"}), 200
         else:
             print(f"⚠ Error clearing chats from Firebase: {response.status_code}")
@@ -1244,7 +1395,7 @@ def authenticate():
                 uid = decoded_token['uid']
                 email = decoded_token.get('email', '')
                 name = decoded_token.get('name', '')
-                print(f"✓ Token verified with Firebase Admin SDK")
+                print("✓ Token verified with Firebase Admin SDK")
             except Exception as e:
                 print(f"⚠ Token verification failed: {e}")
                 return jsonify({"error": "Token verification failed"}), 401
@@ -1259,7 +1410,7 @@ def authenticate():
             if not uid or not email:
                 return jsonify({"error": "User data missing"}), 400
 
-            print(f"⚠ Using client-side authentication (Firebase Admin SDK not available)")
+            print("⚠ Using client-side authentication (Firebase Admin SDK not available)")
 
         # Create or update user in database and Firebase
         try:
@@ -1458,11 +1609,10 @@ def part_registration_screen():
 def save_car_registration():
     data = request.get_json(silent=True) or {}
 
-    # TODO: GET USER ID
     try:
         insert_registered_car(data["make"], data["model"], data["year"], data["license"], data["engine"], data["wheels"], select_user_id(session['email'], session['name'])[0][0])
-    except:
-       pass
+    except Exception:
+        pass
 
     return jsonify({"message": "Car registration recieved"}), 200
 
@@ -1471,8 +1621,8 @@ def save_part_registration():
     data = request.get_json(silent=True) or {}
     try:
         insert_registered_part(select_user_id(session['email'], session['name'])[0][0], data["brand"], data["year"], data["part_name"], data["price"], data["description"], data["image"])
-    except:
-       pass
+    except Exception:
+        pass
 
     # Validate required fields
     required_fields = ['name', 'price', 'description', 'image']
@@ -1497,6 +1647,187 @@ def save_part_registration():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to save part"}), 500
+
+# ===== DYNAMIC CAR PARTS PRODUCTS =====
+# These endpoints dynamically fetch car parts from the database and serve them as products
+
+def get_seller_by_id(seller_id):
+    """Get seller info from SELLERS_DATA by ID"""
+    for seller in SELLERS_DATA:
+        if seller['id'] == seller_id:
+            return seller
+    return None
+
+
+def convert_part_to_product(part):
+    """Convert a RegisteredPart database record to a product dict"""
+    # Brand to seller ID mapping
+    seller_map = {
+        'Toyota': 1,
+        'Honda': 2,
+        'BMW': 3,
+        'Audi': 4,
+        'Mercedes': 5
+    }
+
+    seller_id = seller_map.get(part.get('brand', 'Toyota'), 1)
+    seller = get_seller_by_id(seller_id)
+    base_price = float(part.get('price', 0))
+
+    # Calculate discount based on part type
+    discount_percent = 15  # Default
+    part_name = part.get('part_name', '')
+
+    if part_name in ['Engine', 'Tyres']:
+        discount_percent = 10  # Less discount for expensive parts
+    elif part_name in ['Oil Filter', 'Air Filter', 'Windshield Wiper']:
+        discount_percent = 20  # More discount for cheap parts
+
+    # Calculate old price from discount
+    old_price = base_price / (1 - discount_percent / 100)
+
+    return {
+        'id': part.get('PartID'),
+        'name': f"{part.get('brand', '')} {part.get('part_name', '')} ({part.get('year', '')})",
+        'description': part.get('description', f"{part.get('brand')} {part.get('part_name')}"),
+        'price': round(base_price, 2),
+        'old_price': round(old_price, 2),
+        'discount_percent': discount_percent,
+        'seller_id': seller_id,
+        'seller': {
+            'id': seller['id'],
+            'name': seller['name'],
+            'title': seller['title'],
+            'pfp': seller['pfp'],
+            'rating': seller['rating'],
+            'reviews': seller['reviews'],
+            'response_time': seller['response_time'],
+            'active': seller['active']
+        } if seller else None,
+        'brand': part.get('brand'),
+        'part_type': part.get('part_name'),
+        'year': part.get('year'),
+        'image': part.get('image', f"part_{part.get('PartID')}.jpg")
+    }
+
+
+@app.route('/api/parts/all', methods=['GET'])
+def get_all_parts():
+    """Get all car parts from database as products"""
+    try:
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT PartID, brand, year, part_name, price, description, image
+            FROM RegisteredParts
+            ORDER BY brand, part_name
+        """)
+
+        parts = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        # Convert to products
+        products = [convert_part_to_product(part) for part in parts]
+
+        return jsonify({
+            'success': True,
+            'count': len(products),
+            'products': products
+        }), 200
+
+    except Exception as e:
+        print(f"Error fetching parts: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/parts/search', methods=['GET'])
+def search_parts():
+    """Search car parts by keyword, brand, year, or type"""
+    keyword = request.args.get('q', '').lower().strip()
+
+    # All cars and parts from database (Toyota, Honda, BMW, Audi, Mercedes)
+# TEST_PRODUCTS moved to module level above
+
+    results = []
+    for part in TEST_PRODUCTS:
+        if not keyword or keyword in part['name'].lower() or keyword in part['brand'].lower() or keyword in part['description'].lower():
+            results.append(part)
+
+    return jsonify({
+        'success': True,
+        'count': len(results),
+        'products': results
+    }), 200
+
+
+@app.route('/api/parts/<int:part_id>', methods=['GET'])
+def get_part_detail(part_id):
+    """Get a specific part by ID"""
+    try:
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT PartID, brand, year, part_name, price, description, image
+            FROM RegisteredParts
+            WHERE PartID = ?
+        """, (part_id,))
+
+        part = cursor.fetchone()
+        conn.close()
+
+        if not part:
+            return jsonify({'success': False, 'error': 'Part not found'}), 404
+
+        product = convert_part_to_product(dict(part))
+
+        return jsonify({
+            'success': True,
+            'product': product
+        }), 200
+
+    except Exception as e:
+        print(f"Error fetching part detail: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/parts/brands', methods=['GET'])
+def get_brands():
+    """Get list of all available brands"""
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT DISTINCT brand FROM RegisteredParts ORDER BY brand")
+        brands = [row[0] for row in cursor.fetchall()]
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'brands': brands
+        }), 200
+
+    except Exception as e:
+        print(f"Error fetching brands: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ===== SEARCH RESULTS PAGE =====
+@app.route('/search-results')
+def search_results():
+    """Render search results page"""
+    return render_template('search_results.html')
+
+
+# ===== PRODUCT PAGE (Dynamic from API) =====
+@app.route('/product-page')
+def product_page():
+    """Render dynamic product detail page (fetches from API)"""
+    return render_template('product.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)
