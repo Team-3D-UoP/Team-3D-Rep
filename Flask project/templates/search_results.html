@@ -345,6 +345,36 @@
                 <label>Brand</label>
                 <select id="brandFilter">
                     <option value="">All Brands</option>
+                    <option value="Toyota">Toyota</option>
+                    <option value="Honda">Honda</option>
+                    <option value="BMW">BMW</option>
+                    <option value="Audi">Audi</option>
+                    <option value="Mercedes">Mercedes</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 1;">
+                <label>Item Type</label>
+                <select id="itemTypeFilter">
+                    <option value="">All Items</option>
+                    <option value="Corolla">Corolla</option>
+                    <option value="RAV4">RAV4</option>
+                    <option value="Civic">Civic</option>
+                    <option value="CR-V">CR-V</option>
+                    <option value="3 Series">3 Series</option>
+                    <option value="X5">X5</option>
+                    <option value="A4">A4</option>
+                    <option value="Q5">Q5</option>
+                    <option value="C-Class">C-Class</option>
+                    <option value="GLC">GLC</option>
+                    <option value="Oil Filter">Oil Filter</option>
+                    <option value="Headlight">Headlight</option>
+                    <option value="Air Filter">Air Filter</option>
+                    <option value="Windshield Wiper">Windshield Wiper</option>
+                    <option value="Exhaust">Exhaust</option>
+                    <option value="Engine">Engine</option>
+                    <option value="Tyres">Tyres</option>
+                    <option value="Battery">Battery</option>
+                    <option value="Brake Pads">Brake Pads</option>
                 </select>
             </div>
             <div class="filter-group" style="flex: 1;">
@@ -494,6 +524,7 @@
         // Setup filter listeners
         function setupFilterListeners() {
             document.getElementById('brandFilter').addEventListener('change', applyFilters);
+            document.getElementById('itemTypeFilter').addEventListener('change', applyFilters);
             document.getElementById('yearFilter').addEventListener('change', applyFilters);
             document.getElementById('priceFilter').addEventListener('input', function() {
                 document.getElementById('priceValue').textContent = `£0 - £${this.value}`;
@@ -504,15 +535,17 @@
         // Apply filters
         function applyFilters() {
             const brand = document.getElementById('brandFilter').value.toLowerCase();
+            const itemType = document.getElementById('itemTypeFilter').value.toLowerCase();
             const year = document.getElementById('yearFilter').value;
             const maxPrice = parseFloat(document.getElementById('priceFilter').value);
 
             const filtered = allProducts.filter(product => {
                 const brandMatch = !brand || product.brand.toLowerCase().includes(brand);
+                const itemTypeMatch = !itemType || product.name.toLowerCase().includes(itemType) || (product.part_type && product.part_type.toLowerCase().includes(itemType));
                 const yearMatch = !year || product.year === year;
                 const priceMatch = product.price <= maxPrice;
 
-                return brandMatch && yearMatch && priceMatch;
+                return brandMatch && itemTypeMatch && yearMatch && priceMatch;
             });
 
             displayProducts(filtered);
@@ -521,6 +554,7 @@
         // Reset filters
         function resetFilters() {
             document.getElementById('brandFilter').value = '';
+            document.getElementById('itemTypeFilter').value = '';
             document.getElementById('yearFilter').value = '';
             document.getElementById('priceFilter').value = '2000';
             document.getElementById('priceValue').textContent = '£0 - £2000';
