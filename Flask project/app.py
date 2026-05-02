@@ -1713,37 +1713,3 @@ def get_brands():
 def search_results_page():
     """Render search results page"""
     return render_template('search_results.html')
-
-
-@app.route("/product/<int:product_id>", methods=['GET'])
-def product_detail(product_id):
-    # Try to fetch from car parts first
-    try:
-        all_parts = get_car_parts_data()
-        part = next((p for p in all_parts if p.get('PartID') == product_id), None)
-
-        if part:
-            # Convert car part to product format with seller info
-            print(f"✓ Found car part: {part.get('part_name')} (ID: {product_id})")
-            product = convert_part_to_product(part)
-            print(f"✓ Converted to product: {product['name']}")
-            return render_template("product_detail.html", product=product)
-        else:
-            print(f"✓ Car part {product_id} not found, checking OFFER_PRODUCTS...")
-
-    except Exception as e:
-        print(f"⚠ Error fetching car part: {e}")
-
-    # Fallback to original OFFER_PRODUCTS if not found in car parts
-    product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
-
-    if not product:
-        print(f"✗ Product {product_id} not found in either source")
-        return "Product not found", 404
-
-    # Use deterministic seller mapping so it matches the homepage and seller page.
-    print(f"✓ Found product in OFFER_PRODUCTS: {product.get('name', 'Unknown')}")
-    product_with_seller = product.copy()
-    product_with_seller['seller'] = _get_seller_for_product(product)
-
-    return render_template("product_detail.html", product=product_with_seller)
