@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - AutoPartFinder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .breadcrumb {
+            margin-bottom: 2rem;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .breadcrumb a {
+            color: #003d7a;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .product-container {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            padding: 2rem;
+        }
+
+        .product-image-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .product-image-main {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            color: white;
+        }
+
+        .product-details-section h1 {
+            font-size: 2rem;
+            color: #003d7a;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-brand-label {
+            font-size: 0.9rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .rating-stars {
+            font-size: 1.3rem;
+            color: #ffc107;
+        }
+
+        .rating-text {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .product-pricing-section {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .price-current {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #003d7a;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-original {
+            font-size: 1.2rem;
+            color: #999;
+            text-decoration: line-through;
+            margin-right: 1rem;
+        }
+
+        .discount-badge {
+            display: inline-block;
+            background-color: #ff6b6b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .product-description {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .product-specs {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .spec-item:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            font-weight: 600;
+            color: #003d7a;
+        }
+
+        .spec-value {
+            color: #666;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #003d7a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #002d5a;
+            box-shadow: 0 4px 12px rgba(0, 61, 122, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e3f2fd;
+            border-color: #003d7a;
+            color: #003d7a;
+        }
+
+        /* Seller Card */
+        .seller-card {
+            background-color: #f0f8ff;
+            border: 2px solid #e0e8ff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .seller-card h3 {
+            color: #003d7a;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .seller-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .seller-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .seller-basic-info {
+            flex: 1;
+        }
+
+        .seller-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .seller-title {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .seller-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .seller-rating .stars {
+            color: #ffc107;
+            font-size: 1rem;
+        }
+
+        .seller-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #28a745;
+            margin-left: 0.5rem;
+        }
+
+        .seller-status.inactive {
+            background-color: #dc3545;
+        }
+
+        .seller-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e8ff;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #003d7a;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
+
+        .seller-action {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .seller-action button {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #003d7a;
+            background-color: white;
+            color: #003d7a;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .seller-action button:hover {
+            background-color: #e3f2fd;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            margin-left: 1rem;
+            border: 4px solid #f0f0f0;
+            border-top-color: #003d7a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .product-main {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 1rem;
+            }
+
+            .product-details-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .price-current {
+                font-size: 2rem;
+            }
+
+            .product-actions {
+                flex-direction: column;
+            }
+
+            .seller-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a onclick="window.location.href='/'">Home</a> >
+            <a onclick="window.history.back()">Search Results</a> >
+            <span id="breadcrumbProduct">Product</span>
+        </div>
+
+        <div id="productContainer" class="product-container">
+            <div class="loading"></div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script>
+        // Get product ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        async function loadProduct() {
+            if (!productId) {
+                showError('Product ID not found');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/parts/${productId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayProduct(data.product);
+                } else {
+                    showError('Product not found');
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                showError('Error loading product: ' + error.message);
+            }
+        }
+
+        function displayProduct(product) {
+            const container = document.getElementById('productContainer');
+
+            // Update breadcrumb
+            document.getElementById('breadcrumbProduct').textContent = product.name;
+
+            let sellerHTML = '';
+            if (product.seller) {
+                const statusClass = product.seller.active ? '' : 'inactive';
+                sellerHTML = `
+                    <div class="seller-card">
+                        <h3>Sold by</h3>
+                        <div class="seller-header">
+                            <div class="seller-avatar">${product.seller.pfp}</div>
+                            <div class="seller-basic-info">
+                                <div class="seller-name">
+                                    ${product.seller.name}
+                                    <span class="seller-status ${statusClass}"></span>
+                                </div>
+                                <div class="seller-title">${product.seller.title}</div>
+                                <div class="seller-rating">
+                                    <span class="stars">★ ${product.seller.rating}</span>
+                                    <span>${product.seller.reviews} reviews</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="seller-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${product.seller.rating}</div>
+                                <div class="stat-label">Rating</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${product.seller.response_time}</div>
+                                <div class="stat-label">Avg Response</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${product.seller.active ? 'Active' : 'Inactive'}</div>
+                                <div class="stat-label">Status</div>
+                            </div>
+                        </div>
+                        <div class="seller-action">
+                            <button onclick="contactSeller('${product.seller.id}')">Contact Seller</button>
+                            <button onclick="viewSellerStore('${product.seller.id}')">View Store</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="product-main">
+                    <div class="product-image-section">
+                        <div class="product-image-main">🔧</div>
+                    </div>
+                    <div class="product-details-section">
+                        <div class="product-brand-label">${product.brand}</div>
+                        <h1>${product.name}</h1>
+                        <div class="product-rating">
+                            <span class="rating-stars">★ ${product.seller ? product.seller.rating : '4.5'}</span>
+                            <span class="rating-text">${product.seller ? product.seller.reviews + ' reviews' : 'Not rated'}</span>
+                        </div>
+
+                        <div class="product-pricing-section">
+                            <div class="price-current">£${product.price}</div>
+                            <div>
+                                <span class="price-original">£${product.old_price}</span>
+                                <span class="discount-badge">Save ${product.discount_percent}%</span>
+                            </div>
+                        </div>
+
+                        <div class="product-description">
+                            <p>${product.description}</p>
+                        </div>
+
+                        <div class="product-specs">
+                            <div class="spec-item">
+                                <span class="spec-label">Brand</span>
+                                <span class="spec-value">${product.brand}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Part Type</span>
+                                <span class="spec-value">${product.part_type}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Year</span>
+                                <span class="spec-value">${product.year}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">SKU</span>
+                                <span class="spec-value">PART-${product.id}</span>
+                            </div>
+                        </div>
+
+                        <div class="product-actions">
+                            <button class="btn btn-primary" onclick="addToCart(${product.id})">
+                                🛒 Add to Cart
+                            </button>
+                            <button class="btn btn-secondary" onclick="addToWishlist(${product.id})">
+                                ❤️ Wishlist
+                            </button>
+                        </div>
+
+                        ${sellerHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const container = document.getElementById('productContainer');
+            container.innerHTML = `
+                <div class="error-message">
+                    <h2>Error</h2>
+                    <p>${message}</p>
+                    <button class="btn btn-secondary" onclick="window.history.back()" style="margin-top: 1rem;">Go Back</button>
+                </div>
+            `;
+        }
+
+        async function addToCart(partId) {
+            try {
+                const response = await fetch('/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ part_id: partId, quantity: 1 })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('✓ Added to cart!');
+                    document.dispatchEvent(new Event('cartUpdated'));
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding to cart');
+            }
+        }
+
+        function addToWishlist(partId) {
+            alert('Added to wishlist! (Feature coming soon)');
+        }
+
+        function contactSeller(sellerId) {
+            alert('Contact form coming soon!');
+        }
+
+        function viewSellerStore(sellerId) {
+            window.location.href = `/seller/${sellerId}`;
+        }
+
+        // Load product on page load
+        window.addEventListener('DOMContentLoaded', loadProduct);
+    </script>
+</body>
+</html>
