@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Details - AutoPartFinder</title>
+    <title id="pageTitle">Product Details - AutoPartFinder</title>
     <style>
         * {
             margin: 0;
@@ -101,36 +101,43 @@
         }
 
         .price-section {
-            background-color: #f0f8ff;
+            background-color: #f0f9ff;
             border-radius: 8px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border-left: 4px solid #003d7a;
+            border-left: 5px solid #28a745;
         }
 
         .price-label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #666;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-        }
-
-        .price-current {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: #003d7a;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
         }
 
         .price-row {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .price-row:last-child {
+            border-bottom: none;
+        }
+
+        .price-current {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #28a745;
+            margin: 0.75rem 0;
         }
 
         .price-original {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #999;
             text-decoration: line-through;
         }
@@ -138,10 +145,10 @@
         .discount-badge {
             background-color: #ff6b6b;
             color: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .description-section {
@@ -350,6 +357,57 @@
             text-align: center;
         }
 
+        .reviews-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #eee;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .review-card {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-author {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .review-stars {
+            color: #ffc107;
+            font-size: 1rem;
+        }
+
+        .review-text {
+            color: #666;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .no-reviews {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+
         @media (max-width: 768px) {
             .product-content {
                 grid-template-columns: 1fr;
@@ -372,6 +430,10 @@
             .seller-stats {
                 grid-template-columns: 1fr;
             }
+
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -390,7 +452,13 @@
     <script>
         async function loadProduct() {
             const params = new URLSearchParams(window.location.search);
-            const productId = params.get('id');
+            let productId = params.get('id');
+
+            // If no ID in query params, get from URL path (e.g., /product/1)
+            if (!productId) {
+                const pathParts = window.location.pathname.split('/');
+                productId = pathParts[pathParts.length - 1];
+            }
 
             if (!productId) {
                 showError('Product not found');
@@ -398,13 +466,19 @@
             }
 
             try {
-                const response = await fetch(`/api/parts/${productId}`);
+                // Fetch all products and find the matching one
+                const response = await fetch(`/api/parts/search`);
                 const data = await response.json();
 
-                if (data.success && data.product) {
-                    displayProduct(data.product);
+                if (data.success && data.products) {
+                    const product = data.products.find(p => p.id == productId);
+                    if (product) {
+                        displayProduct(product);
+                    } else {
+                        showError('Product not found in our database');
+                    }
                 } else {
-                    showError('Could not load product');
+                    showError('Could not load products');
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -412,8 +486,12 @@
             }
         }
 
+        let currentProduct = null;
+
         function displayProduct(product) {
+            currentProduct = product;
             const content = document.getElementById('content');
+            document.getElementById('pageTitle').textContent = product.name + ' - AutoPartFinder';
 
             let sellerHTML = '';
             if (product.seller) {
@@ -428,7 +506,7 @@
                                     ${product.seller.name}
                                     <span class="seller-status ${statusClass}"></span>
                                 </div>
-                                <div class="seller-title">${product.seller.title}</div>
+                                <div class="seller-title">${product.seller.title || 'Verified Seller'}</div>
                                 <div class="seller-rating">
                                     <span style="color: #ffc107;">★ ${product.seller.rating}</span>
                                     <span>(${product.seller.reviews} reviews)</span>
@@ -437,16 +515,16 @@
                         </div>
                         <div class="seller-stats">
                             <div class="stat">
-                                <div class="stat-value">${product.seller.rating}</div>
-                                <div class="stat-label">Rating</div>
+                                <div class="stat-value">${product.seller.rating || '4.5'}</div>
+                                <div class="stat-label">Feedback</div>
                             </div>
                             <div class="stat">
-                                <div class="stat-value">${product.seller.response_time}</div>
-                                <div class="stat-label">Response Time</div>
+                                <div class="stat-value">${product.seller.reviews || '542'}</div>
+                                <div class="stat-label">Sold</div>
                             </div>
                             <div class="stat">
-                                <div class="stat-value">${product.seller.active ? 'Active' : 'Offline'}</div>
-                                <div class="stat-label">Status</div>
+                                <div class="stat-value">${product.seller.response_time || '2 hours'}</div>
+                                <div class="stat-label">Response</div>
                             </div>
                         </div>
                     </div>
@@ -466,11 +544,17 @@
                         </div>
 
                         <div class="price-section">
-                            <div class="price-label">Current Price</div>
-                            <div class="price-current">£${product.price}</div>
                             <div class="price-row">
-                                <span class="price-original">£${product.old_price}</span>
-                                <span class="discount-badge">-${product.discount_percent}%</span>
+                                <span class="price-label">Original Price:</span>
+                                <span class="price-original">£${(product.old_price || product.price).toFixed(2)}</span>
+                            </div>
+                            <div class="price-row">
+                                <span class="price-label">Discount:</span>
+                                <span><span class="discount-badge">-${product.discount_percent || 0}%</span></span>
+                            </div>
+                            <div class="price-row" style="border-bottom: none; padding-top: 1rem; border-top: 2px solid #ddd;">
+                                <span class="price-label">Final Price:</span>
+                                <span class="price-current" style="margin: 0; font-size: 2rem; color: #28a745;">£${(product.price || 0).toFixed(2)}</span>
                             </div>
                         </div>
 
@@ -505,13 +589,48 @@
                             <button class="btn btn-primary" onclick="addToCart(${product.id})">
                                 🛒 Add to Cart
                             </button>
-                            <button class="btn btn-secondary" onclick="alert('Feature coming soon!')">
-                                ❤️ Wishlist
+                            <button class="btn btn-secondary" onclick="messageSeller()">
+                                💬 Message Seller
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <div class="reviews-section">
+                    <h2 class="section-title">Buyer Reviews</h2>
+                    <div id="reviewsContainer" class="reviews-grid">
+                        <div class="no-reviews">Loading reviews...</div>
+                    </div>
+                </div>
             `;
+
+            // Load reviews after displaying product
+            loadReviews(product.id);
+        }
+
+        async function loadReviews(productId) {
+            try {
+                const response = await fetch(`/api/product/${productId}/reviews`);
+                const data = await response.json();
+                const reviewsContainer = document.getElementById('reviewsContainer');
+
+                if (data.success && data.reviews && data.reviews.length > 0) {
+                    reviewsContainer.innerHTML = data.reviews.map(review => `
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="review-author">${review.user_name}</span>
+                                <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                            </div>
+                            <p class="review-text">${review.review_text}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    reviewsContainer.innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review this product!</div>';
+                }
+            } catch (error) {
+                console.log('No reviews available');
+                document.getElementById('reviewsContainer').innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review this product!</div>';
+            }
         }
 
         function showError(message) {
@@ -526,10 +645,10 @@
 
         async function addToCart(partId) {
             try {
-                const response = await fetch('/api/cart', {
+                const response = await fetch('/api/cart/add', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ part_id: partId, quantity: 1 })
+                    body: JSON.stringify({ product_id: partId, quantity: 1 })
                 });
 
                 const data = await response.json();
@@ -542,6 +661,14 @@
             } catch (error) {
                 alert('Error adding to cart');
             }
+        }
+
+        function messageSeller() {
+            if (!currentProduct || !currentProduct.seller) {
+                alert('Seller information not available');
+                return;
+            }
+            alert(`Message feature coming soon!\n\nContact: ${currentProduct.seller.name}\n\nYou can send them a direct message about this product.`);
         }
 
         window.addEventListener('DOMContentLoaded', loadProduct);
