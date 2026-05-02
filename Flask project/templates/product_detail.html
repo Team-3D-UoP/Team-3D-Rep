@@ -1236,7 +1236,7 @@
     }
 
     try {
-      const productId = {{ product.id }};
+      const productId = {{ product.id | tojson }};
       const deleteUrl = `/product/${productId}/review/${reviewId}`;
       const response = await fetch(deleteUrl, {
         method: 'DELETE'
@@ -1578,7 +1578,7 @@
   if (addToCartBtn) {
     addToCartBtn.addEventListener('click', async function() {
       try {
-        const productId = {{ product.id }};
+        const productId = {{ product.id | tojson }};
         const response = await fetch('/api/cart', {
           method: 'POST',
           headers: {

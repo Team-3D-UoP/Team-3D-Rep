@@ -785,28 +785,22 @@ def add_to_cart():
 
 @app.route("/api/cart", methods=['GET'])
 def get_cart():
-    """Get all items in user's cart"""
-    if 'user_id' not in session:
-        return jsonify({"error": "User not logged in"}), 401
-
+    """Get all items in user's cart (session-based)"""
     try:
-        cart_items = CartItem.query.filter_by(user_id=session['user_id']).all()
+        # Get cart from session
+        cart = session.get('cart', {})
 
-        items_with_details = []
-        for item in cart_items:
-            product = next((p for p in OFFER_PRODUCTS if p['id'] == item.product_id), None)
-            if product:
-                item_data = item.to_dict()
-                item_data['product'] = product
-                item_data['total_price'] = product['current_price'] * item.quantity
-                items_with_details.append(item_data)
+        items = []
+        total_price = 0
 
-        total_price = sum(item['total_price'] for item in items_with_details)
+        for product_id, item in cart.items():
+            items.append(item)
+            total_price += item['price'] * item['quantity']
 
         return jsonify({
             "success": True,
-            "items": items_with_details,
-            "count": len(items_with_details),
+            "items": items,
+            "count": len(items),
             "total_price": total_price
         }), 200
 
