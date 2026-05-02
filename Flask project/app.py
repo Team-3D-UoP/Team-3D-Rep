@@ -1501,6 +1501,14 @@ def save_part_registration():
 # ===== DYNAMIC CAR PARTS PRODUCTS =====
 # These endpoints dynamically fetch car parts from the database and serve them as products
 
+def get_seller_by_id(seller_id):
+    """Get seller info from SELLERS_DATA by ID"""
+    for seller in SELLERS_DATA:
+        if seller['id'] == seller_id:
+            return seller
+    return None
+
+
 def convert_part_to_product(part):
     """Convert a RegisteredPart database record to a product dict"""
     # Brand to seller ID mapping
@@ -1513,6 +1521,7 @@ def convert_part_to_product(part):
     }
 
     seller_id = seller_map.get(part.get('brand', 'Toyota'), 1)
+    seller = get_seller_by_id(seller_id)
     base_price = float(part.get('price', 0))
 
     # Calculate discount based on part type
@@ -1535,6 +1544,16 @@ def convert_part_to_product(part):
         'old_price': round(old_price, 2),
         'discount_percent': discount_percent,
         'seller_id': seller_id,
+        'seller': {
+            'id': seller['id'],
+            'name': seller['name'],
+            'title': seller['title'],
+            'pfp': seller['pfp'],
+            'rating': seller['rating'],
+            'reviews': seller['reviews'],
+            'response_time': seller['response_time'],
+            'active': seller['active']
+        } if seller else None,
         'brand': part.get('brand'),
         'part_type': part.get('part_name'),
         'year': part.get('year'),
