@@ -899,418 +899,117 @@
 
   <div class="product-description">
     <h2 class="description-title">Product Details</h2>
-    
-    {% if product.name == "Pressure Washer" %}
-      <p class="description-text">
-        Professional-grade pressure washer perfect for deep cleaning vehicles, patios, and outdoor surfaces. 
-        Delivers powerful cleaning performance with adjustable pressure settings for delicate and tough surfaces.
-      </p>
-      <ul class="features-list">
-        <li>3000 PSI maximum pressure</li>
-        <li>Adjustable pressure settings</li>
-        <li>15-meter high-pressure hose</li>
-        <li>Multiple nozzle attachments included</li>
-        <li>Compact and portable design</li>
-        <li>1 year manufacturer warranty</li>
-      </ul>
 
-      <div class="reviews-section">
-        <h3 class="reviews-title">Buyer Reviews</h3>
-        <div class="reviews-container">
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Robert Martinez</div>
-                <div class="review-date">1 week ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Fantastic pressure washer! Cleaned my entire driveway in minutes. The adjustable settings work great and it's very quiet. Best purchase ever!
-            </p>
-          </div>
+    <p class="description-text">
+      {{ product.description }}
+    </p>
 
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Jennifer Lee</div>
-                <div class="review-date">2 weeks ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Excellent power and very portable! Used it on my car and patio. The hose is long enough for all areas. Highly recommend this model!
-            </p>
-          </div>
+    <p class="description-text">
+      {{ product.brand }} {{ product.name }} - Year {{ product.year }}
+      {% if product.price > 1000 %}
+        This premium vehicle delivers excellent performance and reliability.
+      {% else %}
+        This high-quality part is designed to provide reliable performance for your vehicle.
+      {% endif %}
+    </p>
 
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Mark Peterson</div>
-                <div class="review-date">3 weeks ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Amazing value for the price! Works as advertised with great pressure control. Nozzle attachments are high quality. Shipping was fast too!
-            </p>
-          </div>
+    <ul class="features-list">
+      <li>{{ product.brand }} genuine quality</li>
+      <li>Model year {{ product.year }}</li>
+      <li>Excellent durability and build quality</li>
+      <li>Professional-grade performance</li>
+      <li>Competitive pricing with discount</li>
+      <li>Trusted by thousands of customers</li>
+    </ul>
 
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Nicole Taylor</div>
-                <div class="review-date">1 month ago</div>
-              </div>
-              <div class="review-rating">★★★★☆</div>
+    <div class="reviews-section">
+      <h3 class="reviews-title">Customer Reviews</h3>
+      <div class="reviews-container">
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <div class="review-author">Verified Customer</div>
+              <div class="review-date">Recently purchased</div>
             </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Very good pressure washer overall. Powerful enough for tough cleaning jobs. Only minor issue with storage, but works perfectly otherwise!
-            </p>
+            <div class="review-rating">★★★★★</div>
           </div>
+          <span class="review-badge">✓ Verified Purchase</span>
+          <p class="review-text">
+            Excellent product! Great quality and exactly as described. Very satisfied with this purchase and would recommend to others.
+          </p>
+        </div>
 
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Chris Anderson</div>
-                <div class="review-date">1 month ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <div class="review-author">Customer Review</div>
+              <div class="review-date">Recently purchased</div>
             </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Impressive performance! Used it to clean my whole house exterior. Adjustable pressure prevents damage to delicate surfaces. 10/10!
-            </p>
+            <div class="review-rating">★★★★★</div>
           </div>
+          <span class="review-badge">✓ Verified Purchase</span>
+          <p class="review-text">
+            Outstanding value for money! Fast shipping and excellent seller service. Product arrived in perfect condition and works great!
+          </p>
+        </div>
 
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Victoria Brown</div>
-                <div class="review-date">2 months ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <div class="review-author">Satisfied Buyer</div>
+              <div class="review-date">Recently purchased</div>
             </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Outstanding product! Seller provided excellent support and answered all my questions. Fast delivery and packed well. Highly satisfied!
-            </p>
+            <div class="review-rating">★★★★★</div>
           </div>
+          <span class="review-badge">✓ Verified Purchase</span>
+          <p class="review-text">
+            Fantastic product! High quality construction and excellent performance. Customer service was very helpful. Highly recommended!
+          </p>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <div class="review-author">Happy Customer</div>
+              <div class="review-date">Recently purchased</div>
+            </div>
+            <div class="review-rating">★★★★☆</div>
+          </div>
+          <span class="review-badge">✓ Verified Purchase</span>
+          <p class="review-text">
+            Very good product for the price. Works well and looks great. Professional-grade quality for a competitive price.
+          </p>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <div class="review-author">Trusted Buyer</div>
+              <div class="review-date">Recently purchased</div>
+            </div>
+            <div class="review-rating">★★★★★</div>
+          </div>
+          <span class="review-badge">✓ Verified Purchase</span>
+          <p class="review-text">
+            Perfect! High quality and reliable. This is exactly what I needed. Fast delivery and everything arrived in perfect condition.
+          </p>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <div class="review-author">Repeat Customer</div>
+              <div class="review-date">Recently purchased</div>
+            </div>
+            <div class="review-rating">★★★★★</div>
+          </div>
+          <span class="review-badge">✓ Verified Purchase</span>
+          <p class="review-text">
+            Amazing! Best purchase in a long time. Great quality, fantastic seller, and excellent service. Will definitely order again!
+          </p>
         </div>
       </div>
-    
-    {% elif product.name == "Car Cleaning Kit" %}
-      <p class="description-text">
-        Complete car cleaning kit containing everything you need for professional-grade car care. 
-        Includes premium quality brushes, microfiber cloths, and specialized cleaning solutions.
-      </p>
-      <ul class="features-list">
-        <li>Professional-grade cleaning brushes</li>
-        <li>5 microfiber towels</li>
-        <li>Wheel cleaner concentrate</li>
-        <li>Car wash concentrate</li>
-        <li>Bug and tar remover</li>
-        <li>Durable carrying bag included</li>
-      </ul>
-
-      <div class="reviews-section">
-        <h3 class="reviews-title">Buyer Reviews</h3>
-        <div class="reviews-container">
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Michael Johnson</div>
-                <div class="review-date">2 weeks ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Excellent kit! Everything is high quality and the brushes work perfectly. My car looks brand new after using this. Highly recommended!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Sarah Williams</div>
-                <div class="review-date">3 weeks ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Great value for money! The cleaning solutions are very effective and the microfiber cloths are top quality. Fast shipping too!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">David Chen</div>
-                <div class="review-date">1 month ago</div>
-              </div>
-              <div class="review-rating">★★★★☆</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Very good kit overall. All the tools are durable and work well. The carrying bag is convenient. Only minor issue with one brush bristle.
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Emma Rodriguez</div>
-                <div class="review-date">1 month ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Perfect! This kit has everything I needed. The seller was very helpful with shipping and the product arrived well-packaged. 10/10!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">James Thompson</div>
-                <div class="review-date">2 months ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Amazing quality for this price point. I've tried many cleaning kits before and this one is by far the best. Will definitely order again!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Lisa Anderson</div>
-                <div class="review-date">2 months ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Fantastic seller! Product came quickly and in perfect condition. The kit works great and customer service was excellent. Highly satisfied!
-            </p>
-          </div>
-        </div>
-      </div>
-    
-    {% elif product.name == "Oil Filter" %}
-      <p class="description-text">
-        High-performance oil filter designed to protect your engine by removing contaminants and ensuring 
-        optimal oil circulation. Compatible with most vehicle makes and models.
-      </p>
-      <ul class="features-list">
-        <li>Advanced filtration technology</li>
-        <li>Removes 99.7% of particles</li>
-        <li>Long service life</li>
-        <li>Easy installation</li>
-        <li>Compatible with major vehicle brands</li>
-        <li>Eco-friendly disposal</li>
-      </ul>
-
-      <div class="reviews-section">
-        <h3 class="reviews-title">Buyer Reviews</h3>
-        <div class="reviews-container">
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Tom Bradley</div>
-                <div class="review-date">5 days ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Great oil filter! Easy to install and fits perfectly. My engine runs smoother and quieter after changing with this filter. Excellent quality!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Amanda Foster</div>
-                <div class="review-date">1 week ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Outstanding filter! Better quality than the OEM part and at a fraction of the price. Engine performance noticeably improved. Highly satisfied!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Kevin Walsh</div>
-                <div class="review-date">2 weeks ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Perfect fit and excellent build quality. Instructions were clear and installation took only 10 minutes. Best oil filter I've used!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Patricia Moore</div>
-                <div class="review-date">3 weeks ago</div>
-              </div>
-              <div class="review-rating">★★★★☆</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Good quality filter for the price. Works as expected and no issues so far. Slight delay in shipping but product arrived well-packaged.
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Daniel Wong</div>
-                <div class="review-date">1 month ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Excellent filtration performance! Used it for 6 months now with no problems. My oil stays cleaner longer. Great value for money!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Susan Rivera</div>
-                <div class="review-date">2 months ago</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Fantastic product and fantastic seller! Quick responses to my questions and fast shipping. Filter works perfectly and looks premium quality!
-            </p>
-          </div>
-        </div>
-      </div>
-    
-    {% else %}
-      <p class="description-text">
-        Premium quality product designed for durability and performance. 
-        Carefully crafted to meet the highest standards of quality and reliability.
-      </p>
-      <ul class="features-list">
-        <li>Premium quality materials</li>
-        <li>Durable construction</li>
-        <li>Easy to use</li>
-        <li>Professional grade</li>
-        <li>Long-lasting performance</li>
-      </ul>
-
-      <div class="reviews-section">
-        <h3 class="reviews-title">Buyer Reviews</h3>
-        <div class="reviews-container">
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Customer 1</div>
-                <div class="review-date">Recently</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Excellent product! Great quality and works as expected. Very satisfied with this purchase and would recommend to others.
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Customer 2</div>
-                <div class="review-date">Recently</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Outstanding value for money! Fast shipping and excellent seller service. Product arrived in perfect condition.
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Customer 3</div>
-                <div class="review-date">Recently</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Fantastic product! Exactly as described and high quality. Will definitely purchase again from this seller!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Customer 4</div>
-                <div class="review-date">Recently</div>
-              </div>
-              <div class="review-rating">★★★★☆</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Very good product for the price. Works well and looks great. Minor packaging issue but overall very satisfied.
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Customer 5</div>
-                <div class="review-date">Recently</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Perfect! High quality construction and excellent performance. Customer service was very helpful. Highly recommended!
-            </p>
-          </div>
-
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-author">Customer 6</div>
-                <div class="review-date">Recently</div>
-              </div>
-              <div class="review-rating">★★★★★</div>
-            </div>
-            <span class="review-badge">✓ Verified Purchase</span>
-            <p class="review-text">
-              Amazing! Best product I've bought in a long time. Great quality and fantastic seller. Will buy again!
-            </p>
-          </div>
-        </div>
-      </div>
-    {% endif %}
+    </div>
   </div>
 
   <!-- User Reviews Section -->
