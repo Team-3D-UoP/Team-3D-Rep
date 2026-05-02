@@ -113,3 +113,375 @@
             color: white;
             font-size: 3rem;
         }
+
+        .product-info {
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-brand {
+            font-size: 0.8rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-description {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .product-pricing {
+            margin: 0.75rem 0;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #003d7a;
+        }
+
+        .product-old-price {
+            font-size: 0.9rem;
+            color: #999;
+            text-decoration: line-through;
+            margin-right: 0.5rem;
+        }
+
+        .product-discount {
+            display: inline-block;
+            background-color: #ff6b6b;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #003d7a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #002d5a;
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e3f2fd;
+            border-color: #003d7a;
+            color: #003d7a;
+        }
+
+        .no-results {
+            background-color: white;
+            padding: 3rem 2rem;
+            border-radius: 8px;
+            text-align: center;
+            color: #666;
+        }
+
+        .no-results h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-left: 0.5rem;
+            border: 3px solid #f0f0f0;
+            border-top-color: #003d7a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .search-header {
+                padding: 1.5rem;
+            }
+
+            .search-header h1 {
+                font-size: 1.4rem;
+            }
+
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <div class="container">
+        <div class="search-header">
+            <h1>Search Results</h1>
+            <p id="resultInfo">Searching for your parts...</p>
+        </div>
+
+        <div class="filters-bar">
+            <div class="filter-group" style="flex: 1;">
+                <label>Brand</label>
+                <select id="brandFilter">
+                    <option value="">All Brands</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 1;">
+                <label>Year</label>
+                <select id="yearFilter">
+                    <option value="">All Years</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 1;">
+                <label>Price Range</label>
+                <input type="range" id="priceFilter" min="0" max="2000" step="50">
+                <span id="priceValue">£0 - £2000</span>
+            </div>
+            <button class="btn btn-secondary" onclick="resetFilters()" style="align-self: flex-end; width: auto; padding: 0.75rem 1.5rem;">Reset Filters</button>
+        </div>
+
+        <div id="resultsContainer" class="products-grid">
+            <div class="loading"></div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script>
+        let allProducts = [];
+        const searchParams = new URLSearchParams(window.location.search);
+        const searchQuery = searchParams.get('q') || '';
+
+        // Initialize page
+        async function init() {
+            await searchProducts();
+            await loadBrands();
+            setupFilterListeners();
+        }
+
+        // Search products
+        async function searchProducts() {
+            const container = document.getElementById('resultsContainer');
+            const resultInfo = document.getElementById('resultInfo');
+
+            try {
+                const endpoint = searchQuery
+                    ? `/api/parts/search?q=${encodeURIComponent(searchQuery)}`
+                    : '/api/parts/all';
+
+                const response = await fetch(endpoint);
+                const data = await response.json();
+
+                if (data.success && data.products.length > 0) {
+                    allProducts = data.products;
+                    displayProducts(allProducts);
+                    resultInfo.textContent = `Found ${data.count} results for "${searchQuery}"`;
+                } else {
+                    container.innerHTML = `
+                        <div class="no-results" style="grid-column: 1/-1;">
+                            <h2>No results found</h2>
+                            <p>Try searching with different keywords or browse all parts.</p>
+                            <button class="btn btn-primary" onclick="window.location.href='/'" style="margin-top: 1rem; width: auto;">Back to Home</button>
+                        </div>
+                    `;
+                    resultInfo.textContent = 'No results found';
+                }
+            } catch (error) {
+                console.error('Error searching products:', error);
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="no-results" style="grid-column: 1/-1;">
+                        <h2>Error loading results</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display products
+        function displayProducts(products) {
+            const container = document.getElementById('resultsContainer');
+
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results" style="grid-column: 1/-1;">
+                        <h2>No products match your filters</h2>
+                        <button class="btn btn-secondary" onclick="resetFilters()">Clear Filters</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <div class="product-image">🔧</div>
+                    <div class="product-info">
+                        <div class="product-brand">${product.brand}</div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-description">${product.description}</div>
+                        <div class="product-pricing">
+                            <span class="product-price">£${product.price}</span>
+                            <span class="product-old-price">£${product.old_price}</span>
+                            <span class="product-discount">-${product.discount_percent}%</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-primary" onclick="addToCart(${product.id})">Add to Cart</button>
+                        <button class="btn btn-secondary" onclick="viewDetails(${product.id})">Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load brands for filter
+        async function loadBrands() {
+            try {
+                const response = await fetch('/api/parts/brands');
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('brandFilter');
+                    data.brands.forEach(brand => {
+                        const option = document.createElement('option');
+                        option.value = brand;
+                        option.textContent = brand;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading brands:', error);
+            }
+        }
+
+        // Setup filter listeners
+        function setupFilterListeners() {
+            document.getElementById('brandFilter').addEventListener('change', applyFilters);
+            document.getElementById('yearFilter').addEventListener('change', applyFilters);
+            document.getElementById('priceFilter').addEventListener('input', function() {
+                document.getElementById('priceValue').textContent = `£0 - £${this.value}`;
+                applyFilters();
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const brand = document.getElementById('brandFilter').value.toLowerCase();
+            const year = document.getElementById('yearFilter').value;
+            const maxPrice = parseFloat(document.getElementById('priceFilter').value);
+
+            const filtered = allProducts.filter(product => {
+                const brandMatch = !brand || product.brand.toLowerCase().includes(brand);
+                const yearMatch = !year || product.year === year;
+                const priceMatch = product.price <= maxPrice;
+
+                return brandMatch && yearMatch && priceMatch;
+            });
+
+            displayProducts(filtered);
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('brandFilter').value = '';
+            document.getElementById('yearFilter').value = '';
+            document.getElementById('priceFilter').value = '2000';
+            document.getElementById('priceValue').textContent = '£0 - £2000';
+            displayProducts(allProducts);
+        }
+
+        // Add to cart
+        async function addToCart(partId) {
+            try {
+                const response = await fetch('/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ part_id: partId, quantity: 1 })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Added to cart!');
+                    document.dispatchEvent(new Event('cartUpdated'));
+                } else {
+                    alert('Error adding to cart: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding to cart');
+            }
+        }
+
+        // View details
+        function viewDetails(partId) {
+            window.location.href = `/product/${partId}`;
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
