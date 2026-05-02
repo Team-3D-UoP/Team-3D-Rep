@@ -1577,24 +1577,15 @@
   const addToCartBtn = document.getElementById('addToCartBtn');
   if (addToCartBtn) {
     addToCartBtn.addEventListener('click', async function() {
-      // Check if user is logged in
-      const userLoggedIn = '{{ session.get("user_id") }}' !== '';
-
-      if (!userLoggedIn) {
-        alert('Please log in to add items to your cart.');
-        window.location.href = '{{ url_for("login") }}';
-        return;
-      }
-
       try {
         const productId = {{ product.id }};
-        const response = await fetch('/api/cart/add', {
+        const response = await fetch('/api/cart', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            product_id: productId,
+            part_id: productId,
             quantity: 1
           })
         });
@@ -1605,8 +1596,6 @@
           alert('Item added to cart successfully!');
           // Trigger custom event to update cart count in header
           document.dispatchEvent(new Event('cartUpdated'));
-          // Optionally, redirect to cart or update UI
-          // window.location.href = '{{ url_for("view_cart") }}';
         } else {
           alert(data.error || 'Error adding item to cart.');
         }

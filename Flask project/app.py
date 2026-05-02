@@ -321,6 +321,70 @@ def product_detail(product_id):
     return render_template("product_detail.html", product=product_with_seller)
 
 
+@app.route("/api/cart", methods=['POST'])
+def add_product_to_cart():
+    """Add a product to the user's shopping cart"""
+    try:
+        data = request.get_json(silent=True)
+        print(f"Cart request data: {data}")
+
+        if not data or 'part_id' not in data:
+            return jsonify({'success': False, 'error': 'Missing part_id'}), 400
+
+        try:
+            part_id = int(data.get('part_id'))
+            quantity = int(data.get('quantity', 1))
+        except (ValueError, TypeError) as e:
+            print(f"Type conversion error: {e}")
+            return jsonify({'success': False, 'error': f'Invalid data types: {e}'}), 400
+
+        print(f"Looking for product ID: {part_id} (type: {type(part_id)})")
+        print(f"TEST_PRODUCTS count: {len(TEST_PRODUCTS)}")
+        print(f"First few product IDs: {[p['id'] for p in TEST_PRODUCTS[:5]]}")
+
+        # Initialize cart in session if not exists
+        if 'cart' not in session:
+            session['cart'] = {}
+
+        # Add or update item in cart
+        if str(part_id) in session['cart']:
+            session['cart'][str(part_id)]['quantity'] += quantity
+        else:
+            # Find product details
+            product = next((p for p in TEST_PRODUCTS if p['id'] == part_id), None)
+            print(f"Product found in TEST_PRODUCTS: {product is not None}")
+
+            if not product:
+                product = next((p for p in OFFER_PRODUCTS if p['id'] == part_id), None)
+                print(f"Product found in OFFER_PRODUCTS: {product is not None}")
+
+            if not product:
+                print(f"Product {part_id} not found in either list!")
+                return jsonify({'success': False, 'error': f'Product ID {part_id} not found'}), 404
+
+            session['cart'][str(part_id)] = {
+                'id': part_id,
+                'name': product['name'],
+                'price': product['current_price'],
+                'quantity': quantity
+            }
+
+        # Mark session as modified
+        session.modified = True
+
+        return jsonify({
+            'success': True,
+            'message': f'Added {quantity} item(s) to cart',
+            'cart_count': sum(item['quantity'] for item in session['cart'].values())
+        }), 200
+
+    except Exception as e:
+        print(f"Error adding to cart: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route("/seller/<int:seller_id>", methods=['GET'])
 def seller_detail(seller_id):
     seller = next((s for s in SELLERS_DATA if s['id'] == seller_id), None)
