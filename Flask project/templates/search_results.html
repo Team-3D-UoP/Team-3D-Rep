@@ -274,3 +274,126 @@
 </head>
 <body>
     {% include 'header.html' %}
+
+    <div class="container">
+        <div class="search-header">
+            <h1>Search Results</h1>
+            <p id="resultInfo">Searching for your parts...</p>
+        </div>
+
+        <div class="filters-bar">
+            <div class="filter-group" style="flex: 1;">
+                <label>Brand</label>
+                <select id="brandFilter">
+                    <option value="">All Brands</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 1;">
+                <label>Year</label>
+                <select id="yearFilter">
+                    <option value="">All Years</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 1;">
+                <label>Price Range</label>
+                <input type="range" id="priceFilter" min="0" max="2000" step="50">
+                <span id="priceValue">£0 - £2000</span>
+            </div>
+            <button class="btn btn-secondary" onclick="resetFilters()" style="align-self: flex-end; width: auto; padding: 0.75rem 1.5rem;">Reset Filters</button>
+        </div>
+
+        <div id="resultsContainer" class="products-grid">
+            <div class="loading"></div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script>
+        let allProducts = [];
+        const searchParams = new URLSearchParams(window.location.search);
+        const searchQuery = searchParams.get('q') || '';
+
+        // Initialize page
+        async function init() {
+            await searchProducts();
+            await loadBrands();
+            setupFilterListeners();
+        }
+
+        // Search products
+        async function searchProducts() {
+            const container = document.getElementById('resultsContainer');
+            const resultInfo = document.getElementById('resultInfo');
+
+            try {
+                const endpoint = searchQuery
+                    ? `/api/parts/search?q=${encodeURIComponent(searchQuery)}`
+                    : '/api/parts/all';
+
+                const response = await fetch(endpoint);
+                const data = await response.json();
+
+                if (data.success && data.products.length > 0) {
+                    allProducts = data.products;
+                    displayProducts(allProducts);
+                    resultInfo.textContent = `Found ${data.count} results for "${searchQuery}"`;
+                } else {
+                    container.innerHTML = `
+                        <div class="no-results" style="grid-column: 1/-1;">
+                            <h2>No results found</h2>
+                            <p>Try searching with different keywords or browse all parts.</p>
+                            <button class="btn btn-primary" onclick="window.location.href='/'" style="margin-top: 1rem; width: auto;">Back to Home</button>
+                        </div>
+                    `;
+                    resultInfo.textContent = 'No results found';
+                }
+            } catch (error) {
+                console.error('Error searching products:', error);
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="no-results" style="grid-column: 1/-1;">
+                        <h2>Error loading results</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display products
+        function displayProducts(products) {
+            const container = document.getElementById('resultsContainer');
+
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results" style="grid-column: 1/-1;">
+                        <h2>No products match your filters</h2>
+                        <button class="btn btn-secondary" onclick="resetFilters()">Clear Filters</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <div class="product-image">🔧</div>
+                    <div class="product-info">
+                        <div class="product-brand">${product.brand}</div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-description">${product.description}</div>
+                        <div class="product-pricing">
+                            <span class="product-price">£${product.price}</span>
+                            <span class="product-old-price">£${product.old_price}</span>
+                            <span class="product-discount">-${product.discount_percent}%</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-primary" onclick="addToCart(${product.id})">Add to Cart</button>
+                        <button class="btn btn-secondary" onclick="viewDetails(${product.id})">Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
