@@ -1679,5 +1679,12 @@ def get_brands():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# ===== SEARCH RESULTS PAGE =====
+@app.route('/search-results')
+def search_results():
+    """Render search results page"""
+    return render_template('search_results.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)
