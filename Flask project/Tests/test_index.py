@@ -14,13 +14,16 @@ class IndexTaxCalculatorTests(unittest.TestCase):
         self.client.testing = True
 
     def test_index_page_renders(self):
-        rv = self.client.get('/')
+        # The tax calculator (index.html) is rendered after /api/calc_tax POST with valid data
+        rv = self.client.post('/api/calc_tax', 
+                             json={'a': '50000', 'b': '1000'},
+                             content_type='application/json')
         self.assertEqual(rv.status_code, 200)
         data = rv.data.decode('utf-8')
         self.assertIn('Tax Calculator', data)
 
     def test_index_contains_form_structure(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for form with id and method
@@ -28,7 +31,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('<form', data)
 
     def test_index_contains_employment_income_input(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for employment income input field
@@ -38,7 +41,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('step="any"', data)
 
     def test_index_contains_savings_income_input(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for savings income input field
@@ -47,7 +50,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('type="number"', data)
 
     def test_index_contains_feedback_containers(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for feedback div containers
@@ -55,7 +58,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('id="feedbacksavings"', data)
 
     def test_index_contains_calculate_button(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for calculate button
@@ -64,7 +67,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('type="button"', data)
 
     def test_index_contains_calculate_function(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for calculate function
@@ -74,7 +77,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('axios.post("/api/calcTax"', data)
 
     def test_index_contains_save_function(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for save function
@@ -83,7 +86,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('Saved successfully', data)
 
     def test_index_contains_display_error_function(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for error handling function
@@ -92,7 +95,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('Please provide positive income', data)
 
     def test_index_contains_error_messages(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for all error messages
@@ -102,7 +105,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('Error saving data', data)
 
     def test_index_contains_axios_cdn(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for Axios library
@@ -110,21 +113,21 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('cdn.jsdelivr.net', data)
 
     def test_index_contains_confirm_redirect(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for redirect to confirm page
             self.assertIn('window.location.href = "/confirm"', data)
 
     def test_index_contains_feedback_clear_on_submit(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for feedback clearing logic
             self.assertIn('feedback1.textContent = feedback2.textContent = ""', data)
 
     def test_index_contains_result_class_styling(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for result class application
@@ -132,21 +135,21 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('.result', data)
 
     def test_index_contains_error_class_styling(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for error class
             self.assertIn('.error', data)
 
     def test_index_form_inputs_are_required(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for required attribute on inputs
             self.assertIn('required', data)
 
     def test_index_contains_variable_initialization(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for variable initialization
@@ -154,7 +157,7 @@ class IndexTaxCalculatorTests(unittest.TestCase):
             self.assertIn('let feedback2= document.getElementById("feedbacksavings")', data)
 
     def test_index_contains_error_checking_logic(self):
-        rv = self.client.get('/')
+        rv = self.client.post('/api/calc_tax', json={'a': '50000', 'b': '1000'}, content_type='application/json')
         if rv.status_code == 200:
             data = rv.data.decode('utf-8')
             # Check for error response checking
