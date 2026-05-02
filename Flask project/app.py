@@ -214,13 +214,13 @@ def _get_reviews_for_seller(seller_id):
 # ============================================================================
 TEST_PRODUCTS = [
     # CARS - TOYOTA
-    {'id': 1, 'name': 'Toyota Corolla 2024', 'brand': 'Toyota', 'year': '2024', 'price': 28000, 'description': 'Toyota Corolla 1.8L Hybrid', 'old_price': 30434, 'discount_percent': 8, 'current_price': 28000, 'image': 'product.jpg', 'emoji': '🚗'},
-    {'id': 2, 'name': 'Toyota Corolla 2025', 'brand': 'Toyota', 'year': '2025', 'price': 29000, 'description': 'Toyota Corolla 2.0L Petrol', 'old_price': 31521, 'discount_percent': 8, 'current_price': 29000, 'image': 'product.jpg', 'emoji': '🚗'},
+    {'id': 1, 'name': 'Toyota Corolla 2024', 'brand': 'Toyota', 'year': '2024', 'price': 28000, 'description': 'Toyota Corolla 1.8L Hybrid', 'old_price': 30434, 'discount_percent': 8, 'current_price': 28000, 'image': 'product.jpg'},
+    {'id': 2, 'name': 'Toyota Corolla 2025', 'brand': 'Toyota', 'year': '2025', 'price': 29000, 'description': 'Toyota Corolla 2.0L Petrol', 'old_price': 31521, 'discount_percent': 8, 'current_price': 29000, 'image': 'product.jpg'},
     {'id': 3, 'name': 'Toyota RAV4 2024', 'brand': 'Toyota', 'year': '2024', 'price': 35000, 'description': 'Toyota RAV4 2.5L Hybrid AWD', 'old_price': 38043, 'discount_percent': 8, 'current_price': 35000, 'image': 'product.jpg', 'emoji': '🚙'},
     {'id': 4, 'name': 'Toyota RAV4 2025', 'brand': 'Toyota', 'year': '2025', 'price': 36000, 'description': 'Toyota RAV4 2.5L Hybrid', 'old_price': 39130, 'discount_percent': 8, 'current_price': 36000, 'image': 'product.jpg', 'emoji': '🚙'},
     # CARS - HONDA
-    {'id': 5, 'name': 'Honda Civic 2024', 'brand': 'Honda', 'year': '2024', 'price': 26000, 'description': 'Honda Civic 2.0L Petrol', 'old_price': 28260, 'discount_percent': 8, 'current_price': 26000, 'image': 'product.jpg', 'emoji': '🚗'},
-    {'id': 6, 'name': 'Honda Civic 2025', 'brand': 'Honda', 'year': '2025', 'price': 27000, 'description': 'Honda Civic 1.5L Turbo', 'old_price': 29347, 'discount_percent': 8, 'current_price': 27000, 'image': 'product.jpg', 'emoji': '🚗'},
+    {'id': 5, 'name': 'Honda Civic 2024', 'brand': 'Honda', 'year': '2024', 'price': 26000, 'description': 'Honda Civic 2.0L Petrol', 'old_price': 28260, 'discount_percent': 8, 'current_price': 26000, 'image': 'product.jpg'},
+    {'id': 6, 'name': 'Honda Civic 2025', 'brand': 'Honda', 'year': '2025', 'price': 27000, 'description': 'Honda Civic 1.5L Turbo', 'old_price': 29347, 'discount_percent': 8, 'current_price': 27000, 'image': 'product.jpg'},
     {'id': 7, 'name': 'Honda CR-V 2024', 'brand': 'Honda', 'year': '2024', 'price': 32000, 'description': 'Honda CR-V 2.0L Hybrid', 'old_price': 34782, 'discount_percent': 8, 'current_price': 32000, 'image': 'product.jpg', 'emoji': '🚙'},
     {'id': 8, 'name': 'Honda CR-V 2025', 'brand': 'Honda', 'year': '2025', 'price': 33000, 'description': 'Honda CR-V 2.0L Hybrid AWD', 'old_price': 35869, 'discount_percent': 8, 'current_price': 33000, 'image': 'product.jpg', 'emoji': '🚙'},
     # CARS - BMW
