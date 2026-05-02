@@ -222,7 +222,30 @@ def home():
 
 @app.route("/product/<int:product_id>", methods=['GET'])
 def product_detail(product_id):
-    # Find the product by ID
+    # Try to fetch from car parts database first
+    try:
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT PartID, brand, year, part_name, price, description, image
+            FROM RegisteredParts
+            WHERE PartID = ?
+        """, (product_id,))
+
+        part = cursor.fetchone()
+        conn.close()
+
+        if part:
+            # Convert car part to product format with seller info
+            product = convert_part_to_product(dict(part))
+            return render_template("product_detail.html", product=product)
+
+    except Exception as e:
+        print(f"Error fetching car part: {e}")
+
+    # Fallback to original OFFER_PRODUCTS if not found in car parts
     product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
 
     if not product:
