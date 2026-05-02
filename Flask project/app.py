@@ -1,5 +1,4 @@
 import os
-import random
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 from data.products import OFFER_PRODUCTS
