@@ -173,6 +173,65 @@
             font-weight: 600;
         }
 
+        .product-seller {
+            padding: 0.75rem 1rem;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .seller-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .seller-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .seller-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .seller-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .seller-rating .stars {
+            color: #ffc107;
+        }
+
+        .seller-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #28a745;
+            margin-left: 0.3rem;
+        }
+
+        .seller-status.inactive {
+            background-color: #dc3545;
+        }
+
         .product-actions {
             display: flex;
             gap: 0.5rem;
@@ -389,6 +448,21 @@
                             <span class="product-discount">-${product.discount_percent}%</span>
                         </div>
                     </div>
+                    ${product.seller ? `
+                    <div class="product-seller">
+                        <div class="seller-avatar">${product.seller.pfp}</div>
+                        <div class="seller-info">
+                            <div class="seller-name">
+                                ${product.seller.name}
+                                <span class="seller-status ${!product.seller.active ? 'inactive' : ''}"></span>
+                            </div>
+                            <div class="seller-rating">
+                                <span class="stars">★ ${product.seller.rating}</span>
+                                <span>(${product.seller.reviews} reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
                     <div class="product-actions">
                         <button class="btn btn-primary" onclick="addToCart(${product.id})">Add to Cart</button>
                         <button class="btn btn-secondary" onclick="viewDetails(${product.id})">Details</button>
