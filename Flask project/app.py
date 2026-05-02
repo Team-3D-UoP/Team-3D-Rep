@@ -1715,7 +1715,8 @@ def convert_part_to_product(part):
 def get_all_parts():
     """Get all car parts from database as products"""
     try:
-        conn = sqlite3.connect('database.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'database.db')
+        conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -1766,7 +1767,8 @@ def search_parts():
 def get_part_detail(part_id):
     """Get a specific part by ID"""
     try:
-        conn = sqlite3.connect('database.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'database.db')
+        conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -1798,7 +1800,8 @@ def get_part_detail(part_id):
 def get_brands():
     """Get list of all available brands"""
     try:
-        conn = sqlite3.connect('database.db')
+        db_path = os.path.join(os.path.dirname(__file__), 'database.db')
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         cursor.execute("SELECT DISTINCT brand FROM RegisteredParts ORDER BY brand")
