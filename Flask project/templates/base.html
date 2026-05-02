@@ -32,8 +32,9 @@
 
     <main>
         {% block content %}{% endblock %}
-    </main>    {% include "footer.html" %}
+    </main>
 
-    <script src="{{ url_for('static', filename='search-filter.js') }}"></script>
+    {% include "footer.html" %}
+
 </body>
 </html>
