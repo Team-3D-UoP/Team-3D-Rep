@@ -222,36 +222,32 @@ def home():
 
 @app.route("/product/<int:product_id>", methods=['GET'])
 def product_detail(product_id):
-    # Try to fetch from car parts database first
+    # Try to fetch from car parts first
     try:
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT PartID, brand, year, part_name, price, description, image
-            FROM RegisteredParts
-            WHERE PartID = ?
-        """, (product_id,))
-
-        part = cursor.fetchone()
-        conn.close()
+        all_parts = get_car_parts_data()
+        part = next((p for p in all_parts if p.get('PartID') == product_id), None)
 
         if part:
             # Convert car part to product format with seller info
-            product = convert_part_to_product(dict(part))
+            print(f"✓ Found car part: {part.get('part_name')} (ID: {product_id})")
+            product = convert_part_to_product(part)
+            print(f"✓ Converted to product: {product['name']}")
             return render_template("product_detail.html", product=product)
+        else:
+            print(f"✓ Car part {product_id} not found, checking OFFER_PRODUCTS...")
 
     except Exception as e:
-        print(f"Error fetching car part: {e}")
+        print(f"⚠ Error fetching car part: {e}")
 
     # Fallback to original OFFER_PRODUCTS if not found in car parts
     product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
 
     if not product:
+        print(f"✗ Product {product_id} not found in either source")
         return "Product not found", 404
 
     # Use deterministic seller mapping so it matches the homepage and seller page.
+    print(f"✓ Found product in OFFER_PRODUCTS: {product.get('name', 'Unknown')}")
     product_with_seller = product.copy()
     product_with_seller['seller'] = _get_seller_for_product(product)
 
@@ -1524,12 +1520,56 @@ def save_part_registration():
 # ===== DYNAMIC CAR PARTS PRODUCTS =====
 # These endpoints dynamically fetch car parts from the database and serve them as products
 
+# In-memory car parts data (fallback when database.db is not available)
+CAR_PARTS_DATA = [
+    {'PartID': 1, 'UserID': 1, 'brand': 'Toyota', 'year': '2024', 'part_name': 'Spark Plug', 'price': 25.50, 'description': 'High quality spark plug for engine ignition', 'image': 'spark_1.jpg'},
+    {'PartID': 2, 'UserID': 1, 'brand': 'Toyota', 'year': '2023', 'part_name': 'Oil Filter', 'price': 15.99, 'description': 'Engine oil filter for smooth operation', 'image': 'oil_filter_1.jpg'},
+    {'PartID': 3, 'UserID': 1, 'brand': 'Toyota', 'year': '2024', 'part_name': 'Windshield Wiper', 'price': 18.75, 'description': 'Windshield wiper blade replacement', 'image': 'wiper_1.jpg'},
+    {'PartID': 4, 'UserID': 1, 'brand': 'Toyota', 'year': '2024', 'part_name': 'Brake Pad', 'price': 45.00, 'description': 'Disc brake pads for safe stopping', 'image': 'brake_pad_1.jpg'},
+    {'PartID': 5, 'UserID': 1, 'brand': 'Toyota', 'year': '2023', 'part_name': 'Air Filter', 'price': 22.50, 'description': 'Engine air filter for clean combustion', 'image': 'air_filter_1.jpg'},
+    {'PartID': 6, 'UserID': 1, 'brand': 'Toyota', 'year': '2024', 'part_name': 'Suspension Coil', 'price': 89.99, 'description': 'Suspension coil spring assembly', 'image': 'coil_1.jpg'},
+    {'PartID': 7, 'UserID': 1, 'brand': 'Toyota', 'year': '2024', 'part_name': 'Battery', 'price': 95.00, 'description': '12V lithium car battery', 'image': 'battery_1.jpg'},
+    {'PartID': 8, 'UserID': 1, 'brand': 'Toyota', 'year': '2023', 'part_name': 'Alternator', 'price': 155.00, 'description': 'Car alternator for charging system', 'image': 'alternator_1.jpg'},
+    {'PartID': 9, 'UserID': 1, 'brand': 'Honda', 'year': '2024', 'part_name': 'Engine Oil', 'price': 35.00, 'description': 'Premium synthetic engine oil 5W-30', 'image': 'engine_oil_1.jpg'},
+    {'PartID': 10, 'UserID': 1, 'brand': 'Honda', 'year': '2023', 'part_name': 'Transmission Fluid', 'price': 48.00, 'description': 'Automatic transmission fluid', 'image': 'trans_fluid_1.jpg'},
+    {'PartID': 11, 'UserID': 1, 'brand': 'Honda', 'year': '2024', 'part_name': 'Brake Fluid', 'price': 18.00, 'description': 'DOT 4 brake fluid', 'image': 'brake_fluid_1.jpg'},
+    {'PartID': 12, 'UserID': 1, 'brand': 'BMW', 'year': '2024', 'part_name': 'Cabin Filter', 'price': 38.00, 'description': 'Premium cabin air filter', 'image': 'cabin_filter_1.jpg'},
+    {'PartID': 13, 'UserID': 1, 'brand': 'BMW', 'year': '2023', 'part_name': 'Spark Plug', 'price': 55.00, 'description': 'OEM BMW spark plug set', 'image': 'spark_set_1.jpg'},
+    {'PartID': 14, 'UserID': 1, 'brand': 'Audi', 'year': '2024', 'part_name': 'Air Filter', 'price': 42.00, 'description': 'High flow air filter', 'image': 'high_flow_air_1.jpg'},
+    {'PartID': 15, 'UserID': 1, 'brand': 'Mercedes', 'year': '2024', 'part_name': 'Oil Filter', 'price': 28.50, 'description': 'OEM Mercedes oil filter', 'image': 'merc_oil_filter_1.jpg'},
+]
+
 def get_seller_by_id(seller_id):
     """Get seller info from SELLERS_DATA by ID"""
     for seller in SELLERS_DATA:
         if seller['id'] == seller_id:
             return seller
     return None
+
+def get_car_parts_data():
+    """Get car parts from database or return in-memory data as fallback"""
+    try:
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT PartID, UserID, brand, year, part_name, price, description, image
+            FROM RegisteredParts
+            ORDER BY brand, part_name
+        """)
+
+        parts = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        if parts:
+            return parts
+    except Exception as e:
+        print(f"⚠ Could not fetch from database: {e}")
+
+    # Return in-memory fallback data
+    print("✓ Using in-memory car parts data")
+    return CAR_PARTS_DATA
 
 
 def convert_part_to_product(part):
@@ -1588,18 +1628,7 @@ def convert_part_to_product(part):
 def get_all_parts():
     """Get all car parts from database as products"""
     try:
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT PartID, brand, year, part_name, price, description, image
-            FROM RegisteredParts
-            ORDER BY brand, part_name
-        """)
-
-        parts = [dict(row) for row in cursor.fetchall()]
-        conn.close()
+        parts = get_car_parts_data()
 
         # Convert to products
         products = [convert_part_to_product(part) for part in parts]
@@ -1617,54 +1646,23 @@ def get_all_parts():
 
 @app.route('/api/parts/search', methods=['GET'])
 def search_parts():
-    """Search car parts by keyword, brand, year, or type"""
     try:
-        keyword = request.args.get('q', '').lower()
-        brand = request.args.get('brand', '').lower()
-        year = request.args.get('year', '')
-        part_type = request.args.get('type', '').lower()
-
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-
-        query = "SELECT PartID, brand, year, part_name, price, description, image FROM RegisteredParts WHERE 1=1"
-        params = []
-
-        if keyword:
-            query += " AND (part_name LIKE ? OR description LIKE ? OR brand LIKE ?)"
-            search_term = f"%{keyword}%"
-            params.extend([search_term, search_term, search_term])
-
-        if brand:
-            query += " AND LOWER(brand) LIKE ?"
-            params.append(f"%{brand}%")
-
-        if year:
-            query += " AND year = ?"
-            params.append(year)
-
-        if part_type:
-            query += " AND LOWER(part_name) LIKE ?"
-            params.append(f"%{part_type}%")
-
-        query += " ORDER BY brand, part_name"
-
-        cursor.execute(query, params)
-        parts = [dict(row) for row in cursor.fetchall()]
-        conn.close()
-
-        # Convert to products
-        products = [convert_part_to_product(part) for part in parts]
-
-        return jsonify({
-            'success': True,
-            'count': len(products),
-            'products': products
-        }), 200
-
+        keyword = request.args.get('q', '').lower().strip()
+        all_parts = get_car_parts_data()
+        results = []
+        for part in all_parts:
+            if not keyword:
+                results.append(part)
+            else:
+                name = str(part.get('part_name', '')).lower()
+                desc = str(part.get('description', '')).lower()
+                brand = str(part.get('brand', '')).lower()
+                if keyword in name or keyword in desc or keyword in brand:
+                    results.append(part)
+        products = [convert_part_to_product(p) for p in results]
+        return jsonify({'success': True, 'count': len(products), 'products': products}), 200
     except Exception as e:
-        print(f"Error searching parts: {e}")
+        print(f"Error in search_parts: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -1672,23 +1670,15 @@ def search_parts():
 def get_part_detail(part_id):
     """Get a specific part by ID"""
     try:
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        all_parts = get_car_parts_data()
 
-        cursor.execute("""
-            SELECT PartID, brand, year, part_name, price, description, image
-            FROM RegisteredParts
-            WHERE PartID = ?
-        """, (part_id,))
-
-        part = cursor.fetchone()
-        conn.close()
+        # Find the part with matching PartID
+        part = next((p for p in all_parts if p.get('PartID') == part_id), None)
 
         if not part:
             return jsonify({'success': False, 'error': 'Part not found'}), 404
 
-        product = convert_part_to_product(dict(part))
+        product = convert_part_to_product(part)
 
         return jsonify({
             'success': True,
@@ -1704,12 +1694,10 @@ def get_part_detail(part_id):
 def get_brands():
     """Get list of all available brands"""
     try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
+        all_parts = get_car_parts_data()
 
-        cursor.execute("SELECT DISTINCT brand FROM RegisteredParts ORDER BY brand")
-        brands = [row[0] for row in cursor.fetchall()]
-        conn.close()
+        # Extract unique brands and sort
+        brands = sorted(list(set(part.get('brand', '') for part in all_parts if part.get('brand'))))
 
         return jsonify({
             'success': True,
@@ -1721,19 +1709,41 @@ def get_brands():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# ===== SEARCH RESULTS PAGE =====
-@app.route('/search-results')
-def search_results():
+@app.route('/search-results', methods=['GET'])
+def search_results_page():
     """Render search results page"""
     return render_template('search_results.html')
 
 
-# ===== PRODUCT PAGE (Dynamic from API) =====
-@app.route('/product-page')
-def product_page():
-    """Render dynamic product detail page (fetches from API)"""
-    return render_template('product.html')
+@app.route("/product/<int:product_id>", methods=['GET'])
+def product_detail(product_id):
+    # Try to fetch from car parts first
+    try:
+        all_parts = get_car_parts_data()
+        part = next((p for p in all_parts if p.get('PartID') == product_id), None)
 
+        if part:
+            # Convert car part to product format with seller info
+            print(f"✓ Found car part: {part.get('part_name')} (ID: {product_id})")
+            product = convert_part_to_product(part)
+            print(f"✓ Converted to product: {product['name']}")
+            return render_template("product_detail.html", product=product)
+        else:
+            print(f"✓ Car part {product_id} not found, checking OFFER_PRODUCTS...")
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    except Exception as e:
+        print(f"⚠ Error fetching car part: {e}")
+
+    # Fallback to original OFFER_PRODUCTS if not found in car parts
+    product = next((p for p in OFFER_PRODUCTS if p['id'] == product_id), None)
+
+    if not product:
+        print(f"✗ Product {product_id} not found in either source")
+        return "Product not found", 404
+
+    # Use deterministic seller mapping so it matches the homepage and seller page.
+    print(f"✓ Found product in OFFER_PRODUCTS: {product.get('name', 'Unknown')}")
+    product_with_seller = product.copy()
+    product_with_seller['seller'] = _get_seller_for_product(product)
+
+    return render_template("product_detail.html", product=product_with_seller)
