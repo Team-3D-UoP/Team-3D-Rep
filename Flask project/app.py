@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import requests
 from models import db, ProductReview, SellerReview, CartItem, Part, User, ChatMessage
+from db_registrations import *  # noqa: F401,F403 - Required for select_user_id, insert_* functions
 
 load_dotenv()
 
