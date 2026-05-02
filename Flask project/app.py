@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 from datetime import datetime
 import requests
 from models import db, ProductReview, SellerReview, CartItem, Part, User, ChatMessage
-from db_registrations import *
 
 load_dotenv()
 
@@ -109,7 +108,7 @@ def save_review_to_firebase(review_type, item_id, uid, email, name, rating, text
         response = requests.put(url, json=review_data, timeout=5)
 
         if response.status_code in [200, 201]:
-            print(f"✓ Review saved to Firebase")
+            print("✓ Review saved to Firebase")
             return True
         else:
             print(f"⚠ Error saving review to Firebase: {response.status_code}")
@@ -148,7 +147,7 @@ def save_cart_item_to_firebase(uid, product_id, quantity):
         response = requests.put(url, json=cart_data, timeout=5)
 
         if response.status_code in [200, 201]:
-            print(f"✓ Cart item saved to Firebase")
+            print("✓ Cart item saved to Firebase")
             return True
         else:
             print(f"⚠ Error saving cart to Firebase: {response.status_code}")
@@ -740,8 +739,8 @@ def view_cart():
     return render_template("cart.html")
 
 
-@app.route("/api/calcTax", methods=['GET', 'POST'])
-def calcTax():
+@app.route("/api/calc_tax", methods=['GET', 'POST'])
+def calc_tax():
     if request.method == 'POST':
         data = request.get_json(silent=True)
 
@@ -1120,7 +1119,7 @@ def clear_all_chats():
         response = requests.delete(url, timeout=5)
 
         if response.status_code in [200, 204]:
-            print(f"✓ All chat messages cleared")
+            print("✓ All chat messages cleared")
             return jsonify({"success": True, "message": "All chats cleared"}), 200
         else:
             print(f"⚠ Error clearing chats from Firebase: {response.status_code}")
@@ -1244,7 +1243,7 @@ def authenticate():
                 uid = decoded_token['uid']
                 email = decoded_token.get('email', '')
                 name = decoded_token.get('name', '')
-                print(f"✓ Token verified with Firebase Admin SDK")
+                print("✓ Token verified with Firebase Admin SDK")
             except Exception as e:
                 print(f"⚠ Token verification failed: {e}")
                 return jsonify({"error": "Token verification failed"}), 401
@@ -1259,7 +1258,7 @@ def authenticate():
             if not uid or not email:
                 return jsonify({"error": "User data missing"}), 400
 
-            print(f"⚠ Using client-side authentication (Firebase Admin SDK not available)")
+            print("⚠ Using client-side authentication (Firebase Admin SDK not available)")
 
         # Create or update user in database and Firebase
         try:
@@ -1458,11 +1457,10 @@ def part_registration_screen():
 def save_car_registration():
     data = request.get_json(silent=True) or {}
 
-    # TODO: GET USER ID
     try:
         insert_registered_car(data["make"], data["model"], data["year"], data["license"], data["engine"], data["wheels"], select_user_id(session['email'], session['name'])[0][0])
-    except:
-       pass
+    except Exception:
+        pass
 
     return jsonify({"message": "Car registration recieved"}), 200
 
@@ -1471,8 +1469,8 @@ def save_part_registration():
     data = request.get_json(silent=True) or {}
     try:
         insert_registered_part(select_user_id(session['email'], session['name'])[0][0], data["brand"], data["year"], data["part_name"], data["price"], data["description"], data["image"])
-    except:
-       pass
+    except Exception:
+        pass
 
     # Validate required fields
     required_fields = ['name', 'price', 'description', 'image']
