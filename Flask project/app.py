@@ -1597,9 +1597,34 @@ def search_parts():
     """Search car parts by keyword, brand, year, or type"""
     keyword = request.args.get('q', '').lower().strip()
 
-    # All car parts from database (Toyota, Honda, BMW, Audi, Mercedes)
+    # All cars and parts from database (Toyota, Honda, BMW, Audi, Mercedes)
     test_parts = [
-        # TOYOTA
+        # CARS - TOYOTA
+        {'id': 1, 'name': 'Toyota Corolla 2024', 'brand': 'Toyota', 'year': '2024', 'price': 28000, 'description': 'Toyota Corolla 1.8L Hybrid'},
+        {'id': 2, 'name': 'Toyota Corolla 2025', 'brand': 'Toyota', 'year': '2025', 'price': 29000, 'description': 'Toyota Corolla 2.0L Petrol'},
+        {'id': 3, 'name': 'Toyota RAV4 2024', 'brand': 'Toyota', 'year': '2024', 'price': 35000, 'description': 'Toyota RAV4 2.5L Hybrid AWD'},
+        {'id': 4, 'name': 'Toyota RAV4 2025', 'brand': 'Toyota', 'year': '2025', 'price': 36000, 'description': 'Toyota RAV4 2.5L Hybrid'},
+        # CARS - HONDA
+        {'id': 5, 'name': 'Honda Civic 2024', 'brand': 'Honda', 'year': '2024', 'price': 26000, 'description': 'Honda Civic 2.0L Petrol'},
+        {'id': 6, 'name': 'Honda Civic 2025', 'brand': 'Honda', 'year': '2025', 'price': 27000, 'description': 'Honda Civic 1.5L Turbo'},
+        {'id': 7, 'name': 'Honda CR-V 2024', 'brand': 'Honda', 'year': '2024', 'price': 32000, 'description': 'Honda CR-V 2.0L Hybrid'},
+        {'id': 8, 'name': 'Honda CR-V 2025', 'brand': 'Honda', 'year': '2025', 'price': 33000, 'description': 'Honda CR-V 2.0L Hybrid AWD'},
+        # CARS - BMW
+        {'id': 9, 'name': 'BMW 3 Series 2024', 'brand': 'BMW', 'year': '2024', 'price': 45000, 'description': 'BMW 3 Series 2.0L Turbo'},
+        {'id': 10, 'name': 'BMW 3 Series 2025', 'brand': 'BMW', 'year': '2025', 'price': 47000, 'description': 'BMW 3 Series 3.0L Turbo'},
+        {'id': 11, 'name': 'BMW X5 2024', 'brand': 'BMW', 'year': '2024', 'price': 65000, 'description': 'BMW X5 3.0L Diesel'},
+        {'id': 12, 'name': 'BMW X5 2025', 'brand': 'BMW', 'year': '2025', 'price': 67000, 'description': 'BMW X5 3.0L Hybrid'},
+        # CARS - AUDI
+        {'id': 13, 'name': 'Audi A4 2024', 'brand': 'Audi', 'year': '2024', 'price': 42000, 'description': 'Audi A4 2.0L Petrol'},
+        {'id': 14, 'name': 'Audi A4 2025', 'brand': 'Audi', 'year': '2025', 'price': 44000, 'description': 'Audi A4 2.0L Diesel'},
+        {'id': 15, 'name': 'Audi Q5 2024', 'brand': 'Audi', 'year': '2024', 'price': 55000, 'description': 'Audi Q5 2.0L Diesel'},
+        {'id': 16, 'name': 'Audi Q5 2025', 'brand': 'Audi', 'year': '2025', 'price': 57000, 'description': 'Audi Q5 2.0L Hybrid'},
+        # CARS - MERCEDES
+        {'id': 17, 'name': 'Mercedes C-Class 2024', 'brand': 'Mercedes', 'year': '2024', 'price': 48000, 'description': 'Mercedes C-Class 2.0L Hybrid'},
+        {'id': 18, 'name': 'Mercedes C-Class 2025', 'brand': 'Mercedes', 'year': '2025', 'price': 50000, 'description': 'Mercedes C-Class 2.0L Petrol'},
+        {'id': 19, 'name': 'Mercedes GLC 2024', 'brand': 'Mercedes', 'year': '2024', 'price': 58000, 'description': 'Mercedes GLC 2.0L Diesel'},
+        {'id': 20, 'name': 'Mercedes GLC 2025', 'brand': 'Mercedes', 'year': '2025', 'price': 60000, 'description': 'Mercedes GLC 2.0L Hybrid'},
+        # CAR PARTS - TOYOTA
         {'id': 101, 'name': 'Toyota Oil Filter', 'brand': 'Toyota', 'year': '2026', 'price': 27, 'description': 'Toyota oil filter'},
         {'id': 102, 'name': 'Toyota Headlight', 'brand': 'Toyota', 'year': '2024', 'price': 92, 'description': 'Toyota headlight'},
         {'id': 103, 'name': 'Toyota Air Filter', 'brand': 'Toyota', 'year': '2025', 'price': 32, 'description': 'Toyota air filter'},
