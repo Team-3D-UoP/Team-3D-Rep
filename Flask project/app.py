@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 from data.products import OFFER_PRODUCTS
@@ -1496,6 +1497,187 @@ def save_part_registration():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to save part"}), 500
+
+# ===== DYNAMIC CAR PARTS PRODUCTS =====
+# These endpoints dynamically fetch car parts from the database and serve them as products
+
+def convert_part_to_product(part):
+    """Convert a RegisteredPart database record to a product dict"""
+    # Brand to seller ID mapping
+    seller_map = {
+        'Toyota': 1,
+        'Honda': 2,
+        'BMW': 3,
+        'Audi': 4,
+        'Mercedes': 5
+    }
+
+    seller_id = seller_map.get(part.get('brand', 'Toyota'), 1)
+    base_price = float(part.get('price', 0))
+
+    # Calculate discount based on part type
+    discount_percent = 15  # Default
+    part_name = part.get('part_name', '')
+
+    if part_name in ['Engine', 'Tyres']:
+        discount_percent = 10  # Less discount for expensive parts
+    elif part_name in ['Oil Filter', 'Air Filter', 'Windshield Wiper']:
+        discount_percent = 20  # More discount for cheap parts
+
+    # Calculate old price from discount
+    old_price = base_price / (1 - discount_percent / 100)
+
+    return {
+        'id': part.get('PartID'),
+        'name': f"{part.get('brand', '')} {part.get('part_name', '')} ({part.get('year', '')})",
+        'description': part.get('description', f"{part.get('brand')} {part.get('part_name')}"),
+        'price': round(base_price, 2),
+        'old_price': round(old_price, 2),
+        'discount_percent': discount_percent,
+        'seller_id': seller_id,
+        'brand': part.get('brand'),
+        'part_type': part.get('part_name'),
+        'year': part.get('year'),
+        'image': part.get('image', f"part_{part.get('PartID')}.jpg")
+    }
+
+
+@app.route('/api/parts/all', methods=['GET'])
+def get_all_parts():
+    """Get all car parts from database as products"""
+    try:
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT PartID, brand, year, part_name, price, description, image
+            FROM RegisteredParts
+            ORDER BY brand, part_name
+        """)
+
+        parts = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        # Convert to products
+        products = [convert_part_to_product(part) for part in parts]
+
+        return jsonify({
+            'success': True,
+            'count': len(products),
+            'products': products
+        }), 200
+
+    except Exception as e:
+        print(f"Error fetching parts: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/parts/search', methods=['GET'])
+def search_parts():
+    """Search car parts by keyword, brand, year, or type"""
+    try:
+        keyword = request.args.get('q', '').lower()
+        brand = request.args.get('brand', '').lower()
+        year = request.args.get('year', '')
+        part_type = request.args.get('type', '').lower()
+
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        query = "SELECT PartID, brand, year, part_name, price, description, image FROM RegisteredParts WHERE 1=1"
+        params = []
+
+        if keyword:
+            query += " AND (part_name LIKE ? OR description LIKE ? OR brand LIKE ?)"
+            search_term = f"%{keyword}%"
+            params.extend([search_term, search_term, search_term])
+
+        if brand:
+            query += " AND LOWER(brand) LIKE ?"
+            params.append(f"%{brand}%")
+
+        if year:
+            query += " AND year = ?"
+            params.append(year)
+
+        if part_type:
+            query += " AND LOWER(part_name) LIKE ?"
+            params.append(f"%{part_type}%")
+
+        query += " ORDER BY brand, part_name"
+
+        cursor.execute(query, params)
+        parts = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        # Convert to products
+        products = [convert_part_to_product(part) for part in parts]
+
+        return jsonify({
+            'success': True,
+            'count': len(products),
+            'products': products
+        }), 200
+
+    except Exception as e:
+        print(f"Error searching parts: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/parts/<int:part_id>', methods=['GET'])
+def get_part_detail(part_id):
+    """Get a specific part by ID"""
+    try:
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT PartID, brand, year, part_name, price, description, image
+            FROM RegisteredParts
+            WHERE PartID = ?
+        """, (part_id,))
+
+        part = cursor.fetchone()
+        conn.close()
+
+        if not part:
+            return jsonify({'success': False, 'error': 'Part not found'}), 404
+
+        product = convert_part_to_product(dict(part))
+
+        return jsonify({
+            'success': True,
+            'product': product
+        }), 200
+
+    except Exception as e:
+        print(f"Error fetching part detail: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/parts/brands', methods=['GET'])
+def get_brands():
+    """Get list of all available brands"""
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT DISTINCT brand FROM RegisteredParts ORDER BY brand")
+        brands = [row[0] for row in cursor.fetchall()]
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'brands': brands
+        }), 200
+
+    except Exception as e:
+        print(f"Error fetching brands: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
