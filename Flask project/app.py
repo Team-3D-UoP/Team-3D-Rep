@@ -1705,11 +1705,11 @@ def search_results():
     return render_template('search_results.html')
 
 
-# ===== PRODUCT DETAIL PAGE (Dynamic from API) =====
-@app.route('/product-detail')
-def product_detail_dynamic():
+# ===== PRODUCT PAGE (Dynamic from API) =====
+@app.route('/product-page')
+def product_page():
     """Render dynamic product detail page (fetches from API)"""
-    return render_template('product_detail_page.html')
+    return render_template('product.html')
 
 
 if __name__ == "__main__":
