@@ -397,3 +397,91 @@
             `).join('');
         }
 
+        // Load brands for filter
+        async function loadBrands() {
+            try {
+                const response = await fetch('/api/parts/brands');
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('brandFilter');
+                    data.brands.forEach(brand => {
+                        const option = document.createElement('option');
+                        option.value = brand;
+                        option.textContent = brand;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading brands:', error);
+            }
+        }
+
+        // Setup filter listeners
+        function setupFilterListeners() {
+            document.getElementById('brandFilter').addEventListener('change', applyFilters);
+            document.getElementById('yearFilter').addEventListener('change', applyFilters);
+            document.getElementById('priceFilter').addEventListener('input', function() {
+                document.getElementById('priceValue').textContent = `£0 - £${this.value}`;
+                applyFilters();
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const brand = document.getElementById('brandFilter').value.toLowerCase();
+            const year = document.getElementById('yearFilter').value;
+            const maxPrice = parseFloat(document.getElementById('priceFilter').value);
+
+            const filtered = allProducts.filter(product => {
+                const brandMatch = !brand || product.brand.toLowerCase().includes(brand);
+                const yearMatch = !year || product.year === year;
+                const priceMatch = product.price <= maxPrice;
+
+                return brandMatch && yearMatch && priceMatch;
+            });
+
+            displayProducts(filtered);
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('brandFilter').value = '';
+            document.getElementById('yearFilter').value = '';
+            document.getElementById('priceFilter').value = '2000';
+            document.getElementById('priceValue').textContent = '£0 - £2000';
+            displayProducts(allProducts);
+        }
+
+        // Add to cart
+        async function addToCart(partId) {
+            try {
+                const response = await fetch('/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ part_id: partId, quantity: 1 })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Added to cart!');
+                    document.dispatchEvent(new Event('cartUpdated'));
+                } else {
+                    alert('Error adding to cart: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding to cart');
+            }
+        }
+
+        // View details
+        function viewDetails(partId) {
+            window.location.href = `/product/${partId}`;
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
