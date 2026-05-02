@@ -127,9 +127,15 @@
     function displaySearchResults(products) {
         let html = '<div class="search-results">';
         products.forEach(product => {
+            const sellerInfo = product.seller
+                ? `<div class="search-result-seller"><span class="stars">★ ${product.seller.rating}</span> by ${product.seller.name}</div>`
+                : '';
             html += `
                 <div class="search-result-item" onclick="goToSearchResults('${product.name}')">
-                    <div class="search-result-name">${product.name}</div>
+                    <div style="flex: 1;">
+                        <div class="search-result-name">${product.name}</div>
+                        ${sellerInfo}
+                    </div>
                     <div class="search-result-price">£${product.price}</div>
                 </div>
             `;
@@ -341,6 +347,16 @@
         margin-left: 1rem;
         white-space: nowrap;
         font-size: 0.9rem;
+    }
+
+    .search-result-seller {
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 0.3rem;
+    }
+
+    .search-result-seller .stars {
+        color: #ffc107;
     }
 
     .search-no-results,
