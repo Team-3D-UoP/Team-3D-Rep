@@ -1705,5 +1705,12 @@ def search_results():
     return render_template('search_results.html')
 
 
+# ===== PRODUCT DETAIL PAGE =====
+@app.route('/product')
+def product_detail():
+    """Render product detail page"""
+    return render_template('product_detail_page.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)
