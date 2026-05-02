@@ -131,7 +131,7 @@
                 ? `<div class="search-result-seller"><span class="stars">★ ${product.seller.rating}</span> by ${product.seller.name}</div>`
                 : '';
             html += `
-                <div class="search-result-item" onclick="goToSearchResults('${product.name}')">
+                <div class="search-result-item" onclick="viewProductDetail(${product.id})">
                     <div style="flex: 1;">
                         <div class="search-result-name">${product.name}</div>
                         ${sellerInfo}
@@ -143,6 +143,10 @@
         html += '</div>';
         searchDropdown.innerHTML = html;
         searchDropdown.style.display = 'block';
+    }
+
+    function viewProductDetail(productId) {
+        window.location.href = `/product?id=${productId}`;
     }
 
     function goToSearchResults(selectedQuery) {
