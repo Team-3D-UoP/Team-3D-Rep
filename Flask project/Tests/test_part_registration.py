@@ -15,8 +15,16 @@ class TestPartRegistration(unittest.TestCase):
         self.app.config['TESTING'] = True
         self.client = self.app.test_client()
 
+        with self.client.session_transaction() as session:
+            session['authenticated'] = True
+            session['email'] = 'test@example.com'
+            session['name'] = 'Test User'
+
         self.valid_data = {
+            'brand': 'Test Brand',
+            'year': '2026',
             'name': 'Test Part',
+            'part_name': 'Test Part',
             'price': '100.00',
             'description': 'Test description',
             'image': 'test.jpg'
