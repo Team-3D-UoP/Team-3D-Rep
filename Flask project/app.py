@@ -1446,29 +1446,37 @@ def authenticate():
         email = None
         name = None
 
-        # Try to verify token with Firebase Admin SDK if available
-        if firebase_initialized:
-            try:
-                decoded_token = auth.verify_id_token(token)
-                uid = decoded_token['uid']
-                email = decoded_token.get('email', '')
-                name = decoded_token.get('name', '')
-                print("✓ Token verified with Firebase Admin SDK")
-            except Exception as e:
-                print(f"⚠ Token verification failed: {e}")
-                return jsonify({"error": "Token verification failed"}), 401
-        else:
-            # Fallback: If Firebase Admin SDK not available, use client-provided data
-            # This is safe because the client has already authenticated with Firebase
-            # and we'll create/update user record in our database
-            uid = user_data.get('uid')
-            email = user_data.get('email', '')
-            name = user_data.get('fullname', '')
+        # Try to verify token with Firebase Admin SDK (always try for compatibility with tests)
+        firebase_error = None
+        try:
+            decoded_token = auth.verify_id_token(token)
+            uid = decoded_token['uid']
+            email = decoded_token.get('email', '')
+            name = decoded_token.get('name', '')
+            print("✓ Token verified with Firebase Admin SDK")
+        except Exception as e:
+            # Record the Firebase error for fallback logic
+            firebase_error = e
+            print(f"⚠ Token verification failed: {e}")
 
-            if not uid or not email:
-                return jsonify({"error": "User data missing"}), 400
+            # Only try client-side auth if Firebase is not initialized
+            if firebase_initialized:
+                # Firebase is initialized but verification failed - return the error
+                error_message = str(e)
+                return jsonify({"error": error_message, "details": error_message}), 401
+            else:
+                # Firebase not initialized, try client-side authentication as fallback
+                print(f"⚠ Firebase not initialized, trying client-side auth fallback")
+                uid = user_data.get('uid')
+                email = user_data.get('email', '')
+                name = user_data.get('fullname', '')
 
-            print("⚠ Using client-side authentication (Firebase Admin SDK not available)")
+                if not uid or not email:
+                    # No user data and Firebase failed - return the Firebase error
+                    error_message = str(firebase_error)
+                    return jsonify({"error": error_message, "details": error_message}), 401
+
+                print("⚠ Using client-side authentication (Firebase Admin SDK not available)")
 
         # Create or update user in database and Firebase
         try:
@@ -1518,7 +1526,8 @@ def authenticate():
 
     except Exception as e:
         print(f"✗ Authentication error: {e}")
-        return jsonify({"error": str(e)}), 401
+        error_message = str(e)
+        return jsonify({"error": error_message, "details": error_message}), 401
 
 @app.route("/account", methods=['GET'])
 def account():
