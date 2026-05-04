@@ -14,9 +14,9 @@
       <button class="clear-btn" id="clearBtn">Clear</button>
     </div>
 
-    <div class="offers-grid" id="offersGrid">
+    <div class="offers-grid">
       {% for product in offer_products %}
-      <div class="offer-card" data-brands="">
+      <div class="offer-card">
         <span class="offer-badge">-{{ product.discount_percent }}%</span>
         <span class="offer-heart">♡</span>
         <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="offer-image">
@@ -207,57 +207,13 @@
     localStorage.setItem('selectedCar', carName);
     closeOffersCarSelector();
     updateOffersCarDisplay();
-    loadCarSpecificProducts(carName);
   }
 
   function updateOffersCarDisplay() {
     const savedCar = localStorage.getItem('selectedCar');
     if (savedCar) {
       document.getElementById('offersSelectedCar').textContent = savedCar;
-      loadCarSpecificProducts(savedCar);
     }
-  }
-
-  function loadCarSpecificProducts(carName) {
-    // Extract brand from car name (e.g., "Honda" from "Honda Civic 2024")
-    const carBrand = carName.split(' ')[0];
-
-    // Fetch products for this car brand from the search API
-    fetch(`/api/parts/search?q=${encodeURIComponent(carBrand)}`)
-      .then(response => response.json())
-      .then(data => {
-        const grid = document.getElementById('offersGrid');
-        if (data.success && data.products && data.products.length > 0) {
-          // Display products for this car brand
-          let html = '';
-          data.products.forEach(product => {
-            const seller = product.seller || {};
-            html += `
-              <div class="offer-card">
-                <span class="offer-badge">-${product.discount_percent || 10}%</span>
-                <span class="offer-heart">♡</span>
-                <img src="{{ url_for('static', filename='images/') }}product.jpg" alt="${product.name}" class="offer-image">
-                <div class="offer-item">
-                  <div class="offer-name">${product.name}</div>
-                  <div class="offer-pricing">
-                    <span class="offer-old-price">£${(product.old_price || product.price).toFixed(2)}</span>
-                    <span class="offer-discount">-${product.discount_percent || 10}%</span>
-                    <span class="offer-current-price">£${(product.current_price || product.price).toFixed(2)}</span>
-                  </div>
-                  <a href="/product/${product.id}" class="offer-shop-link">Shop now →</a>
-                </div>
-              </div>
-            `;
-          });
-          grid.innerHTML = html;
-        } else {
-          grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">No products found for this car</div>';
-        }
-      })
-      .catch(error => {
-        console.error('Error loading products:', error);
-        document.getElementById('offersGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #666;">Error loading products</div>';
-      });
   }
 
   // Initialize on page load
