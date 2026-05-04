@@ -2,7 +2,7 @@
 <div class="content-card">
   <div class="heading-row">
     <span>Popular parts for your <span class="checkmark">✓</span> <span class="car-model" id="selectedCarName">Toyota Corolla 2024</span> <a href="#" class="change-link" onclick="openCarSelector(event)">Change</a></span>
-    <a href="{{ url_for('search_results') }}" class="view-all-btn">View All Parts</a>
+    <a href="#" class="view-all-btn" onclick="viewAllPartsForCar(event)">View All Parts</a>
   </div>
 
   <div class="products-grid">
@@ -256,6 +256,15 @@
 
     // Update the checkmark and car name
     updateCarDisplay();
+  }
+
+  function viewAllPartsForCar(event) {
+    event.preventDefault();
+    const selectedCarName = document.getElementById('selectedCarName').textContent;
+    // Extract brand from car name (first word, e.g., "Toyota" from "Toyota Corolla 2024")
+    const carBrand = selectedCarName.split(' ')[0];
+    // Navigate to search results with the brand as query
+    window.location.href = '{{ url_for("search_results") }}?q=' + encodeURIComponent(carBrand);
   }
 
   function updateCarDisplay() {
