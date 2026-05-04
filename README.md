@@ -1099,10 +1099,47 @@ Check browser DevTools (F12):
 
 ## 📄 License & Project Info
 
+<<<<<<< HEAD
 ### **Project Details**
 - **Name**: Team 3D Car Parts E-Commerce
 - **Version**: 1.0.0
 - **Status**: ✅ Production Ready
+=======
+### How to Contribute
+1. Create a new branch
+2. Make your changes
+3. Run tests to ensure everything passes
+4. Submit a pull request
+
+### Code Review Checklist
+- [ ] Code follows PEP 8
+- [ ] All tests pass
+- [ ] No new security issues
+- [ ] Documentation updated
+- [ ] No breaking changes
+
+---
+
+## License
+
+This project is licensed under the MIT License - see LICENSE file for details.
+
+---
+
+## Support & Contact
+
+### Getting Help
+- **Issues**: Open an issue on GitHub
+- **Questions**: Check existing issues first
+- **Documentation**: See this README and code comments
+- **Live Chat**: Use the in-app chat for customer support
+
+### Project Status
+✅ **Stable** - All 365 tests passing, production-ready
+
+### Version
+- **Current Version**: 1.0.0
+>>>>>>> d8eeabea76aa0d19a4bc1482e038e633a50ccf31
 - **Last Updated**: May 2026
 - **License**: MIT (see LICENSE file)
 - **Python**: 3.8+
