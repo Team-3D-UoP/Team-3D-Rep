@@ -24,23 +24,35 @@ class TestCarRegistration(unittest.TestCase):
             "wheels": "Alloy"
         }
 
+    def _login(self):
+        """Helper method to set up authenticated session"""
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['authenticated'] = True
+                sess['email'] = 'test@example.com'
+                sess['name'] = 'Test User'
+
     # ---------- PAGE TEST ----------
 
     def test_car_registration_page_loads(self):
+        self._login()
         response = self.client.get('/car_registration')
         self.assertEqual(response.status_code, 200)
 
     def test_car_registration_page_content(self):
+        self._login()
         response = self.client.get('/car_registration')
         self.assertGreater(len(response.data), 0)
 
     def test_car_registration_content_type(self):
+        self._login()
         response = self.client.get('/car_registration')
         self.assertIn('text/html', response.content_type)
 
     # ---------- API TESTS ----------
 
     def test_valid_car_registration(self):
+        self._login()
         response = self.client.post(
             '/api/save_car_registration',
             data=json.dumps(self.valid_data),
@@ -50,6 +62,7 @@ class TestCarRegistration(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_missing_make(self):
+        self._login()
         data = self.valid_data.copy()
         data.pop('make')
 
@@ -63,6 +76,7 @@ class TestCarRegistration(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_missing_model(self):
+        self._login()
         data = self.valid_data.copy()
         data.pop('model')
 
@@ -75,6 +89,7 @@ class TestCarRegistration(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_empty_fields(self):
+        self._login()
         data = {
             "make": "",
             "model": "",
