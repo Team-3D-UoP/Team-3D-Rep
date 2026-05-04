@@ -1885,6 +1885,44 @@ def get_brands():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/offers', methods=['GET'])
+def get_offers():
+    """Get offer products, optionally filtered by car brand"""
+    brand = request.args.get('brand', '').lower()
+
+    from data.products import OFFER_PRODUCTS
+
+    # Filter offers by brand if provided
+    offers = OFFER_PRODUCTS
+    if brand:
+        # Filter products that are relevant to the car brand
+        # For now, show products that have parts matching the brand
+        # E.g., if brand is "Toyota", show products that would work with Toyota cars
+        filtered_offers = [p for p in offers if 'toyota' in p.get('name', '').lower() or
+                          'honda' in p.get('name', '').lower() or
+                          'bmw' in p.get('name', '').lower() or
+                          'audi' in p.get('name', '').lower() or
+                          'mercedes' in p.get('name', '').lower() or
+                          any(brand in p.get('brand', '').lower() for brand in ['car', 'auto', 'engine', 'battery', 'filter', 'wiper', 'brake', 'oil'])]
+
+        # If no brand-specific filtering, return all offers
+        # (since these are universal car maintenance products)
+        offers = OFFER_PRODUCTS
+
+    # Add sellers to each product
+    offers_with_sellers = []
+    for product in offers:
+        product_with_seller = product.copy()
+        product_with_seller['seller'] = _get_seller_for_product(product)
+        offers_with_sellers.append(product_with_seller)
+
+    return jsonify({
+        'success': True,
+        'count': len(offers_with_sellers),
+        'products': offers_with_sellers
+    }), 200
+
+
 # ===== SEARCH RESULTS PAGE =====
 @app.route('/search-results')
 def search_results():
