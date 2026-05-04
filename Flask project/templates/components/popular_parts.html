@@ -1,7 +1,7 @@
 <!-- Popular Parts/Categories Section -->
 <div class="content-card">
   <div class="heading-row">
-    <span>Popular parts for your <span class="checkmark">✓</span> <span class="car-model">Peugeot 2008 2018</span> <a href="#" class="change-link">Change</a></span>
+    <span>Popular parts for your <span class="checkmark">✓</span> <span class="car-model" id="selectedCarName">Toyota Corolla 2024</span> <a href="#" class="change-link" onclick="openCarSelector(event)">Change</a></span>
     <a href="{{ url_for('search_results') }}" class="view-all-btn">View All Parts</a>
   </div>
 
@@ -43,3 +43,237 @@
       <div class="product-name">Tyre</div>
     </a>
   </div>
+</div>
+
+<!-- Car Selector Modal -->
+<div id="carSelectorModal" class="car-modal" style="display: none;">
+  <div class="car-modal-content">
+    <div class="car-modal-header">
+      <h2>Select Your Car</h2>
+      <button class="car-modal-close" onclick="closeCarSelector()">&times;</button>
+    </div>
+    <div class="car-modal-body" id="carListContainer">
+      <!-- Cars will be populated by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<style>
+  .car-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .car-modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .car-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .car-modal-header h2 {
+    margin: 0;
+    color: #003d7a;
+    font-size: 1.5rem;
+  }
+
+  .car-modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .car-modal-close:hover {
+    color: #333;
+  }
+
+  .car-modal-body {
+    padding: 2rem;
+  }
+
+  .car-brand-group {
+    margin-bottom: 2rem;
+  }
+
+  .car-brand-title {
+    font-weight: bold;
+    color: #003d7a;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .car-option {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .car-option:hover {
+    border-color: #003d7a;
+    background-color: #f9f9f9;
+  }
+
+  .car-option.active {
+    border-color: #003d7a;
+    background-color: #e8f0ff;
+  }
+
+  .car-option-radio {
+    margin-right: 1rem;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  .car-option-info {
+    flex: 1;
+  }
+
+  .car-option-name {
+    font-weight: 600;
+    color: #003d7a;
+    margin-bottom: 0.25rem;
+  }
+
+  .car-option-details {
+    font-size: 0.85rem;
+    color: #666;
+  }
+</style>
+
+<script>
+  // Available cars from database
+  const AVAILABLE_CARS = [
+    { id: 1, name: 'Toyota Corolla 2024', brand: 'Toyota', year: '2024', description: 'Toyota Corolla 1.8L Hybrid' },
+    { id: 2, name: 'Toyota Corolla 2025', brand: 'Toyota', year: '2025', description: 'Toyota Corolla 2.0L Petrol' },
+    { id: 3, name: 'Toyota RAV4 2024', brand: 'Toyota', year: '2024', description: 'Toyota RAV4 2.5L Hybrid AWD' },
+    { id: 4, name: 'Toyota RAV4 2025', brand: 'Toyota', year: '2025', description: 'Toyota RAV4 2.5L Hybrid' },
+    { id: 5, name: 'Honda Civic 2024', brand: 'Honda', year: '2024', description: 'Honda Civic 2.0L Petrol' },
+    { id: 6, name: 'Honda Civic 2025', brand: 'Honda', year: '2025', description: 'Honda Civic 1.5L Turbo' },
+    { id: 7, name: 'Honda CR-V 2024', brand: 'Honda', year: '2024', description: 'Honda CR-V 2.0L Hybrid' },
+    { id: 8, name: 'Honda CR-V 2025', brand: 'Honda', year: '2025', description: 'Honda CR-V 2.0L Hybrid AWD' },
+    { id: 9, name: 'BMW 3 Series 2024', brand: 'BMW', year: '2024', description: 'BMW 3 Series 2.0L Turbo' },
+    { id: 10, name: 'BMW 3 Series 2025', brand: 'BMW', year: '2025', description: 'BMW 3 Series 3.0L Turbo' },
+    { id: 11, name: 'BMW X5 2024', brand: 'BMW', year: '2024', description: 'BMW X5 3.0L Diesel' },
+    { id: 12, name: 'BMW X5 2025', brand: 'BMW', year: '2025', description: 'BMW X5 3.0L Hybrid' },
+    { id: 13, name: 'Audi A4 2024', brand: 'Audi', year: '2024', description: 'Audi A4 2.0L Petrol' },
+    { id: 14, name: 'Audi A4 2025', brand: 'Audi', year: '2025', description: 'Audi A4 2.0L Diesel' },
+    { id: 15, name: 'Audi Q5 2024', brand: 'Audi', year: '2024', description: 'Audi Q5 2.0L Diesel' },
+    { id: 16, name: 'Audi Q5 2025', brand: 'Audi', year: '2025', description: 'Audi Q5 2.0L Hybrid' },
+    { id: 17, name: 'Mercedes C-Class 2024', brand: 'Mercedes', year: '2024', description: 'Mercedes C-Class 2.0L Hybrid' },
+    { id: 18, name: 'Mercedes C-Class 2025', brand: 'Mercedes', year: '2025', description: 'Mercedes C-Class 2.0L Petrol' },
+    { id: 19, name: 'Mercedes GLC 2024', brand: 'Mercedes', year: '2024', description: 'Mercedes GLC 2.0L Diesel' },
+    { id: 20, name: 'Mercedes GLC 2025', brand: 'Mercedes', year: '2025', description: 'Mercedes GLC 2.0L Hybrid' }
+  ];
+
+  function openCarSelector(event) {
+    event.preventDefault();
+    document.getElementById('carSelectorModal').style.display = 'flex';
+    populateCarList();
+  }
+
+  function closeCarSelector() {
+    document.getElementById('carSelectorModal').style.display = 'none';
+  }
+
+  function populateCarList() {
+    const container = document.getElementById('carListContainer');
+    const selectedCarName = document.getElementById('selectedCarName').textContent;
+
+    // Group cars by brand
+    const groupedCars = {};
+    AVAILABLE_CARS.forEach(car => {
+      if (!groupedCars[car.brand]) {
+        groupedCars[car.brand] = [];
+      }
+      groupedCars[car.brand].push(car);
+    });
+
+    let html = '';
+    const brands = ['Toyota', 'Honda', 'BMW', 'Audi', 'Mercedes'];
+
+    brands.forEach(brand => {
+      if (groupedCars[brand]) {
+        html += `<div class="car-brand-group">`;
+        html += `<div class="car-brand-title">${brand}</div>`;
+
+        groupedCars[brand].forEach(car => {
+          const isActive = car.name === selectedCarName ? 'active' : '';
+          html += `
+            <div class="car-option ${isActive}" onclick="selectCar('${car.name}', event)">
+              <input type="radio" class="car-option-radio" ${isActive ? 'checked' : ''}>
+              <div class="car-option-info">
+                <div class="car-option-name">${car.name}</div>
+                <div class="car-option-details">${car.description}</div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+      }
+    });
+
+    container.innerHTML = html;
+  }
+
+  function selectCar(carName, event) {
+    document.getElementById('selectedCarName').textContent = carName;
+    localStorage.setItem('selectedCar', carName);
+    closeCarSelector();
+
+    // Update the checkmark and car name
+    updateCarDisplay();
+  }
+
+  function updateCarDisplay() {
+    const savedCar = localStorage.getItem('selectedCar');
+    if (savedCar) {
+      document.getElementById('selectedCarName').textContent = savedCar;
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    updateCarDisplay();
+  });
+
+  // Close modal when clicking outside of it
+  document.getElementById('carSelectorModal')?.addEventListener('click', function(event) {
+    if (event.target === this) {
+      closeCarSelector();
+    }
+  });
+</script>
