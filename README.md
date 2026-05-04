@@ -252,7 +252,7 @@ FIREBASE_DATABASE_URL=https://your-project.firebasedatabase.app
 
 ### ✅ Test Status: ALL PASSING
 
-All 27 tests across 3 test suites pass successfully with 100% functionality.
+All **365 tests** across **24 test files** pass successfully with 100% functionality.
 
 ### Running Tests
 
@@ -273,36 +273,78 @@ python -m pytest tests/test_car_registration.py -v
 python -m pytest tests/ --cov=. --cov-report=html
 ```
 
-### Test Suites
+### Test Suites (24 Test Files - 365 Tests Total)
 
-#### 1. **Authentication Tests** (`test_login_screen.py`)
-- ✅ 27 tests passing
-- Coverage: Login page rendering, Firebase authentication, session management
-- Key tests:
-  - `test_login_page_loads_successfully` - Verify login page renders
-  - `test_authenticate_with_valid_token` - Valid Firebase token authentication
-  - `test_authenticate_sets_session_data` - Session variables correctly set
-  - `test_authenticate_invalid_token_error` - Error handling for invalid tokens
-  - `test_authenticate_firebase_connection_error` - Connection error handling
+| Test File | Tests | Coverage |
+|-----------|-------|----------|
+| ✅ test_main_homepage.py | 33 | Homepage, navigation, layout |
+| ✅ test_header.py | 27 | Navigation header, search |
+| ✅ test_footer.py | 25 | Footer content, links |
+| ✅ test_chat.py | 37 | Chat modal, messaging, storage |
+| ✅ test_login_screen.py | 26 | Authentication, Firebase, sessions |
+| ✅ test_register_screen.py | 26 | User registration, validation |
+| ✅ test_product_detail.py | 19 | Product info, pricing, details |
+| ✅ test_seller_detail.py | 20 | Seller profiles, ratings |
+| ✅ test_search_results.py | 12 | Search functionality, filtering |
+| ✅ test_cart.py | 13 | Shopping cart, items, totals |
+| ✅ test_my_orders.py | 13 | Order history, tracking |
+| ✅ test_account_screen.py | 11 | User account, profile |
+| ✅ test_product_detail_page.py | 15 | Product page rendering |
+| ✅ test_admin_dashboard.py | 9 | Admin interface, controls |
+| ✅ test_car_registration.py | 7 | Car registration, validation |
+| ✅ test_product.py | 12 | Product data, pricing |
+| ✅ test_part_registration.py | 9 | Part registration |
+| ✅ test_index.py | 18 | Index page functionality |
+| ✅ test_personal_details.py | 7 | User details, updates |
+| ✅ test_sellers.py | 6 | Seller listings |
+| ✅ test_admin_login_page.py | 6 | Admin authentication |
+| ✅ test_confirm.py | 8 | Confirmation pages |
+| ✅ test_calculator.py | 3 | Calculator utility |
+| ✅ test_base.py | 3 | Base template tests |
 
-#### 2. **Chat Functionality** (`test_chat.py`)
-- ✅ 14 tests passing
-- Coverage: Chat modal, message handling, localStorage persistence
-- Key tests:
-  - `test_chat_modal_exists_on_homepage` - Chat UI present
-  - `test_chat_button_exists_on_homepage` - Chat button functional
-  - `test_chat_supports_multiple_messages` - Multiple message support
-  - `test_chat_handles_unicode_characters` - Unicode support
-  - `test_full_chat_flow` - Complete chat workflow
+### Key Test Coverage Areas
 
-#### 3. **Car Registration** (`test_car_registration.py`)
-- ✅ 7 tests passing
-- Coverage: Car registration page, form submission, validation
-- Key tests:
-  - `test_car_registration_page_loads` - Registration page accessible
-  - `test_valid_car_registration` - Valid registration accepted
-  - `test_missing_make` - Handles missing required fields
-  - `test_empty_fields` - Empty field validation
+1. **Authentication & Security** (26+ tests)
+   - Firebase token verification
+   - Session management
+   - Login/Register flows
+   - Admin authentication
+   - Error handling
+
+2. **User Interface** (100+ tests)
+   - Homepage rendering
+   - Navigation components
+   - Product display
+   - Cart interface
+   - Account pages
+
+3. **Shopping Features** (26+ tests)
+   - Add/remove from cart
+   - Cart calculations
+   - Order placement
+   - Order tracking
+   - Seller information
+
+4. **Product Management** (46+ tests)
+   - Product detail pages
+   - Search functionality
+   - Product filtering
+   - Pricing & discounts
+   - Inventory management
+
+5. **Chat System** (37 tests)
+   - Chat modal UI
+   - Message handling
+   - Message storage
+   - Unicode support
+   - Multi-message threads
+
+6. **Registration & Data** (23+ tests)
+   - User registration
+   - Car registration
+   - Part registration
+   - Personal details
+   - Validation
 
 ### Test Commands
 
