@@ -119,8 +119,18 @@
   const chatMessages = document.querySelector('.chat-messages');
   const chatCounter = document.querySelector('.chat-counter');
 
+  // Debug: Log chat elements
+  console.log('Chat button element:', chatBtn);
+  console.log('Chat modal element:', chatModal);
+  console.log('Chat input element:', chatInput);
+  console.log('Chat send button element:', chatSendBtn);
+
   // Display a message in the chat UI
   function displayMessage(text, sender, timestamp) {
+    if (!chatMessages) {
+      console.warn('⚠️ Chat messages container not found');
+      return;
+    }
     const msgDiv = document.createElement('div');
     const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     msgDiv.className = `chat-message ${sender === 'support' ? 'chat-message-company' : 'chat-message-user'}`;
@@ -172,16 +182,20 @@
     }
 
     // Update counter
-    const messageCount = chatMessages.children.length;
-    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+    if (chatMessages && chatCounter) {
+      const messageCount = chatMessages.children.length;
+      chatCounter.textContent = `${messageCount} of ${messageCount}`;
 
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+      // Scroll to bottom
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
   }
 
 
   // Send message handler
   function sendMessage() {
+    if (!chatInput) return;
+
     const messageText = chatInput.value.trim();
     if (!messageText) return;
 
@@ -190,11 +204,13 @@
     chatInput.value = '';
 
     // Update message counter
-    let messageCount = chatMessages.children.length;
-    chatCounter.textContent = `${messageCount} of ${messageCount}`;
+    if (chatMessages && chatCounter) {
+      let messageCount = chatMessages.children.length;
+      chatCounter.textContent = `${messageCount} of ${messageCount}`;
 
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+      // Scroll to bottom
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
     // Send to backend
     const userInfo = getCurrentUserInfo();
@@ -216,9 +232,11 @@
           const supportResponse = 'Thank you for your message! Our support team will reply shortly.';
           displayMessage(supportResponse, 'support', new Date().toISOString());
 
-          messageCount = chatMessages.children.length;
-          chatCounter.textContent = `${messageCount} of ${messageCount}`;
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+          if (chatMessages && chatCounter) {
+            messageCount = chatMessages.children.length;
+            chatCounter.textContent = `${messageCount} of ${messageCount}`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
         }, 2000);
       }
     }).catch(error => {
@@ -229,34 +247,63 @@
   // Auto-refresh chat messages
   let chatRefreshInterval;
 
-  chatBtn.addEventListener('click', () => {
-    loadChatHistoryFromStorage();
-    chatModal.classList.add('active');
+  // Only attach listener if button exists
+  if (chatBtn) {
+    chatBtn.addEventListener('click', () => {
+      console.log('💬 Chat button clicked on homepage');
+      try {
+        if (chatModal) {
+          loadChatHistoryFromStorage();
+          chatModal.classList.add('active');
+          console.log('✓ Chat modal opened successfully');
 
-    // Auto-refresh messages every 2 seconds while modal is open
-    if (chatRefreshInterval) clearInterval(chatRefreshInterval);
-    chatRefreshInterval = setInterval(() => {
-      loadChatHistoryFromStorage();
-    }, 2000);
-  });
+          // Auto-refresh messages every 2 seconds while modal is open
+          if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+          chatRefreshInterval = setInterval(() => {
+            loadChatHistoryFromStorage();
+          }, 2000);
+        } else {
+          console.error('❌ Chat modal not found');
+        }
+      } catch (error) {
+        console.error('❌ Error opening chat:', error);
+      }
+    });
+    console.log('✓ Chat button event listener attached');
+  } else {
+    console.error('❌ Chat button not found in DOM');
+  }
 
-  chatModalClose.addEventListener('click', () => {
-    chatModal.classList.remove('active');
-    clearInterval(chatRefreshInterval);
-  });
+  // Attach remaining event listeners
+  if (chatModalClose) {
+    chatModalClose.addEventListener('click', () => {
+      console.log('Closing chat modal');
+      if (chatModal) {
+        chatModal.classList.remove('active');
+        clearInterval(chatRefreshInterval);
+      }
+    });
+  }
 
-  chatModal.addEventListener('click', (e) => {
-    if (e.target === chatModal) {
-      chatModal.classList.remove('active');
-      clearInterval(chatRefreshInterval);
-    }
-  });
+  if (chatModal) {
+    chatModal.addEventListener('click', (e) => {
+      if (e.target === chatModal) {
+        console.log('Closing chat (clicked outside)');
+        chatModal.classList.remove('active');
+        clearInterval(chatRefreshInterval);
+      }
+    });
+  }
 
-  chatSendBtn.addEventListener('click', sendMessage);
+  if (chatSendBtn) {
+    chatSendBtn.addEventListener('click', sendMessage);
+  }
 
-  chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
-  });
+  if (chatInput) {
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  }
 </script>

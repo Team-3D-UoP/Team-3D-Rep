@@ -642,7 +642,7 @@
   }
 
   .chat-modal {
-    display: none;
+    display: flex;
     position: fixed;
     bottom: 5.5rem;
     right: 2rem;
@@ -654,10 +654,16 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     flex-direction: column;
     z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(20px);
   }
 
   .chat-modal.active {
-    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
   }
 
   .chat-modal-header {
