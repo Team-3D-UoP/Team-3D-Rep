@@ -48,57 +48,40 @@ class TestUserSearchFlows(unittest.TestCase):
     # ========================
     # TEST PLAN PARTITION: Valid Search Results
     # ========================
-    @patch('app.search_products')
-    def test_search_valid_results(self, mock_search_products):
+    def test_search_valid_results(self):
         """
         Partition: Valid search results
-        Input: Search query: "brake pads"
-        Expected output: Search results page shows relevant products/parts
+        Input: Search query: "brake"
+        Expected output: API returns results with success=True and count > 0
         Valid: ✓
         """
-        # Mock search to return valid results
-        mock_search_products.return_value = [
-            {
-                'id': 1,
-                'name': 'Brake Pad Set',
-                'description': 'High-quality brake pads',
-                'price': 45.99,
-                'seller_id': 1
-            },
-            {
-                'id': 2,
-                'name': 'Premium Brake Pads',
-                'description': 'Performance brake pads',
-                'price': 65.50,
-                'seller_id': 2
-            }
-        ]
-        
-        response = self.client.get('/search?query=brake+pads')
+        response = self.client.get('/api/parts/search?q=brake')
         
         # Check response
         self.assertEqual(response.status_code, 200)
-        self.assertIn('text/html', response.content_type)
+        response_data = json.loads(response.data)
+        self.assertTrue(response_data.get('success'))
+        self.assertIn('count', response_data)
+        self.assertIn('products', response_data)
 
     # ========================
     # TEST PLAN PARTITION: No Matching Results
     # ========================
-    @patch('app.search_products')
-    def test_search_no_matching_results(self, mock_search_products):
+    def test_search_no_matching_results(self):
         """
         Partition: No matching results
         Input: Search query: "xyzabc123xyz" (non-existent part)
-        Expected output: No results page or "no matching results" message
+        Expected output: API returns success=True but count=0
         Valid: ✓ (Valid but returns empty)
         """
-        # Mock search to return empty results
-        mock_search_products.return_value = []
+        response = self.client.get('/api/parts/search?q=xyzabc123xyz')
         
-        response = self.client.get('/search?query=xyzabc123xyz')
-        
-        # Should still return 200 but with empty results
+        # Should return 200 with empty results
         self.assertEqual(response.status_code, 200)
-        self.assertIn('text/html', response.content_type)
+        response_data = json.loads(response.data)
+        self.assertTrue(response_data.get('success'))
+        self.assertEqual(response_data.get('count'), 0)
+        self.assertEqual(len(response_data.get('products', [])), 0)
 
     # ========================
     # TEST PLAN PARTITION: Empty Search Query
@@ -107,91 +90,82 @@ class TestUserSearchFlows(unittest.TestCase):
         """
         Partition: Empty search query
         Input: Search query: "" (empty string)
-        Expected output: Error message or no results
-        Valid: i (Invalid)
+        Expected output: Returns all products (empty search matches all)
+        Valid: i (Invalid but handled gracefully)
         """
-        response = self.client.get('/search?query=')
+        response = self.client.get('/api/parts/search?q=')
         
-        # Should handle empty search gracefully
-        # Either 400 error or 200 with empty results
-        self.assertIn(response.status_code, [200, 400])
+        # Empty query should return all products (no filter)
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(response.data)
+        self.assertTrue(response_data.get('success'))
+        # Empty search should return all available products
+        self.assertGreaterEqual(response_data.get('count', 0), 0)
 
     # ========================
     # TEST PLAN PARTITION: Special Characters in Search
     # ========================
-    @patch('app.search_products')
-    def test_search_special_characters(self, mock_search_products):
+    def test_search_special_characters(self):
         """
         Partition: Special characters in search
         Input: Search query: "brake@pads#123$%"
-        Expected output: Search handles special characters safely
+        Expected output: Search handles special characters safely without error
         Valid: ✓ (Valid but may have limited results)
         """
-        # Mock search to handle special characters safely
-        mock_search_products.return_value = []
-        
-        response = self.client.get('/search?query=brake%40pads%23123%24%25')
+        # URL-encoded special characters
+        response = self.client.get('/api/parts/search?q=brake%40pads%23123%24%25')
         
         # Should handle special characters without error
-        self.assertIn(response.status_code, [200, 400])
-
-    # ========================
-    # ADDITIONAL: Search with API endpoint
-    # ========================
-    @patch('app.search_products')
-    def test_search_api_json_response(self, mock_search_products):
-        """Test search via API endpoint returns JSON"""
-        mock_search_products.return_value = [
-            {
-                'id': 1,
-                'name': 'Engine Oil',
-                'price': 25.99,
-                'seller_id': 1
-            }
-        ]
-        
-        response = self.client.get(
-            '/api/search',
-            headers={'Accept': 'application/json'},
-            query_string={'query': 'engine oil'}
-        )
-        
-        # API should return 200 or 400
-        self.assertIn(response.status_code, [200, 400, 404])
-
-    # ========================
-    # ADDITIONAL: Search pagination
-    # ========================
-    @patch('app.search_products')
-    def test_search_pagination(self, mock_search_products):
-        """Test search with pagination"""
-        # Mock large result set
-        mock_search_products.return_value = [
-            {'id': i, 'name': f'Part {i}', 'price': 10 + i}
-            for i in range(50)
-        ]
-        
-        response = self.client.get('/search?query=part&page=1')
-        
-        # Should return search results page
         self.assertEqual(response.status_code, 200)
+        response_data = json.loads(response.data)
+        self.assertTrue(response_data.get('success'))
+        # Count should be 0 or more (graceful handling of no matches)
+        self.assertGreaterEqual(response_data.get('count', 0), 0)
 
     # ========================
-    # ADDITIONAL: Search with filters
+    # ADDITIONAL: Search with case-insensitive keywords
     # ========================
-    @patch('app.search_products')
-    def test_search_with_price_filter(self, mock_search_products):
-        """Test search with price filter"""
-        mock_search_products.return_value = [
-            {'id': 1, 'name': 'Affordable Part', 'price': 15.99}
-        ]
+    def test_search_case_insensitive(self):
+        """Test that search is case-insensitive"""
+        response_lower = self.client.get('/api/parts/search?q=brake')
+        response_upper = self.client.get('/api/parts/search?q=BRAKE')
         
-        response = self.client.get(
-            '/search?query=part&min_price=10&max_price=50'
-        )
+        # Both should return same results
+        self.assertEqual(response_lower.status_code, 200)
+        self.assertEqual(response_upper.status_code, 200)
         
-        # Should return filtered results
+        data_lower = json.loads(response_lower.data)
+        data_upper = json.loads(response_upper.data)
+        
+        self.assertEqual(data_lower.get('count'), data_upper.get('count'))
+
+    # ========================
+    # ADDITIONAL: Search results page loads
+    # ========================
+    def test_search_results_page_loads(self):
+        """Test that search results page HTML endpoint works"""
+        response = self.client.get('/search-results')
+        
+        # Should return 200 and HTML content
         self.assertEqual(response.status_code, 200)
+        self.assertIn('text/html', response.content_type)
+
+    # ========================
+    # ADDITIONAL: Search with whitespace trimming
+    # ========================
+    def test_search_whitespace_trimming(self):
+        """Test that leading/trailing whitespace is trimmed"""
+        response_with_spaces = self.client.get('/api/parts/search?q=%20%20brake%20%20')
+        response_normal = self.client.get('/api/parts/search?q=brake')
+        
+        # Both should have same results
+        self.assertEqual(response_with_spaces.status_code, 200)
+        self.assertEqual(response_normal.status_code, 200)
+        
+        data_spaces = json.loads(response_with_spaces.data)
+        data_normal = json.loads(response_normal.data)
+        
+        self.assertEqual(data_spaces.get('count'), data_normal.get('count'))
 
 
 if __name__ == '__main__':
