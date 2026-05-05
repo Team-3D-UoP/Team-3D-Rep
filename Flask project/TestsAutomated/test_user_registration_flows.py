@@ -30,11 +30,17 @@ class TestUserRegistrationFlows(unittest.TestCase):
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         self.client = self.app.test_client()
         
+        # Mock Firebase as initialized for testing
+        self.firebase_patcher = patch('app.firebase_initialized', True)
+        self.mock_firebase_init = self.firebase_patcher.start()
+        
         with self.app.app_context():
             db.create_all()
 
     def tearDown(self):
         """Clean up after each test"""
+        self.firebase_patcher.stop()
+        
         with self.app.app_context():
             db.session.remove()
             db.drop_all()
