@@ -1,7 +1,9 @@
 <script>
-  // Store current user email for chat
-  let currentUserEmail = null;
-  let currentUserName = null;
+  // Wait for DOM to be fully loaded
+  function initializeHomepage() {
+    // Store current user email for chat
+    let currentUserEmail = null;
+    let currentUserName = null;
 
   // Get user email from session/localStorage
   function getCurrentUserInfo() {
@@ -305,5 +307,14 @@
         sendMessage();
       }
     });
+  }
+  } // End of initializeHomepage function
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHomepage);
+  } else {
+    // DOM is already loaded
+    initializeHomepage();
   }
 </script>
