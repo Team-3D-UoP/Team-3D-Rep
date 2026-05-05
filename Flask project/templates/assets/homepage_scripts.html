@@ -143,41 +143,69 @@
     chatMessages.appendChild(msgDiv);
   }
 
-  // Load chat history from Firebase on modal open
+  // Store chat messages in localStorage
+  const CHAT_STORAGE_KEY = 'team3d_chat_messages';
+
+  function getStoredMessages() {
+    try {
+      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveMessageToStorage(text, sender, timestamp) {
+    try {
+      const messages = getStoredMessages();
+      messages.push({ text, sender, timestamp });
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    } catch (e) {
+      console.warn('Could not save to localStorage:', e);
+    }
+  }
+
+  // Load chat history from localStorage and Firebase
   async function loadChatHistoryFromStorage() {
     try {
-      const userInfo = getCurrentUserInfo();
+      if (!chatMessages) return;
+
       console.log('🔄 Loading chat messages...');
 
-      // Load from Firebase
-      const response = await fetch('/api/chat/get-customer-messages');
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`📨 Received ${data.messages?.length || 0} messages from Firebase`);
+      // Load messages from localStorage (these are already displayed)
+      const storedMessages = getStoredMessages();
 
-        // Clear existing messages except the initial greeting
-        const initialMsg = chatMessages.querySelector('.chat-message-company');
-        chatMessages.innerHTML = '';
-        if (initialMsg) chatMessages.appendChild(initialMsg);
+      // Only refresh from Firebase if we have less than stored messages
+      // This prevents clearing messages that are already displayed
+      const currentMessageCount = chatMessages.children.length;
 
-        // Load messages from Firebase - filter by current user
-        if (data.messages && data.messages.length > 0) {
-          data.messages.forEach(msg => {
-            // Show message if:
-            // 1. It's from the current user, OR
-            // 2. It's a reply from admin targeted to this user, OR
-            // 3. User not logged in (show all messages)
-            const isCurrentUser = msg.user_email === userInfo.email;
-            const isAdminReply = msg.sender_type === 'admin';
-            const isTargetedToUser = msg.target_user_email === userInfo.email || !msg.target_user_email;
-            const isGuestUser = userInfo.email === 'guest@example.com';
+      if (storedMessages.length > 0 && storedMessages.length >= currentMessageCount - 1) {
+        // Messages already loaded, don't refresh
+        console.log(`ℹ Using ${storedMessages.length} stored messages`);
+        return;
+      }
 
-            if (isCurrentUser || (isAdminReply && isTargetedToUser) || isGuestUser) {
-              console.log(`✓ Displaying: ${msg.sender_type} - ${msg.message.substring(0, 30)}`);
-              displayMessage(msg.message, msg.sender_type === 'admin' ? 'support' : 'user', msg.created_at);
-            }
-          });
+      // Try to load from Firebase
+      try {
+        const response = await fetch('/api/chat/get-customer-messages');
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`📨 Received ${data.messages?.length || 0} messages from Firebase`);
+
+          // Don't clear messages - just add new ones
+          if (data.messages && data.messages.length > 0) {
+            data.messages.forEach(msg => {
+              const isNewMessage = !storedMessages.some(m => m.timestamp === msg.created_at);
+              if (isNewMessage) {
+                const sender = msg.sender_type === 'admin' ? 'support' : 'user';
+                displayMessage(msg.message, sender, msg.created_at);
+                saveMessageToStorage(msg.message, sender, msg.created_at);
+              }
+            });
+          }
         }
+      } catch (firebaseError) {
+        console.log('ℹ Firebase unavailable, using local messages only');
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
@@ -201,8 +229,14 @@
     const messageText = chatInput.value.trim();
     if (!messageText) return;
 
+    const timestamp = new Date().toISOString();
+
     // Display user message immediately
-    displayMessage(messageText, 'user', new Date().toISOString());
+    displayMessage(messageText, 'user', timestamp);
+
+    // Save to localStorage immediately
+    saveMessageToStorage(messageText, 'user', timestamp);
+
     chatInput.value = '';
 
     // Update message counter
@@ -214,7 +248,7 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Send to backend
+    // Send to backend (async, doesn't need to complete)
     const userInfo = getCurrentUserInfo();
     fetch('/api/chat/send', {
       method: 'POST',
@@ -232,7 +266,9 @@
         // Show response after 2 seconds
         setTimeout(() => {
           const supportResponse = 'Thank you for your message! Our support team will reply shortly.';
-          displayMessage(supportResponse, 'support', new Date().toISOString());
+          const supportTimestamp = new Date().toISOString();
+          displayMessage(supportResponse, 'support', supportTimestamp);
+          saveMessageToStorage(supportResponse, 'support', supportTimestamp);
 
           if (chatMessages && chatCounter) {
             messageCount = chatMessages.children.length;
@@ -255,15 +291,43 @@
       console.log('💬 Chat button clicked on homepage');
       try {
         if (chatModal) {
-          loadChatHistoryFromStorage();
+          // Load stored messages first
+          const storedMessages = getStoredMessages();
+          if (storedMessages.length > 0) {
+            console.log(`📦 Loading ${storedMessages.length} stored messages`);
+            chatMessages.innerHTML = ''; // Clear only on first open
+
+            // Add initial greeting
+            const initialMsg = document.createElement('div');
+            initialMsg.className = 'chat-message chat-message-company';
+            initialMsg.innerHTML = `
+              <div><strong>3DS Live Support</strong></div>
+              <div style="margin-top: 0.5rem;">Live chat is always here 24/7. Send a message and please wait for a response.</div>
+              <div class="chat-message-time">Now</div>
+            `;
+            chatMessages.appendChild(initialMsg);
+
+            // Add stored messages
+            storedMessages.forEach(msg => {
+              displayMessage(msg.text, msg.sender, msg.timestamp);
+            });
+          }
+
           chatModal.classList.add('active');
           console.log('✓ Chat modal opened successfully');
 
-          // Auto-refresh messages every 2 seconds while modal is open
+          // Update counter
+          if (chatMessages && chatCounter) {
+            const messageCount = chatMessages.children.length;
+            chatCounter.textContent = `${messageCount} of ${messageCount}`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+
+          // Only refresh every 10 seconds (not too frequent)
           if (chatRefreshInterval) clearInterval(chatRefreshInterval);
           chatRefreshInterval = setInterval(() => {
             loadChatHistoryFromStorage();
-          }, 2000);
+          }, 10000);
         } else {
           console.error('❌ Chat modal not found');
         }
