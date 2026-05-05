@@ -187,7 +187,8 @@
 
       // Try to load from Firebase
       try {
-        const response = await fetch('/api/chat/get-customer-messages');
+        const userInfo = getCurrentUserInfo();
+        const response = await fetch(`/api/chat/get-customer-messages?email=${encodeURIComponent(userInfo.email)}`);
         if (response.ok) {
           const data = await response.json();
           console.log(`📨 Received ${data.messages?.length || 0} messages from Firebase`);

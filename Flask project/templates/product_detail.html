@@ -1309,7 +1309,7 @@
       const userInfo = getCurrentUserInfo();
       const chatMessages = document.querySelector('.chat-messages');
 
-      const response = await fetch('/api/chat/get-customer-messages');
+      const response = await fetch(`/api/chat/get-customer-messages?email=${encodeURIComponent(userInfo.email)}`);
       if (response.ok) {
         const data = await response.json();
 

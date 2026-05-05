@@ -1362,8 +1362,20 @@ def clear_all_chats():
 
 @app.route("/api/chat/get-customer-messages", methods=['GET'])
 def get_customer_messages():
-    """Get all chat messages for customer (from Firebase)"""
+    """Get chat messages for customer (from Firebase) - filters by user email"""
     try:
+        # Get customer email from query parameter
+        customer_email = request.args.get('email', '').strip()
+        is_admin = session.get('admin_authenticated', False)
+
+        # If no email provided and user is admin, return all messages
+        # If no email provided and user is not admin, return empty (privacy)
+        if not customer_email and not is_admin:
+            return jsonify({
+                "success": True,
+                "messages": []
+            }), 200
+
         # Use Firebase Admin SDK to retrieve messages
         if firebase_initialized:
             try:
@@ -1375,12 +1387,23 @@ def get_customer_messages():
                     # Convert Firebase object to array
                     messages = []
                     for timestamp, msg_data in messages_data.items():
-                        messages.append(msg_data)
+                        # If admin, show all messages
+                        if is_admin:
+                            messages.append(msg_data)
+                        # If customer, only show their messages and admin replies to them
+                        elif customer_email:
+                            msg_from = msg_data.get('user_email', '').strip()
+                            target_email = msg_data.get('target_user_email', '').strip()
+                            sender_type = msg_data.get('sender_type', '')
+
+                            # Include if: customer sent it OR admin replied to customer
+                            if msg_from.lower() == customer_email.lower() or (sender_type == 'admin' and target_email.lower() == customer_email.lower()):
+                                messages.append(msg_data)
 
                     # Sort by created_at ascending (oldest first)
                     messages.sort(key=lambda x: x.get('created_at', ''))
 
-                    print(f"✓ Retrieved {len(messages)} messages from Firebase")
+                    print(f"✓ Retrieved {len(messages)} messages from Firebase for {customer_email or 'admin'}")
                     return jsonify({
                         "success": True,
                         "messages": messages
@@ -1391,8 +1414,8 @@ def get_customer_messages():
                         "success": True,
                         "messages": []
                     }), 200
-            except Exception as admin_error:
-                print(f"⚠ Error fetching messages from Firebase: {admin_error}")
+            except Exception as firebase_error:
+                print(f"⚠ Error fetching messages from Firebase: {firebase_error}")
         else:
             print("⚠ Firebase Admin SDK not initialized")
 
