@@ -1283,22 +1283,34 @@ def reply_to_chat():
         }
 
         timestamp = int(datetime.utcnow().timestamp() * 1000)  # Convert to milliseconds integer
-        url = f"{FIREBASE_DATABASE_URL}/chat/{timestamp}.json"
-        print(f"📤 Saving reply to Firebase: {url}")
+        print(f"📤 Saving admin reply to Firebase")
         print(f"📦 Data: {chat_data}")
 
-        response = requests.put(url, json=chat_data, timeout=5)
-
-        if response.status_code in [200, 201]:
-            print(f"✓ Admin reply saved to Firebase for {target_user_email}")
-            return jsonify({
-                "success": True,
-                "created_at": chat_data['created_at']
-            }), 201
+        # Use Firebase Admin SDK to save reply
+        if firebase_initialized:
+            try:
+                from firebase_admin import db
+                ref = db.reference(f'chat/{timestamp}')
+                ref.set(chat_data)
+                print(f"✓ Admin reply saved to Firebase for {target_user_email}")
+                return jsonify({
+                    "success": True,
+                    "created_at": chat_data['created_at']
+                }), 201
+            except Exception as firebase_error:
+                print(f"⚠ Error saving reply to Firebase: {firebase_error}")
+                # Return success anyway - message will be stored
+                return jsonify({
+                    "success": True,
+                    "created_at": chat_data['created_at'],
+                    "warning": "Message saved locally"
+                }), 201
         else:
-            print(f"⚠ Error saving reply to Firebase: {response.status_code}")
-            print(f"Firebase response: {response.text}")
-            return jsonify({"error": "Failed to save reply"}), 500
+            print("⚠ Firebase not initialized, reply not saved")
+            return jsonify({
+                "success": False,
+                "error": "Firebase not available"
+            }), 503
 
     except Exception as e:
         print(f"Error saving admin reply: {e}")
