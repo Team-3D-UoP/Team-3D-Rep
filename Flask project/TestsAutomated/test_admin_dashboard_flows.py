@@ -80,5 +80,51 @@ class TestAdminDashboardFlows(unittest.TestCase):
         self.assertEqual(payload.get('error'), 'Unauthorized')
 
 
+
+    def test_dashboard_users_returns_data_when_authenticated(self):
+        """Authenticated admin can access users dashboard"""
+        self.client.post(
+            '/api/admin/login',
+            json={'email': ADMIN_EMAIL, 'password': ADMIN_PASSWORD}
+        )
+        
+        response = self.client.get('/api/dashboard/users')
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('count', payload)
+        self.assertIn('users', payload)
+        self.assertIsInstance(payload.get('users'), list)
+
+    def test_dashboard_reviews_returns_data_when_authenticated(self):
+        """Authenticated admin can access reviews dashboard"""
+        self.client.post(
+            '/api/admin/login',
+            json={'email': ADMIN_EMAIL, 'password': ADMIN_PASSWORD}
+        )
+        
+        response = self.client.get('/api/dashboard/reviews')
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('count', payload)
+        self.assertIn('reviews', payload)
+        self.assertIsInstance(payload.get('reviews'), list)
+
+    def test_dashboard_carts_returns_data_when_authenticated(self):
+        """Authenticated admin can access carts dashboard"""
+        self.client.post(
+            '/api/admin/login',
+            json={'email': ADMIN_EMAIL, 'password': ADMIN_PASSWORD}
+        )
+        
+        response = self.client.get('/api/dashboard/carts')
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('count', payload)
+        self.assertIn('cart_count', payload)
+
+
 if __name__ == '__main__':
     unittest.main()
