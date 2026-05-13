@@ -126,5 +126,25 @@ class TestAdminDashboardFlows(unittest.TestCase):
         self.assertIn('cart_count', payload)
 
 
+
+    def test_admin_logout_clears_session(self):
+        """Admin logout clears session and requires re-authentication"""
+        self.client.post(
+            '/api/admin/login',
+            json={'email': ADMIN_EMAIL, 'password': ADMIN_PASSWORD}
+        )
+        
+        response_before = self.client.get('/api/dashboard/users')
+        self.assertEqual(response_before.status_code, 200)
+        
+        logout_response = self.client.post('/api/admin/logout')
+        logout_payload = logout_response.get_json()
+        self.assertEqual(logout_response.status_code, 200)
+        self.assertTrue(logout_payload.get('success'))
+        
+        response_after = self.client.get('/api/dashboard/users')
+        self.assertEqual(response_after.status_code, 401)
+
+
 if __name__ == '__main__':
     unittest.main()
