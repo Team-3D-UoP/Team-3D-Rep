@@ -55,5 +55,30 @@ class TestAdminDashboardFlows(unittest.TestCase):
         self.assertEqual(payload.get('error'), 'Invalid admin credentials')
 
 
+    def test_dashboard_users_requires_authentication(self):
+        """Dashboard users endpoint rejects unauthenticated requests"""
+        response = self.client.get('/api/dashboard/users')
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(payload.get('error'), 'Unauthorized')
+
+    def test_dashboard_reviews_requires_authentication(self):
+        """Dashboard reviews endpoint rejects unauthenticated requests"""
+        response = self.client.get('/api/dashboard/reviews')
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(payload.get('error'), 'Unauthorized')
+
+    def test_dashboard_carts_requires_authentication(self):
+        """Dashboard carts endpoint rejects unauthenticated requests"""
+        response = self.client.get('/api/dashboard/carts')
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(payload.get('error'), 'Unauthorized')
+
+
 if __name__ == '__main__':
     unittest.main()
