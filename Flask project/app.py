@@ -1732,42 +1732,18 @@ def save_car_registration():
 
     try:
         insert_registered_car(data["make"], data["model"], data["year"], data["license"], data["engine"], data["wheels"], select_user_id(session['email'], session['name'])[0][0])
-    except Exception:
-        pass
-
-    return jsonify({"message": "Car registration recieved"}), 200
+        return jsonify({"message": "Car registration recieved"}), 200
+    except Exception as e:
+        print(f"Error saving car registration: {e}")
 
 @app.route("/api/save_part_registration", methods=["POST"])
 def save_part_registration():
     data = request.get_json(silent=True) or {}
     try:
         insert_registered_part(select_user_id(session['email'], session['name'])[0][0], data["brand"], data["year"], data["part_name"], data["price"], data["description"], data["image"])
-    except Exception:
-        pass
-
-    # Validate required fields
-    required_fields = ['name', 'price', 'description', 'image']
-    if not all(field in data and data[field] for field in required_fields):
-        return jsonify({"error": "All fields are required"}), 400
-    try:
-        # Create new part
-        new_part = Part(
-            name=data['name'],
-            price=float(data['price']),
-            description=data['description'],
-            image=data['image']
-        )
-
-        # Save to database
-        db.session.add(new_part)
-        db.session.commit()
-
-        return jsonify({"message": "Part registration successful", "part_id": new_part.id}), 201
-    except ValueError:
-        return jsonify({"error": "Invalid price format"}), 400
+        return jsonify({"message": "Part registration recieved"}), 200
     except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Failed to save part"}), 500
+        print(f"Error saving part registration: {e}")
 
 # ===== DYNAMIC CAR PARTS PRODUCTS =====
 # These endpoints dynamically fetch car parts from the database and serve them as products
