@@ -244,7 +244,7 @@ class TestCompatibilityCheckingFlows(unittest.TestCase):
                 'vehicle_id': 1,
                 'part_id': 1,
                 'extra_field': 'should be ignored',
-                'another_field': 123
+                'another_field': 125
             })
             self.assertNotEqual(response.status_code, 500)
             
