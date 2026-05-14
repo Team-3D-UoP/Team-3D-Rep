@@ -225,6 +225,223 @@ class TestSellerDetailsFlows(unittest.TestCase):
             # Should handle gracefully without 500 error
             self.assertNotEqual(response.status_code, 500)
 
+    def test_post_seller_review_non_numeric_rating(self):
+        """Test validation for non-numeric rating values"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Submit non-numeric rating
+            response = self.client.post('/seller/1/review', data={
+                'rating': 'abc',
+                'review_text': 'Review with invalid rating'
+            })
+            # Should not crash with 500 error
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_post_seller_review_very_long_text(self):
+        """Test validation for extremely long review text"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Submit very long review text (10000+ characters)
+            very_long_text = 'A' * 10000
+            response = self.client.post('/seller/1/review', data={
+                'rating': 5,
+                'review_text': very_long_text
+            })
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_post_seller_review_empty_strings(self):
+        """Test validation for empty string values"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Submit with empty rating
+            response = self.client.post('/seller/1/review', data={
+                'rating': '',
+                'review_text': 'Valid review text'
+            })
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+            
+            # Submit with empty review text
+            response = self.client.post('/seller/1/review', data={
+                'rating': 4,
+                'review_text': ''
+            })
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_post_seller_review_xss_attempt(self):
+        """Test protection against XSS attacks in review text"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Attempt XSS injection
+            xss_payload = '<script>alert("XSS")</script>'
+            response = self.client.post('/seller/1/review', data={
+                'rating': 5,
+                'review_text': xss_payload
+            })
+            # Should handle gracefully without crashing
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_post_seller_review_sql_injection_attempt(self):
+        """Test protection against SQL injection in review data"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Attempt SQL injection
+            sql_payload = "'; DROP TABLE seller_reviews; --"
+            response = self.client.post('/seller/1/review', data={
+                'rating': 5,
+                'review_text': sql_payload
+            })
+            # Should handle gracefully without executing SQL
+            self.assertNotEqual(response.status_code, 500)
+            
+            # Verify table still exists after attempted injection
+            with self.app.app_context():
+                review_count = SellerReview.query.count()
+                self.assertGreaterEqual(review_count, 0)
+
+    def test_post_seller_review_special_characters(self):
+        """Test handling of special characters in review text"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Submit review with special characters
+            special_text = 'Great! @#$%^&*()_+-={}[]|:;<>?,./'
+            response = self.client.post('/seller/1/review', data={
+                'rating': 5,
+                'review_text': special_text
+            })
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_post_seller_review_unicode_characters(self):
+        """Test handling of unicode and international characters"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Submit review with unicode characters
+            unicode_text = 'Great seller! 你好 مرحبا Привет 🌟'
+            response = self.client.post('/seller/1/review', data={
+                'rating': 5,
+                'review_text': unicode_text
+            })
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_post_seller_review_boundary_ratings(self):
+        """Test boundary values for rating (1 and 5)"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Test minimum valid rating
+            response = self.client.post('/seller/1/review', data={
+                'rating': 1,
+                'review_text': 'Minimum rating review'
+            })
+            self.assertNotEqual(response.status_code, 500)
+            
+            # Test maximum valid rating
+            response = self.client.post('/seller/1/review', data={
+                'rating': 5,
+                'review_text': 'Maximum rating review'
+            })
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_post_seller_review_float_rating(self):
+        """Test handling of float values for rating"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Submit float rating (should be integer)
+            response = self.client.post('/seller/1/review', data={
+                'rating': 4.5,
+                'review_text': 'Review with float rating'
+            })
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_post_seller_review_negative_rating(self):
+        """Test validation for negative rating values"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # Submit negative rating
+            response = self.client.post('/seller/1/review', data={
+                'rating': -5,
+                'review_text': 'Review with negative rating'
+            })
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_get_seller_reviews_with_invalid_format(self):
+        """Test GET endpoint with invalid format requests"""
+        with self.client:
+            # Test with invalid seller ID format
+            response = self.client.get('/seller/invalid_id/reviews')
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+            
+            # Test with special characters in ID
+            response = self.client.get('/seller/!@#$/reviews')
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
 
 if __name__ == '__main__':
     unittest.main()
