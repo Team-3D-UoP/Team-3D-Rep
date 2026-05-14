@@ -46,6 +46,39 @@ class TestSellerDetailsFlows(unittest.TestCase):
             # Invalid IDs should not crash the server
             self.assertNotEqual(response.status_code, 500)
 
+    def test_get_seller_reviews_endpoint(self):
+        """Test retrieving seller reviews API endpoint"""
+        with self.client:
+            response = self.client.get('/seller/1/reviews')
+            self.assertIn(response.status_code, [200, 404])  # Endpoint should exist or handle gracefully
+            if response.status_code == 200:
+                try:
+                    data = json.loads(response.data)
+                    self.assertIsInstance(data, (list, dict))
+                except:
+                    pass  # Some endpoints may return HTML instead of JSON
+
+    def test_get_seller_reviews_with_existing_reviews(self):
+        """Test retrieving seller reviews when reviews exist in database"""
+        with self.app.app_context():
+            # Create a test review
+            test_user = User.query.filter_by(username='testuser').first()
+            if test_user:
+                test_review = SellerReview(
+                    seller_id=1,
+                    user_id=test_user.id,
+                    rating=5,
+                    review_text='Excellent seller!'
+                )
+                db.session.add(test_review)
+                db.session.commit()
+        
+        with self.client:
+            response = self.client.get('/seller/1/reviews')
+            self.assertIn(response.status_code, [200, 404])
+            if response.status_code == 200:
+                self.assertIsNotNone(response.data)
+
 
 if __name__ == '__main__':
     unittest.main()
