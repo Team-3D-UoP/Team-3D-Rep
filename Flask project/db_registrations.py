@@ -4,10 +4,10 @@ from pathlib import Path
 from flask import session
 from datetime import datetime
 
-db_path = os.path.join(os.path.dirname(__file__), '../database.db')
+db_reg_path = os.path.join(os.path.dirname(__file__), 'database.db')
 
 def select_user_id(email, username):
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_reg_path)
     cursor = conn.cursor()
 
     cursor.execute(
@@ -22,7 +22,7 @@ def select_user_id(email, username):
 
 def insert_new_user(email, username):
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_reg_path)
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -48,7 +48,7 @@ def insert_new_user(email, username):
 
 def insert_registered_part(user_id, brand, year, part_name, price, description, image):
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_reg_path)
         cursor = conn.cursor()
         
         # Insert the part into RegisteredParts table
@@ -93,7 +93,7 @@ def insert_registered_part(user_id, brand, year, part_name, price, description, 
 
 def insert_registered_car(make, model, year, license, engine, wheels, user_id):    
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_reg_path)
         cursor = conn.cursor()
         
         # Insert the car into RegisteredCars table
