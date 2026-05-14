@@ -134,6 +134,167 @@ class TestCompatibilityCheckingFlows(unittest.TestCase):
             # Should handle gracefully
             self.assertNotEqual(response.status_code, 500)
 
+    # ===== Authentication & Authorization Tests =====
+
+    def test_compatibility_check_without_authentication(self):
+        """Test compatibility check without user authentication"""
+        with self.client:
+            # Make request without any session/auth
+            response = self.client.post('/compatibility/check', json={
+                'vehicle_id': 1,
+                'part_id': 1
+            })
+            # Should either allow access or redirect/return auth error
+            # Common responses: 401 (unauthorized), 302 (redirect to login), 200 (public endpoint)
+            self.assertIn(response.status_code, [200, 301, 302, 401, 403])
+
+    def test_compatibility_check_with_valid_authentication(self):
+        """Test compatibility check with valid user authentication"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            # Set valid session
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            response = self.client.post('/compatibility/check', json={
+                'vehicle_id': 1,
+                'part_id': 1
+            })
+            # Should not return auth errors
+            self.assertNotIn(response.status_code, [401, 403])
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_compatibility_check_with_invalid_user_id(self):
+        """Test compatibility check with invalid user ID in session"""
+        with self.client:
+            # Set invalid user ID in session
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = 999999
+            
+            response = self.client.post('/compatibility/check', json={
+                'vehicle_id': 1,
+                'part_id': 1
+            })
+            # Should handle gracefully - either reject auth or continue
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_get_compatible_parts_without_authentication(self):
+        """Test retrieving compatible parts without user authentication"""
+        with self.client:
+            response = self.client.get('/vehicle/1/compatible-parts')
+            # Should either allow access or redirect/return auth error
+            self.assertIn(response.status_code, [200, 301, 302, 401, 403, 404])
+
+    def test_get_compatible_parts_with_valid_authentication(self):
+        """Test retrieving compatible parts with valid user authentication"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            # Set valid session
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            response = self.client.get('/vehicle/1/compatible-parts')
+            # Should not return auth errors
+            self.assertNotIn(response.status_code, [401, 403])
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_get_compatible_parts_with_invalid_user_id(self):
+        """Test retrieving compatible parts with invalid user ID in session"""
+        with self.client:
+            # Set invalid user ID in session
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = 999999
+            
+            response = self.client.get('/vehicle/1/compatible-parts')
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_compatibility_check_session_empty(self):
+        """Test compatibility check with empty session data"""
+        with self.client:
+            # Explicitly set empty session
+            with self.client.session_transaction() as sess:
+                pass  # Session remains empty
+            
+            response = self.client.post('/compatibility/check', json={
+                'vehicle_id': 1,
+                'part_id': 1
+            })
+            # Should handle gracefully
+            self.assertNotEqual(response.status_code, 500)
+
+    def test_compatibility_check_with_different_users(self):
+        """Test that different users' sessions are handled separately"""
+        with self.app.app_context():
+            # Create a second test user
+            test_user = User.query.filter_by(username='testuser').first()
+            user1_id = test_user.id if test_user else 1
+            
+            user2 = User(
+                firebase_uid='test_firebase_uid_2',
+                username='testuser2',
+                email='test2@example.com',
+                fullname='Test User 2'
+            )
+            db.session.add(user2)
+            db.session.commit()
+            user2_id = user2.id
+        
+        # First user's request
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user1_id
+            
+            response1 = self.client.post('/compatibility/check', json={
+                'vehicle_id': 1,
+                'part_id': 1
+            })
+            self.assertNotEqual(response1.status_code, 500)
+        
+        # Second user's request
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user2_id
+            
+            response2 = self.client.post('/compatibility/check', json={
+                'vehicle_id': 1,
+                'part_id': 1
+            })
+            self.assertNotEqual(response2.status_code, 500)
+
+    def test_compatibility_check_session_persistence(self):
+        """Test that session persists across multiple requests"""
+        with self.app.app_context():
+            test_user = User.query.filter_by(username='testuser').first()
+            user_id = test_user.id if test_user else 1
+        
+        with self.client:
+            # Set session once
+            with self.client.session_transaction() as sess:
+                sess['user_id'] = user_id
+            
+            # First request
+            response1 = self.client.post('/compatibility/check', json={
+                'vehicle_id': 1,
+                'part_id': 1
+            })
+            
+            # Second request - session should persist
+            response2 = self.client.post('/compatibility/check', json={
+                'vehicle_id': 2,
+                'part_id': 2
+            })
+            
+            # Both should succeed without auth errors
+            self.assertNotIn(response1.status_code, [401, 403])
+            self.assertNotIn(response2.status_code, [401, 403])
+
 
 if __name__ == '__main__':
     unittest.main()
