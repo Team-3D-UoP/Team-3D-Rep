@@ -1,8 +1,3 @@
-"""
-Automated tests for Cart flows
-This file will cover shopping cart API behavior
-"""
-
 import unittest
 import sys
 import os
