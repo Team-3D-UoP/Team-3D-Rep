@@ -1,9 +1,3 @@
-"""
-Automated tests for Filtering & Sorting flows
-This file covers search filtering, brand filtering, and sorting behavior
-from the test plan.
-"""
-
 import unittest
 import sys
 import os

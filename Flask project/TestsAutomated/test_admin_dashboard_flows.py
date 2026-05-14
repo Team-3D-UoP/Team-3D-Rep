@@ -1,9 +1,3 @@
-"""
-Automated tests for Admin Dashboard flows
-This file will cover admin login plus admin dashboard API behavior
-from the test plan.
-"""
-
 import unittest
 import sys
 import os
