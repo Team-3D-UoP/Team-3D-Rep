@@ -1,8 +1,3 @@
-"""
-Automated tests for Orders/Checkout flows
-This file will cover order placement and checkout API behavior
-"""
-
 import unittest
 import sys
 import os

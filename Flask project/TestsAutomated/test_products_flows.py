@@ -1,8 +1,3 @@
-"""
-Automated tests for Product flows
-This file will cover product detail page API behavior
-"""
-
 import unittest
 import sys
 import os
